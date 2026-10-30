@@ -1,0 +1,126 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NPM_CONFIG_AUDIT: "false"
+  NPM_CONFIG_FUND: "false"
+
+jobs:
+  check:
+    name: Typecheck, test, build admin
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build admin
+        run: npm run build:admin
+
+  android:
+    name: Android debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: check
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Write mobile config
+        run: npm run configure --workspace haiku-mobile
+
+      # Debug builds from this project do not embed the JS bundle on their own,
+      # which gives "Unable to load script" on a phone with no Metro running.
+      - name: Bundle JS into the APK
+        working-directory: apps/mobile
+        run: |
+          mkdir -p android/app/src/main/assets android/app/src/main/res
+          npx react-native bundle \
+            --platform android \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output android/app/src/main/assets/index.android.bundle \
+            --assets-dest android/app/src/main/res
+          ls -la android/app/src/main/assets
+
+      - name: Make gradlew executable
+        run: chmod +x apps/mobile/android/gradlew
+
+      - name: Build debug APK
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleDebug
+
+      - name: APK diagnostics
+        run: |
+          APK=apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          echo "== size / sha256 =="
+          ls -l "$APK"
+          sha256sum "$APK"
+          echo "== key entries =="
+          unzip -l "$APK" | grep -E "AndroidManifest|classes[0-9]*\.dex|index.android.bundle|lib/arm64-v8a/libhermes|resources.arsc" || true
+          echo "== manifest =="
+          "$BT/aapt2" dump badging "$APK" | grep -E "^package|sdkVersion|targetSdkVersion|native-code|launchable" || true
+          echo "== signature =="
+          "$BT/apksigner" verify --verbose "$APK" || true
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: haiku-debug-apk
+          path: apps/mobile/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      # Direct-download APK (no zip) at the repo's Releases page.
+      - name: Publish APK as a release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          APK=apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          SUM=$(sha256sum "$APK" | cut -d' ' -f1)
+          gh release delete debug-latest --cleanup-tag --yes || true
+          gh release create debug-latest "$APK" \
+            --prerelease \
+            --target "$GITHUB_SHA" \
+            --title "Debug APK (latest)" \
+            --notes "Built from $GITHUB_SHA. sha256: $SUM"
