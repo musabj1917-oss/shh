@@ -1,0 +1,15 @@
+export const colors = {
+  ink: '#182A27',
+  body: '#42534F',
+  muted: '#85938F',
+  mint: '#2E8B72',
+  mintDark: '#236E5B',
+  mintPale: '#E7F5EF',
+  mintWash: '#F2FAF6',
+  canvas: '#F7F9F7',
+  white: '#FFFFFF',
+  line: '#E7ECE8',
+  amber: '#D89543',
+  red: '#C85D59',
+  blue: '#6986A8',
+};

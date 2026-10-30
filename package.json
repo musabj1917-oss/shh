@@ -1,0 +1,23 @@
+{
+  "name": "haiku-messenger",
+  "version": "0.1.0",
+  "private": true,
+  "engines": { "node": ">=22.13.0" },
+  "packageManager": "npm@10.8.2",
+  "workspaces": ["packages/*", "apps/api", "apps/admin", "apps/mobile"],
+  "scripts": {
+    "dev:api": "npm run dev --workspace @haiku/api",
+    "dev:admin": "npm run dev --workspace @haiku/admin",
+    "dev:mobile": "npm run start --workspace haiku-mobile",
+    "typecheck": "npm run typecheck --workspace @haiku/contracts && npm run typecheck --workspace @haiku/api && npm run typecheck --workspace @haiku/admin && npm run typecheck --workspace haiku-mobile",
+    "test": "npm run test --workspace @haiku/api",
+    "build:admin": "npm run build --workspace @haiku/admin",
+    "android:debug": "npm run android:debug --workspace haiku-mobile",
+    "migrate": "node scripts/migrate.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3"
+  }
+}
