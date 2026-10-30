@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Haiku Messenger — Owner Admin Dashboard</title>
+  <style>
+    :root {
+      --mint: #BFF7E8;
+      --teal: #0E7C86;
+      --teal-dark: #0B5A63;
+      --bg: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --ink: #0F172A;
+      --muted: #64748B;
+      --border: #E2E8F0;
+      --danger: #E11D48;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--ink);
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: var(--teal-dark);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 { margin: 0; font-size: 1.5rem; }
+    .container { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+    .auth-box, .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    input, button {
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 1rem;
+    }
+    button {
+      background-color: var(--teal);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover { background-color: var(--teal-dark); }
+    button.danger { background-color: var(--danger); }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { text-align: left; padding: 0.75rem; border-bottom: 1px solid var(--border); }
+    th { background-color: #F1F5F9; color: var(--teal-dark); font-weight: 700; }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .badge.active { background-color: #D1FAE5; color: #065F46; }
+    .badge.suspended { background-color: #FEE2E2; color: #991B1B; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    .stat-val { font-size: 2rem; font-weight: 800; color: var(--teal-dark); margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Haiku Messenger Admin</h1>
+    <div id="userInfo">Owner Restricted</div>
+  </header>
+
+  <div class="container">
+    <!-- Admin Login Form -->
+    <div id="loginSection" class="auth-box">
+      <h2>Owner Authentication</h2>
+      <p style="color: var(--muted);">Server-side authorization verifies owner privileges on every request.</p>
+      <input type="email" id="adminEmail" placeholder="Owner Email" style="width: 250px;">
+      <input type="password" id="adminPassword" placeholder="Password" style="width: 250px;">
+      <button onclick="loginAdmin()">Sign In to Dashboard</button>
+      <div id="authError" style="color: var(--danger); margin-top: 0.5rem;"></div>
+    </div>
+
+    <!-- Protected Dashboard Area -->
+    <div id="dashboardSection" style="display: none;">
+      <!-- System Metrics -->
+      <div class="card">
+        <h3>Operational & Storage Usage</h3>
+        <div class="grid">
+          <div><div style="color: var(--muted);">Total Active Users</div><div id="statUsers" class="stat-val">-</div></div>
+          <div><div style="color: var(--muted);">Active Messages</div><div id="statMessages" class="stat-val">-</div></div>
+          <div><div style="color: var(--muted);">Media Assets</div><div id="statMedia" class="stat-val">-</div></div>
+          <div><div style="color: var(--muted);">Open Reports</div><div id="statReports" class="stat-val">-</div></div>
+        </div>
+      </div>
+
+      <!-- User Management -->
+      <div class="card">
+        <h3>User Profiles & Account Status</h3>
+        <table id="usersTable">
+          <thead>
+            <tr><th>Email</th><th>Username</th><th>Created</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- Active Message Reviewer -->
+      <div class="card">
+        <h3>Active Messages Review</h3>
+        <p style="color: var(--muted); font-size: 0.9rem;">Shows active unexpired server messages. Expired messages & 10-min media are automatically purged.</p>
+        <table id="messagesTable">
+          <thead>
+            <tr><th>Sender</th><th>Type</th><th>Body</th><th>Created</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- Reports Queue -->
+      <div class="card">
+        <h3>User Reports Queue</h3>
+        <table id="reportsTable">
+          <thead>
+            <tr><th>Reporter</th><th>Reason</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let authToken = localStorage.getItem('haiku_admin_token');
+
+    async function apiFetch(endpoint, options = {}) {
+      options.headers = options.headers || {};
+      if (authToken) options.headers['Authorization'] = `Bearer ${authToken}`;
+      options.headers['Content-Type'] = 'application/json';
+      const res = await fetch(endpoint, options);
+      return res.json();
+    }
+
+    async function loginAdmin() {
+      const email = document.getElementById('adminEmail').value;
+      const password = document.getElementById('adminPassword').value;
+      const data = await apiFetch('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password })
+      });
+
+      if (data.token) {
+        authToken = data.token;
+        localStorage.setItem('haiku_admin_token', authToken);
+        loadDashboard();
+      } else {
+        document.getElementById('authError').innerText = data.error || 'Authentication failed.';
+      }
+    }
+
+    async function loadDashboard() {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('dashboardSection').style.display = 'block';
+
+      // Load Metrics
+      const metrics = await apiFetch('/api/admin/metrics');
+      if (metrics.metrics) {
+        document.getElementById('statUsers').innerText = metrics.metrics.usersCount;
+        document.getElementById('statMessages').innerText = metrics.metrics.activeMessagesCount;
+        document.getElementById('statMedia').innerText = metrics.metrics.mediaAssetsCount;
+        document.getElementById('statReports').innerText = metrics.metrics.pendingReportsCount;
+      }
+
+      // Load Users
+      const usersData = await apiFetch('/api/admin/users');
+      const usersTbody = document.querySelector('#usersTable tbody');
+      usersTbody.innerHTML = '';
+      if (usersData.users) {
+        usersData.users.forEach(u => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${u.email}</td>
+            <td>@${u.username || 'unassigned'}</td>
+            <td>${new Date(u.created_at).toLocaleDateString()}</td>
+            <td><span class="badge ${u.is_active ? 'active' : 'suspended'}">${u.is_active ? 'Active' : 'Suspended'}</span></td>
+            <td>
+              <button onclick="toggleUserStatus('${u.id}', ${!u.is_active})">
+                ${u.is_active ? 'Suspend' : 'Restore'}
+              </button>
+            </td>
+          `;
+          usersTbody.appendChild(row);
+        });
+      }
+
+      // Load Messages
+      const msgsData = await apiFetch('/api/admin/messages');
+      const msgsTbody = document.querySelector('#messagesTable tbody');
+      msgsTbody.innerHTML = '';
+      if (msgsData.messages) {
+        msgsData.messages.forEach(m => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${m.sender_email}</td>
+            <td>${m.kind}</td>
+            <td>${m.body || '(Media Asset)'}</td>
+            <td>${new Date(m.created_at).toLocaleTimeString()}</td>
+          `;
+          msgsTbody.appendChild(row);
+        });
+      }
+
+      // Load Reports
+      const reportsData = await apiFetch('/api/admin/reports');
+      const reportsTbody = document.querySelector('#reportsTable tbody');
+      reportsTbody.innerHTML = '';
+      if (reportsData.reports) {
+        reportsData.reports.forEach(r => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${r.reporter_email}</td>
+            <td>${r.reason}</td>
+            <td>${r.status}</td>
+            <td>
+              ${r.status === 'open' ? `<button onclick="resolveReport('${r.id}', 'resolved')">Resolve</button>` : 'Reviewed'}
+            </td>
+          `;
+          reportsTbody.appendChild(row);
+        });
+      }
+    }
+
+    async function toggleUserStatus(targetUserId, isActive) {
+      await apiFetch('/api/admin/users/status', {
+        method: 'POST',
+        body: JSON.stringify({ targetUserId, isActive })
+      });
+      loadDashboard();
+    }
+
+    async function resolveReport(reportId, status) {
+      await apiFetch('/api/admin/reports/resolve', {
+        method: 'POST',
+        body: JSON.stringify({ reportId, status, notes: 'Resolved via owner admin dashboard' })
+      });
+      loadDashboard();
+    }
+
+    if (authToken) {
+      loadDashboard();
+    }
+  </script>
+</body>
+</html>

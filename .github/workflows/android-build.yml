@@ -1,0 +1,136 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - 'feat/**'
+    paths:
+      - 'apps/mobile/**'
+      - 'packages/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/android-build.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'apps/mobile/**'
+      - 'packages/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/android-build.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run typecheck
+        run: npm run typecheck
+
+      - name: Build API TypeScript
+        run: npm run build --workspace @haiiku/api
+
+      - name: Run unit tests
+        run: npm run test
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK packages
+        shell: bash
+        run: |
+          set -euxo pipefail
+
+          SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            echo "sdkmanager not found at $SDKMANAGER"
+            ls -la "$ANDROID_SDK_ROOT" || true
+            exit 1
+          fi
+
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" \
+            "cmdline-tools;latest" \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0" \
+            "cmake;3.22.1" \
+            "ndk;26.1.10909125"
+
+      - name: Write local.properties
+        run: printf 'sdk.dir=%s\n' "$ANDROID_SDK_ROOT" > apps/mobile/android/local.properties
+
+      - name: Validate React Native app config
+        working-directory: apps/mobile
+        env:
+          PROJECT_ROOT: ${{ github.workspace }}/apps/mobile
+        run: |
+          set -euxo pipefail
+          test -f package.json
+          test -f index.js
+          test -f babel.config.js
+          test -f metro.config.js
+          test -f react-native.config.js
+          node ../../node_modules/react-native/cli.js config > "$RUNNER_TEMP/react-native-config.json"
+          node - "$RUNNER_TEMP/react-native-config.json" <<'NODE'
+          const fs = require('fs');
+          const configPath = process.argv[2];
+          const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+          const android = config.project && config.project.android;
+          if (!android || android.packageName !== 'com.haikumessenger') {
+            console.error('React Native config is missing project.android.packageName.');
+            console.error(JSON.stringify(android ?? null, null, 2));
+            process.exit(1);
+          }
+          console.log('React Native Android package:', android.packageName);
+          console.log('React Native Android source:', android.sourceDir);
+          NODE
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Make gradlew executable
+        run: chmod +x apps/mobile/android/gradlew
+
+      - name: Build debug APK
+        working-directory: apps/mobile/android
+        env:
+          PROJECT_ROOT: ${{ github.workspace }}/apps/mobile
+        run: |
+          set -euxo pipefail
+          export PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)/..}"
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Verify APK exists
+        run: |
+          test -f apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          ls -lh apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: haiiku-debug-apk
+          path: apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
