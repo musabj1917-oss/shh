@@ -50,6 +50,10 @@ react {
 
     /* Autolinking */
     debuggableVariants = []
+
+    // npm workspaces hoist hermes-compiler to the monorepo root, so the plugin
+    // cannot find hermesc on its own. Point it there explicitly.
+    hermesCommand = file("../../../../node_modules/hermes-compiler/hermesc/%OS-BIN%/hermesc").absolutePath
     autolinkLibrariesWithApp()
 }
 
