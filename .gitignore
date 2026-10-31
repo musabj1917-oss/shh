@@ -19,5 +19,7 @@ apps/api/.vercel/
 apps/admin/.vercel/
 apps/mobile/.env
 apps/mobile/android/local.properties
-apps/mobile/android/app/google-services.json
 apps/mobile/ios/GoogleService-Info.plist
+apps/mobile/android/app/google-services.json
+*.tsbuildinfo
+*.zip
