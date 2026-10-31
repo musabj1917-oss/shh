@@ -6,7 +6,7 @@
 
 ---
 
-## 0. Parity pass — what changed (2026-10-31, uncommitted)
+## 0. Parity pass — what changed (2026-10-31)
 
 | Gap | Action |
 | --- | --- |
