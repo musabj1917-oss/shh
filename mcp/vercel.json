@@ -1,0 +1,14 @@
+{
+  "functions": {
+    "mcp/index.ts": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/mcp",
+      "destination": "/mcp/index.ts"
+    }
+  ],
+  "installCommand": "npm ci --prefix=../.."
+}
