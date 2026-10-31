@@ -67,6 +67,8 @@ jobs:
 
       - name: Write mobile config
         run: npm run configure --workspace haiku-mobile
+        env:
+          HAIKU_API_BASE_URL: ${{ vars.HAIKU_API_BASE_URL || 'https://shh-jet-five.vercel.app/v1' }}
 
       - name: Make gradlew executable
         run: chmod +x apps/mobile/android/gradlew
