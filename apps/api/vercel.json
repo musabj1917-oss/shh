@@ -1,8 +1,20 @@
 {
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.ts"
+    }
+  ],
   "functions": {
-    "index.ts": { "maxDuration": 30 }
+    "index.ts": {
+      "maxDuration": 30
+    }
   },
   "crons": [
-    { "path": "/v1/internal/cleanup", "schedule": "0 3 * * *" }
-  ]
+    {
+      "path": "/v1/internal/cleanup",
+      "schedule": "0 3 * * *"
+    }
+  ],
+  "installCommand": "cd ../.. && npm install"
 }

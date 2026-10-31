@@ -13,7 +13,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "3.1156.0",
     "@aws-sdk/s3-request-presigner": "3.1156.0",
-    "@haiku/contracts": "0.1.0",
+    "@haiku/contracts": "file:../../packages/contracts",
     "@neondatabase/serverless": "1.2.0",
     "ably": "2.30.0",
     "google-auth-library": "11.3.1",
