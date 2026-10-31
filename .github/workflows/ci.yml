@@ -35,6 +35,9 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Lint mobile
+        run: npm run lint:mobile
+
       - name: Test
         run: npm test
 

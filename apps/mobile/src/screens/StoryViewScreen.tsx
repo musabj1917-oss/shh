@@ -6,7 +6,6 @@ import {api,messageForError} from '../api/client';
 import {useAuth} from '../auth/AuthContext';
 import type {RootStackParamList} from '../navigation/types';
 import {Button,LoadingState,Notice} from '../components/UI';
-import {colors} from '../theme/colors';
 
 type Props=NativeStackScreenProps<RootStackParamList,'StoryView'>;
 type Story={id:string;user_id:string;media_type:'image'|'video';caption:string|null;expires_at:string;attachment_id:string;display_name:string;username:string};

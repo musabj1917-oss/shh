@@ -54,12 +54,15 @@ Configure these variables in your Vercel Project under **Settings > Environment 
 | `SMTP_FROM` | Optional | Sender address (e.g. `Haiku Messenger <no-reply@haiku.app>`). |
 | `GOOGLE_CLIENT_ID` | Optional | Google OAuth client ID for Google sign-in. |
 | `ABLY_API_KEY` | Optional | Ably API key for realtime push events and presence. |
-| `MEDIA_STORAGE` | Optional | Storage backend: set to `s3` in production. Note: `local` storage is disallowed in production/Vercel serverless runtime. |
-| `MEDIA_BUCKET` | Required if s3 | S3 bucket name for private uploads/media. |
-| `AWS_REGION` | Required if s3 | AWS region for the S3 bucket. |
-| `AWS_ENDPOINT_URL_S3` | Optional | Custom S3 endpoint if using Cloudflare R2, MinIO, or alternative S3-compatible providers. |
+| `MEDIA_STORAGE` | Optional | Storage backend. Valid values are `local` (development only; disallowed on Vercel/production) and `neon-s3` (S3-compatible object storage). Set `neon-s3` in production. |
+| `MEDIA_BUCKET` | Required with `neon-s3` | S3 bucket name for private uploads/media. |
+| `AWS_REGION` | Required with `neon-s3` | Region for the S3-compatible bucket. |
+| `AWS_ENDPOINT_URL_S3` | Required with `neon-s3` | S3-compatible endpoint, for example Neon Object Storage. |
 | `AWS_ACCESS_KEY_ID` | Required if s3 | IAM Access Key ID for media storage. |
 | `AWS_SECRET_ACCESS_KEY` | Required if s3 | IAM Secret Access Key for media storage. |
+| `MOBILE_INVITE_BASE_URL` | Optional | Base URL used to build shareable group invitation links (default: `haikumessenger://join/`). Set an HTTPS universal-link base if one is configured for the mobile app. |
+| `OWNER_EMAIL` | Required for owner bootstrap | Email of an existing active, verified account that will receive the one-time `owner` role via `apps/api/scripts/bootstrap-owner.ts`. |
+| `ADMIN_BOOTSTRAP_CONFIRM` | Required for owner bootstrap | Must equal `grant-haiku-owner` when running the bootstrap script. Never set this in production runtime variables. |
 | `ACCOUNT_DELETION_GRACE_DAYS` | Optional | Grace period in days before account deletion is finalized (default: `30`). |
 | `REPORT_RETENTION_DAYS` | Optional | Retention window in days for abuse reports (default: `365`). |
 

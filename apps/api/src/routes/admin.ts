@@ -7,6 +7,7 @@ import { requireUser } from '../middleware/auth.js';
 import { hasAdminPermission, requireAdmin } from '../middleware/admin.js';
 import { auditAdmin } from '../services/audit.js';
 import { getStorage } from '../services/storage.js';
+import { publishMessageCreated } from '../services/realtime.js';
 import type { ApiEnv } from '../types.js';
 
 export const adminRoutes = new Hono<ApiEnv>();
@@ -153,6 +154,28 @@ adminRoutes.patch('/reports/:reportId',async(c)=>{
   if(!rows.length)return jsonError(c,404,'REPORT_NOT_OPEN','Report not found or already closed.');
   await auditAdmin(actor.id,'report.update','report',c.req.param('reportId'),parsed.data.notes, {status:parsed.data.status});
   return c.json({report:rows[0]});
+});
+
+adminRoutes.post('/messages/:messageId/remove',async(c)=>{
+  if(!check(c,'messages.moderate'))return jsonError(c,403,'PERMISSION_DENIED','You do not have permission to remove messages.');
+  const actor=c.get('user');
+  const parsed=await parseJson(c,z.object({reason:z.string().trim().min(5).max(500)}).strict());if('response' in parsed)return parsed.response;
+  // Tombstone instead of retention: the body, attachment reference, and any
+  // preview become unavailable everywhere, and the audit trail records why.
+  const rows=await getDb()`WITH target AS (
+      SELECT id,conversation_id,attachment_id FROM messages
+      WHERE id=${c.req.param('messageId')} AND deleted_at IS NULL LIMIT 1
+    ), removed AS (
+      UPDATE messages m SET body=NULL,attachment_id=NULL,deleted_at=now(),deletion_kind='moderator'
+      FROM target WHERE m.id=target.id
+      RETURNING m.id,m.conversation_id,target.attachment_id
+    ) SELECT id,conversation_id,attachment_id FROM removed`;
+  if(!rows.length)return jsonError(c,404,'MESSAGE_NOT_FOUND','Active message not found. Expired or deleted content cannot be removed again.');
+  const item=rows[0] as {id:string;conversation_id:string;attachment_id:string|null};
+  if(item.attachment_id)await getDb()`UPDATE attachments SET expires_at=now() WHERE id=${item.attachment_id}`;
+  await auditAdmin(actor.id,'message.remove','message',item.id,parsed.data.reason,{conversationId:item.conversation_id});
+  try{await publishMessageCreated(item.conversation_id,item.id);}catch{ /* clients can refresh */ }
+  return c.json({status:'removed',messageId:item.id});
 });
 
 adminRoutes.get('/groups',async(c)=>{

@@ -7,6 +7,7 @@ export type RootStackParamList={
   PublicProfile:{userId:string};
   Chat:{conversationId:string;title:string;kind:'direct'|'group'};
   Groups:undefined;
+  JoinGroup:{token:string};
   GroupDetail:{groupId:string;name:string;role:string};
   StoryView:{storyId:string;title:string;mediaType:'image'|'video'};
   PasswordReset:{token:string};
