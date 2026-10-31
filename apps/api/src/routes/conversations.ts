@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { sendMessageSchema } from '@haiku/contracts';
+import { sendMessageSchema } from '../contracts.js';
 import { getDb } from '../db.js';
 import { jsonError, parseJson } from '../http.js';
 import { requireUser } from '../middleware/auth.js';

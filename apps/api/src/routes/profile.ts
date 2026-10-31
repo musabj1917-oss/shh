@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { profilePatchSchema, usernameSchema } from '@haiku/contracts';
+import { profilePatchSchema, usernameSchema } from '../contracts.js';
 import { getDb } from '../db.js';
 import { jsonError, parseJson } from '../http.js';
 import { requireUser } from '../middleware/auth.js';
@@ -53,7 +53,7 @@ profileRoutes.patch('/me',async(c)=>{
 
 profileRoutes.get('/username-available',async(c)=>{
   const parsed=usernameSchema.safeParse(c.req.query('username')||'');
-  if(!parsed.success)return jsonError(c,422,'USERNAME_INVALID','Use 3–24 lowercase letters, numbers, or underscores.');
+  if(!parsed.success)return jsonError(c,422,'USERNAME_INVALID','Use 3â24 lowercase letters, numbers, or underscores.');
   const user=c.get('user');
   const rows=await getDb()`SELECT 1 FROM user_profiles WHERE username=${parsed.data} AND user_id<>${user.id} LIMIT 1`;
   return c.json({username:parsed.data,available:rows.length===0});

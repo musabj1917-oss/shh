@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Hono } from 'hono';
 import { OAuth2Client } from 'google-auth-library';
 import { z } from 'zod';
-import { emailSchema, googleRegisterSchema, loginSchema, meetsMinimumAge, passwordSchema, registerSchema } from '@haiku/contracts';
+import { emailSchema, googleRegisterSchema, loginSchema, meetsMinimumAge, passwordSchema, registerSchema } from '../contracts.js';
 import { getDb } from '../db.js';
 import { errorCode, jsonError, parseJson } from '../http.js';
 import { createOpaqueToken, hashPassword, sha256, verifyPassword } from '../security.js';
