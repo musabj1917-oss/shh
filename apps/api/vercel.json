@@ -10,5 +10,5 @@
       "schedule": "0 3 * * *"
     }
   ],
-  "installCommand": "cd ../.. && npm install"
+  "installCommand": "npm ci --prefix=../.."
 }
