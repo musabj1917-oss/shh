@@ -3,6 +3,7 @@ import {Alert,FlatList,Modal,Pressable,Text,View} from 'react-native';
 import {useFocusEffect,useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {api,messageForError} from '../api/client';
+import {inviteTokenFromUrl} from '../invites';
 import type {RootStackParamList} from '../navigation/types';
 import {Avatar,Button,EmptyState,Field,LoadingState,Notice,Surface} from '../components/UI';
 import {colors} from '../theme/colors';
@@ -15,7 +16,7 @@ export function GroupsScreen(){
  const load=useCallback(async()=>{setError('');try{const [g,f]=await Promise.all([api<{groups:Group[]}>('/groups'),api<{friends:Friend[]}>('/friends')]);setGroups(g.groups||[]);setFriends(f.friends||[]);}catch(e){setError(messageForError(e));}finally{setLoading(false);}},[]);
  useFocusEffect(useCallback(()=>{load();},[load]));
  const create=async()=>{if(!name.trim()){setError('Add a group name.');return;}setBusy(true);setError('');try{await api('/groups',{method:'POST',body:JSON.stringify({name:name.trim(),memberIds:selected})});setModal(false);setName('');setSelected([]);await load();}catch(e){setError(messageForError(e));}finally{setBusy(false);}};
- const join=async()=>{const token=joinToken.trim();if(!token){setError('Enter an invitation token.');return;}setJoining(true);setError('');try{const result=await api<{status:'joined'|'approval_required';groupId?:string;groupName?:string}>('/groups/join/'+encodeURIComponent(token),{method:'POST'});setJoinModal(false);setJoinToken('');if(result.status==='approval_required')Alert.alert('Request sent','A group admin will review your request.');else Alert.alert('You’re in','You joined the group.');await load();}catch(e){setError(messageForError(e));}finally{setJoining(false);}};
+ const join=async()=>{const raw=joinToken.trim();const token=inviteTokenFromUrl(raw)||raw;if(!token){setError('Enter an invitation link or token.');return;}setJoining(true);setError('');try{const result=await api<{status:'joined'|'approval_required';groupId?:string;groupName?:string}>('/groups/join/'+encodeURIComponent(token),{method:'POST'});setJoinModal(false);setJoinToken('');if(result.status==='approval_required')Alert.alert('Request sent','A group admin will review your request.');else Alert.alert('You’re in','You joined the group.');await load();}catch(e){setError(messageForError(e));}finally{setJoining(false);}};
  const toggle=(id:string)=>setSelected(prev=>prev.includes(id)?prev.filter(item=>item!==id):[...prev,id]);
  return <View style={{flex:1,backgroundColor:colors.canvas,padding:18,paddingTop:20}}>
   <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:16}}><View><Text style={{fontSize:10,fontWeight:'800',letterSpacing:1.4,color:colors.mint}}>TOGETHER</Text><Text style={{fontSize:27,fontWeight:'800',letterSpacing:-.8,color:colors.ink,marginTop:3}}>Your groups</Text></View><View style={{flexDirection:'row',gap:7}}><Button title="Join" kind="secondary" onPress={()=>{setJoinModal(true);setError('');}} small/><Button title="＋ New" onPress={()=>{setModal(true);setError('');}} small/></View></View>
@@ -28,8 +29,8 @@ export function GroupsScreen(){
    </Surface>}/>} 
   <Modal visible={joinModal} transparent animationType="fade" onRequestClose={()=>setJoinModal(false)}>
    <View style={{flex:1,backgroundColor:'rgba(16,35,29,.42)',justifyContent:'center',padding:18}}><View style={{backgroundColor:'#fff',borderRadius:22,padding:18}}>
-    <Text style={{fontSize:20,fontWeight:'800',color:colors.ink}}>Join a group</Text><Text style={{fontSize:11,color:colors.muted,marginTop:5,marginBottom:14}}>Paste the invitation token shared by a group member.</Text>
-    {error?<Notice tone="error">{error}</Notice>:null}<Field label="Invitation token" value={joinToken} onChangeText={setJoinToken} autoCapitalize="none" autoCorrect={false}/>
+    <Text style={{fontSize:20,fontWeight:'800',color:colors.ink}}>Join a group</Text><Text style={{fontSize:11,color:colors.muted,marginTop:5,marginBottom:14}}>Paste the invitation link or token shared by a group member.</Text>
+    {error?<Notice tone="error">{error}</Notice>:null}<Field label="Invitation link or token" value={joinToken} onChangeText={setJoinToken} autoCapitalize="none" autoCorrect={false}/>
     <View style={{flexDirection:'row',gap:8,marginTop:8}}><Button title="Cancel" kind="secondary" onPress={()=>setJoinModal(false)} style={{flex:1}}/><Button title="Continue" onPress={join} loading={joining} style={{flex:1}}/></View>
    </View></View>
   </Modal>

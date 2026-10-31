@@ -1,10 +1,10 @@
 import React,{useCallback,useState} from 'react';
-import {Alert,FlatList,Image,Pressable,ScrollView,Share,Switch,Text,View} from 'react-native';
+import {Alert,Pressable,ScrollView,Share,Switch,Text,View} from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {useFocusEffect} from '@react-navigation/native';
 import {api,messageForError} from '../api/client';
 import {useAuth} from '../auth/AuthContext';
-import {Avatar,Button,EmptyState,Field,LoadingState,Notice,RemoteAvatar,Surface} from '../components/UI';
+import {Avatar,Button,Field,LoadingState,Notice,RemoteAvatar,Surface} from '../components/UI';
 import {colors} from '../theme/colors';
 
 type Profile={email:string;username:string;display_name:string;bio:string|null;location:string|null;avatar_object_key:string|null;username_changed_at:string|null};
@@ -21,7 +21,7 @@ const settingRows:[keyof Settings,string,string][]=[['quietMode','Quiet mode','P
 export function ProfileScreen(){
  const {user,signOut,refresh}=useAuth();
  const [profile,setProfile]=useState<Profile|null>(null),[settings,setSettings]=useState(defaultSettings),[sessions,setSessions]=useState<Session[]>([]),[blocked,setBlocked]=useState<Blocked[]>([]),[reports,setReports]=useState<Report[]>([]),[deletion,setDeletion]=useState<Deletion|null>(null),[avatarUrl,setAvatarUrl]=useState('');
- const [displayName,setDisplayName]=useState(''),[username,setUsername]=useState(''),[bio,setBio]=useState(''),[location,setLocation]=useState(''),[currentPassword,setCurrentPassword]=useState(''),[newPassword,setNewPassword]=useState(''),[confirmPassword,setConfirmPassword]=useState(''),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[passwordBusy,setPasswordBusy]=useState(false),[uploading,setUploading]=useState(false),[error,setError]=useState(''),[success,setSuccess]=useState('');
+ const [displayName,setDisplayName]=useState(''),[username,setUsername]=useState(''),[bio,setBio]=useState(''),[location,setLocation]=useState(''),[currentPassword,setCurrentPassword]=useState(''),[newPassword,setNewPassword]=useState(''),[confirmPassword,setConfirmPassword]=useState(''),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[passwordBusy,setPasswordBusy]=useState(false),[,setUploading]=useState(false),[error,setError]=useState(''),[success,setSuccess]=useState('');
  const load=useCallback(async()=>{
   if(!user)return;setError('');
   try{

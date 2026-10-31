@@ -26,6 +26,7 @@ async function groupConversation(groupId:string) {
   return rows[0] as {id:string;conversation_id:string;name:string;owner_id:string}|undefined;
 }
 function isUuid(value:string) { return /^[0-9a-f-]{36}$/i.test(value); }
+function inviteUrl(token:string) { const base=(process.env.MOBILE_INVITE_BASE_URL||'haikumessenger://join/').trim().replace(/\/?$/,'/'); return `${base}${encodeURIComponent(token)}`; }
 
 // Group creation, group metadata, and membership are normalized in Neon.
 groupRoutes.get('/', async (c) => {
@@ -184,7 +185,7 @@ groupRoutes.post('/:groupId/invites',async(c)=>{
       FROM haiku_groups g WHERE g.id=${groupId} AND g.suspended_at IS NULL RETURNING id`;
     if(!rows.length)return jsonError(c,404,'GROUP_NOT_FOUND','Group not found or suspended.');
   }catch{return jsonError(c,503,'INVITE_CREATE_FAILED','The invitation link could not be created.');}
-  return c.json({invite:{id,token,expiresInHours:parsed.data.expiresInHours,maxUses:parsed.data.maxUses,approvalRequired:parsed.data.approvalRequired}},201);
+  return c.json({invite:{id,token,url:inviteUrl(token),expiresInHours:parsed.data.expiresInHours,maxUses:parsed.data.maxUses,approvalRequired:parsed.data.approvalRequired}},201);
 });
 
 groupRoutes.delete('/:groupId/invites/:inviteId',async(c)=>{

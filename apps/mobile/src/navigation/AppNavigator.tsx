@@ -1,6 +1,7 @@
-import React from 'react';
+import React,{useCallback,useEffect} from 'react';
 import {ActivityIndicator,Text,View} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer,useNavigationContainerRef} from '@react-navigation/native';
+import type {LinkingOptions} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import type {MainTabParamList,RootStackParamList} from './types';
@@ -17,12 +18,15 @@ import {FriendsScreen} from '../screens/FriendsScreen';
 import {ProfileScreen} from '../screens/ProfileScreen';
 import {NotificationsScreen} from '../screens/NotificationsScreen';
 import {PublicProfileScreen} from '../screens/PublicProfileScreen';
+import {JoinGroupScreen} from '../screens/JoinGroupScreen';
+import {takePendingInvite} from '../invites';
 import {colors} from '../theme/colors';
 import {BrandMark} from '../components/UI';
 
 const Stack=createNativeStackNavigator<RootStackParamList>();
 const Tabs=createBottomTabNavigator<MainTabParamList>();
 const tabGlyph:Record<keyof MainTabParamList,string>={Inbox:'◌',Stories:'◉',People:'♧',Profile:'○'};
+const linking:LinkingOptions<RootStackParamList>={prefixes:['haikumessenger://'],config:{screens:{JoinGroup:'join/:token'}}};
 
 function MainTabs(){
  return <Tabs.Navigator screenOptions={({route})=>({headerShown:false,tabBarActiveTintColor:colors.mint,tabBarInactiveTintColor:'#8A9691',tabBarStyle:{height:62,paddingTop:7,paddingBottom:7,backgroundColor:'#fff',borderTopColor:colors.line},tabBarLabelStyle:{fontSize:10,fontWeight:'700'},tabBarIcon:({color})=><Text style={{fontSize:20,color,lineHeight:22}}>{tabGlyph[route.name]}</Text>})}>
@@ -35,12 +39,16 @@ function MainTabs(){
 
 export function AppNavigator(){
  const {user,loading}=useAuth();
+ const navigationRef=useNavigationContainerRef<RootStackParamList>();
+ const openPendingInvite=useCallback(()=>{const token=takePendingInvite();if(token&&navigationRef.isReady())navigationRef.navigate('JoinGroup',{token});},[navigationRef]);
+ useEffect(()=>{if(user)openPendingInvite();},[user,openPendingInvite]);
  if(loading)return <View style={{flex:1,alignItems:'center',justifyContent:'center',gap:14,backgroundColor:colors.canvas}}><BrandMark size={48}/><ActivityIndicator color={colors.mint}/><Text style={{color:colors.muted,fontSize:12}}>Opening your space…</Text></View>;
- return <NavigationContainer><Stack.Navigator screenOptions={{headerTintColor:colors.ink,headerStyle:{backgroundColor:colors.canvas},headerTitleStyle:{fontWeight:'700',fontSize:16},contentStyle:{backgroundColor:colors.canvas},headerShadowVisible:false}}>
+ return <NavigationContainer ref={navigationRef} linking={linking} onReady={openPendingInvite}><Stack.Navigator screenOptions={{headerTintColor:colors.ink,headerStyle:{backgroundColor:colors.canvas},headerTitleStyle:{fontWeight:'700',fontSize:16},contentStyle:{backgroundColor:colors.canvas},headerShadowVisible:false}}>
   {user?<>
     <Stack.Screen name="Main" component={MainTabs} options={{headerShown:false}}/>
     <Stack.Screen name="Chat" component={ChatScreen} options={({route})=>({title:route.params.title,headerShown:false})}/>
     <Stack.Screen name="Groups" component={GroupsScreen} options={{title:'Your groups'}}/>
+    <Stack.Screen name="JoinGroup" component={JoinGroupScreen} options={{title:'Group invitation'}}/>
     <Stack.Screen name="Notifications" component={NotificationsScreen} options={{title:'Notifications'}}/>
     <Stack.Screen name="PublicProfile" component={PublicProfileScreen} options={{title:'Profile'}}/>
     <Stack.Screen name="GroupDetail" component={GroupDetailScreen} options={({route})=>({title:route.params.name})}/>
@@ -48,6 +56,7 @@ export function AppNavigator(){
   </>:<>
     <Stack.Screen name="Auth" component={AuthScreen} options={{headerShown:false}}/>
     <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{title:'Account recovery'}}/>
+    <Stack.Screen name="JoinGroup" component={JoinGroupScreen} options={{title:'Group invitation'}}/>
   </>}
  </Stack.Navigator></NavigationContainer>;
 }

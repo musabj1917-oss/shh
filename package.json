@@ -10,6 +10,7 @@
     "dev:admin": "npm run dev --workspace @haiku/admin",
     "dev:mobile": "npm run start --workspace haiku-mobile",
     "typecheck": "npm run typecheck --workspace @haiku/contracts && npm run typecheck --workspace @haiku/api && npm run typecheck --workspace @haiku/admin && npm run typecheck --workspace haiku-mobile",
+    "lint:mobile": "npm run lint --workspace haiku-mobile",
     "test": "npm run test --workspace @haiku/api",
     "build:admin": "npm run build --workspace @haiku/admin",
     "android:debug": "npm run android:debug --workspace haiku-mobile",

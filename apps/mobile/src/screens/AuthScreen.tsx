@@ -1,5 +1,5 @@
 import React,{useState} from 'react';
-import {KeyboardAvoidingView,Platform,Pressable,ScrollView,Text,View} from 'react-native';
+import {KeyboardAvoidingView,Platform,Pressable,Text,View} from 'react-native';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {registerSchema,loginSchema,meetsMinimumAge} from '@haiku/contracts';
 import type {RootStackParamList} from '../navigation/types';

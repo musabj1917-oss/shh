@@ -1,0 +1,7 @@
+# These files are tooling configuration, not application source. ESLint 8's
+# default parser cannot resolve their Babel context in this workspace.
+.eslintrc.js
+babel.config.js
+jest.config.js
+metro.config.js
+index.js

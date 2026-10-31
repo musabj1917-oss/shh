@@ -19,6 +19,13 @@ test('admin endpoints reject anonymous requests before database access',async()=
  assert.equal(body.error.code,'AUTH_REQUIRED');
 });
 
+test('moderator message removal requires an authenticated administrator session',async()=>{
+ const response=await app.request('/v1/admin/messages/00000000-0000-4000-8000-000000000001/remove',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({reason:'Policy violation'})});
+ assert.equal(response.status,401);
+ const body=await response.json() as {error:{code:string}};
+ assert.equal(body.error.code,'AUTH_REQUIRED');
+});
+
 test('group invite listing, creation, and redemption require an authenticated session',async()=>{
  const groupId='00000000-0000-4000-8000-000000000001';
  const listing=await app.request(`/v1/groups/${groupId}/invites`);

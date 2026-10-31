@@ -36,6 +36,9 @@ test('message, group, and report contracts reject empty or malformed requests',(
  assert.equal(sendMessageSchema.safeParse({text:'  hello  '}).success,true);
  assert.equal(sendMessageSchema.safeParse({text:'   '}).success,false);
  assert.equal(sendMessageSchema.safeParse({}).success,false);
+ assert.equal(sendMessageSchema.safeParse({text:'later',expiresInHours:24}).success,true);
+ assert.equal(sendMessageSchema.safeParse({text:'later',expiresInHours:2}).success,false);
+ assert.equal(sendMessageSchema.safeParse({text:'later',expiresInHours:null}).success,true);
  assert.equal(groupCreateSchema.safeParse({name:'Weekend plans',memberIds:[]}).success,true);
  assert.equal(reportSchema.safeParse({category:'harassment',targetUserId:'78d82d70-3329-4515-ae20-4bfef3f7c4f2'}).success,true);
  assert.equal(reportSchema.safeParse({category:'harassment'}).success,false);
