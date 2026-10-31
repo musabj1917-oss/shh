@@ -10,5 +10,5 @@
       "destination": "/mcp/index.ts"
     }
   ],
-  "installCommand": "npm ci --prefix=../.."
+  "installCommand": "npm install --prefix=../.."
 }
