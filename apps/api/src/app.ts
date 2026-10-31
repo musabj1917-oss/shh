@@ -37,7 +37,20 @@ app.use('/v1/*',async(c,next)=>{
 });
 
 app.get('/',(c)=>c.json({service:'haiku-api',version:'0.1.0',health:'/v1/health'}));
-app.get('/v1/health',(c)=>c.json({status:'ok',databaseConfigured:dbReady(),realtimeConfigured:Boolean(process.env.ABLY_API_KEY),googleSignInConfigured:Boolean(process.env.GOOGLE_CLIENT_ID),mediaStorage:process.env.MEDIA_STORAGE||'local'}));
+app.get('/v1/health',async(c)=>{
+  let databaseConnected = false;
+  if(dbReady()){
+    try{await getDb()`SELECT 1`;databaseConnected=true;}catch{databaseConnected=false;}
+  }
+  return c.json({
+    status:'ok',
+    databaseConfigured:dbReady(),
+    databaseConnected,
+    realtimeConfigured:Boolean(process.env.ABLY_API_KEY),
+    googleSignInConfigured:Boolean(process.env.GOOGLE_CLIENT_ID),
+    mediaStorage:process.env.MEDIA_STORAGE||'local'
+  });
+});
 app.get('/v1/health/ready',async(c)=>{
   if(!dbReady())return c.json({status:'not_ready',reason:'database_not_configured'},503);
   try{await getDb()`SELECT 1`;return c.json({status:'ready'});}catch{return c.json({status:'not_ready',reason:'database_unavailable'},503);}
