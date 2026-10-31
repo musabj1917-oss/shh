@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "shh-api": {
+      "command": "npx",
+      "args": [
+        "tsx",
+        "mcp/server.ts"
+      ],
+      "env": {
+        "SHH_API_URL": "http://localhost:3001",
+        "SHH_API_TOKEN": ""
+      }
+    }
+  }
+}
