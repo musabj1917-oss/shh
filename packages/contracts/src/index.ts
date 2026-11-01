@@ -82,5 +82,5 @@ export type LoginInput = z.infer<typeof loginSchema>;
 export type ProfilePatchInput = z.infer<typeof profilePatchSchema>;
 export type SendMessageInput = z.infer<typeof sendMessageSchema>;
 export type MessageKind = z.infer<typeof messageKindSchema>;
-export * from './errorMapper.js';
+export * from './errorMapper';
 
