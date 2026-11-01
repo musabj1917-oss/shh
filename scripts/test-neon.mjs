@@ -52,11 +52,10 @@ try {
 
   const start = Date.now();
   const queryNeon = async (sql) => {
-    const auth = Buffer.from(`${username}:${password}`).toString('base64');
     const response = await fetch(`https://${host}/sql`, {
       method: 'POST',
       headers: {
-        'Authorization': `Basic ${auth}`,
+        'Neon-Connection-String': connection,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ query: sql, params: [] })

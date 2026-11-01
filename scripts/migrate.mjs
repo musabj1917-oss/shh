@@ -36,14 +36,11 @@ const psqlBin = process.env.PSQL_BIN || 'psql';
 async function executeNeonHttp(sql) {
   const parsed = new URL(connection);
   const host = parsed.hostname;
-  const username = decodeURIComponent(parsed.username);
-  const password = decodeURIComponent(parsed.password);
-  const auth = Buffer.from(`${username}:${password}`).toString('base64');
 
   const response = await fetch(`https://${host}/sql`, {
     method: 'POST',
     headers: {
-      'Authorization': `Basic ${auth}`,
+      'Neon-Connection-String': connection,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({ query: sql, params: [] })
@@ -83,6 +80,54 @@ if (usePsql) {
 const directory = path.join(root, 'database', 'migrations');
 const files = (await readdir(directory)).filter((name) => /^\d+_[a-z0-9_]+\.sql$/i.test(name)).sort();
 
+function splitStatements(sql) {
+  // Strip block comments and line comments
+  const cleaned = sql
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .split('\n')
+    .map(l => l.replace(/--.*$/, ''))
+    .join('\n');
+
+  // Split by semicolon that is not inside quotes
+  const statements = [];
+  let current = '';
+  let inString = false;
+  let quoteChar = '';
+
+  for (let i = 0; i < cleaned.length; i++) {
+    const c = cleaned[i];
+    if (inString) {
+      current += c;
+      if (c === quoteChar) {
+        if (cleaned[i + 1] === quoteChar) {
+          current += cleaned[++i];
+        } else {
+          inString = false;
+        }
+      }
+    } else {
+      if (c === "'" || c === '"') {
+        inString = true;
+        quoteChar = c;
+        current += c;
+      } else if (c === ';') {
+        const stmt = current.trim();
+        if (stmt && !/^(BEGIN|COMMIT)$/i.test(stmt)) {
+          statements.push(stmt);
+        }
+        current = '';
+      } else {
+        current += c;
+      }
+    }
+  }
+  const last = current.trim();
+  if (last && !/^(BEGIN|COMMIT)$/i.test(last)) {
+    statements.push(last);
+  }
+  return statements;
+}
+
 for (const name of files) {
   let isApplied = false;
   if (usePsql) {
@@ -115,10 +160,12 @@ for (const name of files) {
       await unlink(temp).catch(() => {});
     }
   } else {
-    // Execute over Neon HTTPS
-    // Wrap with migration recording in single transaction
-    const combinedSql = `${original}\nINSERT INTO public.schema_migrations(name) VALUES ('${name}');`;
-    await executeNeonHttp(combinedSql);
+    // Execute each statement via Neon HTTP
+    const stmts = splitStatements(original);
+    for (const stmt of stmts) {
+      await executeNeonHttp(stmt);
+    }
+    await executeNeonHttp(`INSERT INTO public.schema_migrations(name) VALUES ('${name}');`);
   }
   console.info(`✓ applied ${name}`);
 }
