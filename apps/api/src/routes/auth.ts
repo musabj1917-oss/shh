@@ -127,6 +127,23 @@ authRoutes.post('/google',async(c)=>{
   }
 });
 
+authRoutes.get('/firebase/config',async(c)=>{
+  const apiKey=process.env.FIREBASE_WEB_API_KEY;
+  const projectId=process.env.FIREBASE_PROJECT_ID;
+  if(!apiKey||!projectId){
+    return c.json({configured:false});
+  }
+  return c.json({
+    configured:true,
+    apiKey,
+    authDomain:process.env.FIREBASE_AUTH_DOMAIN||`${projectId}.firebaseapp.com`,
+    projectId,
+    storageBucket:process.env.FIREBASE_STORAGE_BUCKET||`${projectId}.appspot.com`,
+    messagingSenderId:process.env.FIREBASE_MESSAGING_SENDER_ID||'',
+    appId:process.env.FIREBASE_APP_ID||'',
+  });
+});
+
 authRoutes.post('/firebase',async(c)=>{
   const limited=await enforceRateLimit(c,'firebase-auth',10,3600);if(limited)return limited;
   const body=await c.req.json().catch(()=>null);
