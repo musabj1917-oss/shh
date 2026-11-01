@@ -44,6 +44,8 @@ export function SkeletonRow(){
     </View>
   );
 }
+export { ErrorModal } from './ErrorModal';
+export { ErrorBoundary } from './ErrorBoundary';
 export function LoadingState({message='Loading…'}:{message?:string}){return <View style={s.center}><ActivityIndicator size="large" color={colors.mint}/><Text style={s.muted}>{message}</Text></View>;}
 export function EmptyState({title,detail,action}:{title:string;detail:string;action?:React.ReactNode}){return <View style={s.empty}><View style={s.emptyIcon}><Text style={{fontSize:24}}>✳</Text></View><Text style={s.emptyTitle}>{title}</Text><Text style={s.emptyDetail}>{detail}</Text>{action? <View style={{marginTop:16}}>{action}</View>:null}</View>;}
 export function Notice({children,tone='info'}:{children:React.ReactNode;tone?:'info'|'error'|'success'}){

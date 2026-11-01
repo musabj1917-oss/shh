@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((value) => {
+export const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Enter date of birth in YYYY-MM-DD format (e.g. 2000-12-01).').refine((value) => {
   const date = new Date(`${value}T00:00:00.000Z`);
   return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }, 'Enter a real date in YYYY-MM-DD format.');
@@ -82,3 +82,5 @@ export type LoginInput = z.infer<typeof loginSchema>;
 export type ProfilePatchInput = z.infer<typeof profilePatchSchema>;
 export type SendMessageInput = z.infer<typeof sendMessageSchema>;
 export type MessageKind = z.infer<typeof messageKindSchema>;
+export * from './errorMapper.js';
+

@@ -1258,6 +1258,131 @@
       transform: translateX(-50%) translateY(0);
     }
 
+    /* === ERROR MODAL (ANTI-GRAVITY AESTHETICS) === */
+    .error-modal-card {
+      background: rgba(23, 23, 23, 0.94);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 430px;
+      padding: 28px 24px 22px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      animation: modalSpatialPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .error-illustration-wrap {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 16px;
+      display: grid;
+      place-items: center;
+      filter: drop-shadow(0 6px 16px rgba(153, 227, 36, 0.25));
+    }
+
+    .error-modal-title {
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
+    }
+
+    .error-modal-message {
+      color: #d4d4d4;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+      max-width: 350px;
+    }
+
+    .error-modal-actions {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .error-btn-primary {
+      flex: 1;
+      height: 46px;
+      background: #99e324;
+      color: #0d140e;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 14px;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 4px 14px rgba(153, 227, 36, 0.25);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .error-btn-primary:hover {
+      background: #bef264;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(153, 227, 36, 0.35);
+    }
+
+    .error-btn-secondary {
+      flex: 1;
+      height: 46px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      border-radius: 14px;
+      font-weight: 600;
+      font-size: 14px;
+      display: grid;
+      place-items: center;
+      transition: all 0.2s;
+    }
+    .error-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .error-accordion-wrap {
+      width: 100%;
+      margin-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 12px;
+    }
+
+    .error-accordion-toggle {
+      background: transparent;
+      color: #737373;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .error-accordion-toggle:hover {
+      color: #a3a3a3;
+    }
+
+    .error-accordion-body {
+      width: 100%;
+      margin-top: 8px;
+      text-align: left;
+    }
+
+    .error-technical-pre {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #a3a3a3;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
     /* === RESPONSIVE & MOBILE UX ADAPTATION === */
     @media (max-width: 860px) {
       .app-shell {
@@ -1634,6 +1759,50 @@
     </div>
   </div>
 
+  <!-- ERROR MODAL (CENTRALIZED ERROR BOUNDARY & TRANSLATION) -->
+  <div class="modal-overlay" id="errorModal" hidden>
+    <div class="error-modal-card">
+      <div class="error-illustration-wrap">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="errGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#99e324" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#99e324" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="errPlanet" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#2a3821"/>
+              <stop offset="100%" stop-color="#152012"/>
+            </linearGradient>
+          </defs>
+          <circle cx="40" cy="40" r="36" fill="url(#errGlow)"/>
+          <ellipse cx="40" cy="40" rx="34" ry="12" stroke="#99e324" stroke-width="2" stroke-dasharray="4 4" transform="rotate(-20 40 40)" opacity="0.6"/>
+          <circle cx="40" cy="40" r="22" fill="url(#errPlanet)" stroke="#99e324" stroke-width="1.5"/>
+          <path d="M26 36C30 33 34 44 42 40C46 38 50 41 54 39" stroke="rgba(153, 227, 36, 0.45)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M24 44C32 42 36 48 44 46C48 45 52 48 56 46" stroke="rgba(153, 227, 36, 0.35)" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="56" cy="24" r="10" fill="#171717" stroke="#99e324" stroke-width="1.5"/>
+          <path d="M57 18L53 24H57L55 30L61 23H57L59 18H57Z" fill="#99e324"/>
+        </svg>
+      </div>
+
+      <div class="error-modal-title" id="errorModalTitle">Something Went Wrong</div>
+      <div class="error-modal-message" id="errorModalMessage">We hit an unexpected snag. Our engineers have been alerted.</div>
+
+      <div class="error-modal-actions">
+        <button type="button" class="error-btn-secondary" id="errorModalDismissBtn">Dismiss</button>
+        <button type="button" class="error-btn-primary" id="errorModalRetryBtn">Try Again</button>
+      </div>
+
+      <div class="error-accordion-wrap">
+        <button type="button" class="error-accordion-toggle" id="errorAccordionToggle">
+          ▸ Technical Details
+        </button>
+        <div class="error-accordion-body" id="errorAccordionBody" hidden>
+          <pre class="error-technical-pre" id="errorTechnicalPre"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST NOTIFICATION -->
   <div class="toast" id="toast">Notice message</div>
 
@@ -1684,6 +1853,173 @@
       t.textContent = msg;
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 3200);
+    }
+
+    // === CENTRALIZED ERROR TRANSLATION & ERROR MODAL ===
+    let currentErrorRetryHandler = null;
+
+    function mapErrorToUserFriendly(err) {
+      let rawMessage = '';
+      let status = undefined;
+      let code = undefined;
+
+      if (typeof err === 'string') {
+        rawMessage = err;
+      } else if (err && typeof err === 'object') {
+        rawMessage = String(err.message || err.error || err.statusText || '');
+        if (typeof err.status === 'number') status = err.status;
+        if (typeof err.statusCode === 'number') status = err.statusCode;
+        if (typeof err.code === 'string') code = err.code;
+        if (err.error && typeof err.error === 'object') {
+          if (typeof err.error.message === 'string') rawMessage = err.error.message;
+          if (typeof err.error.code === 'string') code = err.error.code;
+        }
+      }
+
+      const normalized = (rawMessage + ' ' + (code || '')).toLowerCase();
+      const techDetails = (code ? `[Code: ${code}] ` : '') + (status ? `[HTTP ${status}] ` : '') + (rawMessage || (typeof err === 'string' ? err : JSON.stringify(err)));
+
+      // 1. Storage & Buckets
+      if (normalized.includes('storage') || normalized.includes('bucket') || normalized.includes('s3') || normalized.includes('neon-s3')) {
+        return {
+          title: 'File Service Temporarily Unavailable',
+          message: "We can't connect to file storage at the moment. Your files are safe, but uploads and downloads are paused.",
+          technicalDetails: techDetails,
+        };
+      }
+
+      // 2. Connectivity & Offline
+      if (
+        normalized.includes('networkerror') ||
+        normalized.includes('failed to fetch') ||
+        normalized.includes('offline') ||
+        normalized.includes('network request failed') ||
+        normalized.includes('enotfound') ||
+        normalized.includes('econnrefused') ||
+        normalized.includes('etimedout')
+      ) {
+        return {
+          title: 'Unable to Connect',
+          message: 'Check your internet connection and try again.',
+          technicalDetails: techDetails,
+        };
+      }
+
+      // 3. Auth & Session Expiry
+      if (
+        status === 401 ||
+        normalized.includes('401') ||
+        normalized.includes('jwt expired') ||
+        normalized.includes('token expired') ||
+        normalized.includes('unauthorized') ||
+        code === 'INVALID_CREDENTIALS' ||
+        code === 'UNAUTHORIZED'
+      ) {
+        return {
+          title: 'Session Expired',
+          message: 'Please sign in again to continue.',
+          technicalDetails: techDetails,
+        };
+      }
+
+      // 4. Email Unverified
+      if (code === 'EMAIL_UNVERIFIED' || normalized.includes('email_unverified') || normalized.includes('verify your email')) {
+        return {
+          title: 'Email Verification Required',
+          message: 'Please verify your email address before signing in. Check your inbox for the confirmation link.',
+          technicalDetails: techDetails,
+        };
+      }
+
+      // 5. Date of Birth Regex Format
+      if (normalized.includes('\\d{4}-\\d{2}-\\d{2}') || normalized.includes('yyy-mm-dd') || normalized.includes('iso date')) {
+        return {
+          title: 'Invalid Date Format',
+          message: 'Please enter your date of birth in YYYY-MM-DD format (for example, 2000-12-01).',
+          technicalDetails: techDetails,
+        };
+      }
+
+      // 6. Age Restriction
+      if (normalized.includes('at least 13') || normalized.includes('minimum age')) {
+        return {
+          title: 'Age Requirement',
+          message: 'You need to be at least 13 years old to create an account on Haiku Messenger.',
+          technicalDetails: techDetails,
+        };
+      }
+
+      // 7. Password requirements
+      if (normalized.includes('password') && (normalized.includes('12') || normalized.includes('character') || normalized.includes('short'))) {
+        return {
+          title: 'Password Requirements',
+          message: 'Your password must be at least 12 characters long.',
+          technicalDetails: techDetails,
+        };
+      }
+
+      // 8. Permissions / 403 Forbidden
+      if (status === 403 || normalized.includes('forbidden') || normalized.includes('not allowed')) {
+        return {
+          title: 'Access Restricted',
+          message: "You don't have permission to perform this action.",
+          technicalDetails: techDetails,
+        };
+      }
+
+      // 9. Not Found / 404
+      if (status === 404 || normalized.includes('not found') || code === 'USER_NOT_FOUND' || code === 'NOT_FOUND') {
+        return {
+          title: 'Item Not Found',
+          message: 'The requested conversation, user, or resource is no longer available.',
+          technicalDetails: techDetails,
+        };
+      }
+
+      // 10. Rate limiting / 429
+      if (status === 429 || normalized.includes('rate limit') || normalized.includes('too many requests')) {
+        return {
+          title: 'Slow Down a Bit',
+          message: 'You have made too many requests in a short time. Please take a breath and try again shortly.',
+          technicalDetails: techDetails,
+        };
+      }
+
+      // 11. Default fallback for unknown 500 / server / uncaught errors
+      return {
+        title: 'Something Went Wrong',
+        message: 'We hit an unexpected snag. Our engineers have been alerted.',
+        technicalDetails: techDetails,
+      };
+    }
+
+    function showErrorModal(err, onRetry = null) {
+      const friendly = (err && typeof err === 'object' && err.title && err.message)
+        ? err
+        : mapErrorToUserFriendly(err);
+
+      el('errorModalTitle').textContent = friendly.title;
+      el('errorModalMessage').textContent = friendly.message;
+      el('errorTechnicalPre').textContent = friendly.technicalDetails || (typeof err === 'string' ? err : JSON.stringify(err, null, 2) || 'No stack trace available.');
+
+      // Reset accordion
+      el('errorAccordionBody').hidden = true;
+      el('errorAccordionToggle').textContent = '▸ Technical Details';
+
+      currentErrorRetryHandler = onRetry;
+      if (onRetry) {
+        el('errorModalRetryBtn').textContent = 'Try Again';
+      } else {
+        el('errorModalRetryBtn').textContent = 'Refresh';
+        currentErrorRetryHandler = () => window.location.reload();
+      }
+
+      el('errorModal').hidden = false;
+    }
+
+    function hideErrorModal() {
+      el('errorModal').hidden = true;
+      currentErrorRetryHandler = null;
     }
 
     // === SKELETON RENDERERS ===
@@ -1858,7 +2194,7 @@
         showToast('Signed in successfully! 🌿');
         await handlePostAuth();
       } catch (err) {
-        showToast(err.message);
+        showErrorModal(err, () => el('loginForm').dispatchEvent(new Event('submit')));
       }
     });
 
@@ -1866,13 +2202,15 @@
       e.preventDefault();
       try {
         const email = el('regEmail').value.trim();
+        // Normalize date input: convert 2000/12/01, 2000.12.01, or spaces to 2000-12-01
+        const rawDob = (el('regDob').value || '').trim().replace(/[\/\.\s]/g, '-');
         await apiRequest('/auth/register', {
           method: 'POST',
           body: JSON.stringify({
             displayName: el('regDisplayName').value.trim(),
             username: el('regUsername').value.trim().toLowerCase(),
             email: email,
-            dateOfBirth: el('regDob').value,
+            dateOfBirth: rawDob,
             password: el('regPassword').value
           })
         });
@@ -1880,7 +2218,7 @@
         switchToLoginTab();
         if (el('loginIdentifier')) el('loginIdentifier').value = email;
       } catch (err) {
-        showToast(err.message);
+        showErrorModal(err, () => el('registerForm').dispatchEvent(new Event('submit')));
       }
     });
 
@@ -2388,15 +2726,48 @@
     });
 
     // === MODAL CONTROLS & ESCAPE DISMISS ===
-    const allModals = [el('authModal'), el('newChatModal'), el('createGroupModal'), el('settingsModal')];
+    const allModals = [el('authModal'), el('newChatModal'), el('createGroupModal'), el('settingsModal'), el('errorModal')];
 
     allModals.forEach(modal => {
+      if (!modal) return;
       modal.addEventListener('click', (e) => {
         // If clicking on overlay backdrop (outside the card), close it
         if (e.target === modal && modal.id !== 'authModal') {
           modal.hidden = true;
+          if (modal.id === 'errorModal') currentErrorRetryHandler = null;
         }
       });
+    });
+
+    el('errorModalDismissBtn')?.addEventListener('click', hideErrorModal);
+    el('errorModalRetryBtn')?.addEventListener('click', () => {
+      const retry = currentErrorRetryHandler;
+      hideErrorModal();
+      if (typeof retry === 'function') {
+        try { retry(); } catch (err) { console.error('Retry error:', err); }
+      }
+    });
+
+    el('errorAccordionToggle')?.addEventListener('click', () => {
+      const body = el('errorAccordionBody');
+      const isHidden = body.hidden;
+      body.hidden = !isHidden;
+      el('errorAccordionToggle').textContent = isHidden ? '▾ Hide Technical Details' : '▸ Technical Details';
+    });
+
+    // Global Unhandled Error Boundary Listeners for Web
+    window.addEventListener('error', (event) => {
+      console.error('Captured window error:', event.error || event.message);
+      if (event.error) {
+        showErrorModal(event.error);
+      }
+    });
+
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('Captured unhandled promise rejection:', event.reason);
+      if (event.reason) {
+        showErrorModal(event.reason);
+      }
     });
 
     window.addEventListener('keydown', (e) => {

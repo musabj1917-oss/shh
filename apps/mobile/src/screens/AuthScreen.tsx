@@ -1,7 +1,7 @@
 import React,{useState} from 'react';
 import {KeyboardAvoidingView,Platform,Pressable,Text,View} from 'react-native';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {registerSchema,loginSchema,meetsMinimumAge} from '@haiku/contracts';
+import {registerSchema,loginSchema,meetsMinimumAge,mapErrorToUserFriendly} from '@haiku/contracts';
 import type {RootStackParamList} from '../navigation/types';
 import {useAuth} from '../auth/AuthContext';
 import {api,messageForError} from '../api/client';
@@ -19,17 +19,18 @@ export function AuthScreen({navigation}:Props){
   setError('');setInfo('');
   const emailValue=email.trim().toLowerCase();
   if(isRegister){
-    const input={email:emailValue,password,username:username.trim().toLowerCase(),displayName:displayName.trim(),dateOfBirth:dateOfBirth.trim()};
+    const normalizedDob=dateOfBirth.trim().replace(/[\/\.\s]/g, '-');
+    const input={email:emailValue,password,username:username.trim().toLowerCase(),displayName:displayName.trim(),dateOfBirth:normalizedDob};
     const parsed=registerSchema.safeParse(input);
-    if(!parsed.success){setError(parsed.error.issues[0]?.message||'Check your details and try again.');return;}
+    if(!parsed.success){setError(mapErrorToUserFriendly(parsed.error.issues[0]?.message).message);return;}
     if(!meetsMinimumAge(input.dateOfBirth)){setError('You need to be at least 13 to create an account.');return;}
     setBusy(true);try{const result=await register(parsed.data);setInfo(result.message+' Check your inbox for the verification link.');setMode('login');}
-    catch(e){setError(messageForError(e));}finally{setBusy(false);}return;
+    catch(e){setError(mapErrorToUserFriendly(e).message);}finally{setBusy(false);}return;
   }
   const parsed=loginSchema.safeParse({email:emailValue,password});
-  if(!parsed.success){setError(parsed.error.issues[0]?.message||'Enter a valid email and password.');return;}
+  if(!parsed.success){setError(mapErrorToUserFriendly(parsed.error.issues[0]?.message).message);return;}
   setBusy(true);try{await signIn(parsed.data.email,parsed.data.password);}
-  catch(e){setError(messageForError(e));}finally{setBusy(false);}
+  catch(e){setError(mapErrorToUserFriendly(e).message);}finally{setBusy(false);}
  };
  const resend=async()=>{
   setError('');setInfo('');setBusy(true);
