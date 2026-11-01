@@ -1424,13 +1424,13 @@
 
       list.innerHTML = filtered.map(c => {
         const isActive = c.id === STATE.activeConvId;
-        const initial = (c.title || '?')[0].toUpperCase();
+        const initial = esc((c.title || '?')[0].toUpperCase());
         const isGroup = c.kind === 'group';
         const preview = c.last_message_text || (c.last_message_type ? `[${c.last_message_type}]` : 'No messages yet');
         const time = c.last_message_at ? formatTime(c.last_message_at) : '';
 
         return `
-          <button class="conv-item ${isActive ? 'active' : ''}" data-conv-id="${c.id}">
+          <button class="conv-item ${isActive ? 'active' : ''}" data-conv-id="${esc(c.id)}">
             <div class="avatar-wrap">
               <div class="avatar ${isGroup ? 'group' : ''}">${initial}</div>
               ${!isGroup ? '<div class="status-dot online"></div>' : ''}
@@ -1438,11 +1438,11 @@
             <div class="conv-info">
               <div class="conv-top">
                 <span class="conv-title">${esc(c.title || 'Chat')}</span>
-                <span class="conv-time">${time}</span>
+                <span class="conv-time">${esc(time)}</span>
               </div>
               <div class="conv-bottom">
                 <span class="conv-preview">${esc(preview)}</span>
-                ${c.unread_count > 0 ? `<span class="conv-unread">${c.unread_count}</span>` : ''}
+                ${c.unread_count > 0 ? `<span class="conv-unread">${esc(c.unread_count)}</span>` : ''}
               </div>
             </div>
           </button>
@@ -1508,7 +1508,7 @@
         const receiptColor = m.receipt_status === 'read' ? 'var(--primary)' : 'inherit';
 
         return `
-          <div class="message-row ${isMe ? 'me' : 'other'}" data-msg-id="${m.id}">
+          <div class="message-row ${isMe ? 'me' : 'other'}" data-msg-id="${esc(m.id)}">
             ${!isMe ? `<div class="msg-sender">${esc(senderName)}</div>` : ''}
             
             <div class="message-bubble">
@@ -1516,15 +1516,15 @@
             </div>
 
             <div class="msg-meta">
-              <span>${time}</span>
+              <span>${esc(time)}</span>
               ${m.edited_at ? '<span>(edited)</span>' : ''}
-              ${isMe ? `<span style="color:${receiptColor}">${receipt}</span>` : ''}
+              ${isMe ? `<span style="color:${esc(receiptColor)}">${esc(receipt)}</span>` : ''}
             </div>
 
             <div class="msg-actions">
-              <button class="msg-action-btn" title="Reply" onclick="startReply('${m.id}', '${esc(senderName)}', '${esc(m.body || '')}')">↩</button>
-              ${isMe ? `<button class="msg-action-btn" title="Edit" onclick="editMessage('${m.id}', '${esc(m.body || '')}')">✎</button>` : ''}
-              <button class="msg-action-btn" title="Delete" onclick="deleteMessage('${m.id}')">✕</button>
+              <button class="msg-action-btn" title="Reply" data-id="${esc(m.id)}" data-sender="${esc(senderName)}" data-body="${esc(m.body || '')}" onclick="startReply(this.dataset.id, this.dataset.sender, this.dataset.body)">↩</button>
+              ${isMe ? `<button class="msg-action-btn" title="Edit" data-id="${esc(m.id)}" data-body="${esc(m.body || '')}" onclick="editMessage(this.dataset.id, this.dataset.body)">✎</button>` : ''}
+              <button class="msg-action-btn" title="Delete" data-id="${esc(m.id)}" onclick="deleteMessage(this.dataset.id)">✕</button>
             </div>
           </div>
         `;
@@ -1635,7 +1635,7 @@
               <div style="font-weight:700; font-size:14px;">${esc(u.displayName)}</div>
               <div style="color:var(--text-sub); font-size:12px;">@${esc(u.username)}</div>
             </div>
-            <button class="btn-primary" style="height:32px; padding:0 12px; font-size:12px;" onclick="startDirectChat('${u.id}')">
+            <button class="btn-primary" style="height:32px; padding:0 12px; font-size:12px;" data-user-id="${esc(u.id)}" onclick="startDirectChat(this.dataset.userId)">
               Message
             </button>
           </div>
@@ -1674,7 +1674,7 @@
       try {
         const res = await fetch(`${STATE.apiUrl.replace(/\/$/, '')}/health`).then(r => r.json());
         statusEl.innerHTML = `
-          ✅ API Status: <strong>${res.status}</strong><br>
+          ✅ API Status: <strong>${esc(res.status)}</strong><br>
           🐘 Neon DB: <strong style="color:${res.databaseConnected ? 'var(--primary)' : 'var(--danger)'}">
             ${res.databaseConnected ? 'Connected & Ready' : (res.databaseConfigured ? 'Configured (Idle)' : 'Not Configured')}
           </strong>
