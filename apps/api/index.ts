@@ -1,4 +1,13 @@
-import { handle } from 'hono/vercel';
+import { getRequestListener } from '@hono/node-server';
 import app from './src/app.js';
 
-export default handle(app);
+const nodeListener = getRequestListener(app.fetch);
+
+export default function handler(req: any, res?: any) {
+  if (res && typeof res.writeHead === 'function') {
+    return nodeListener(req, res);
+  }
+  return app.fetch(req);
+}
+
+export { app };
