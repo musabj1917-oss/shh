@@ -1,9 +1,10 @@
 import React,{useCallback,useEffect} from 'react';
-import {ActivityIndicator,Text,View} from 'react-native';
+import {ActivityIndicator,Pressable,Text,View} from 'react-native';
 import {NavigationContainer,useNavigationContainerRef} from '@react-navigation/native';
 import type {LinkingOptions} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import type {BottomTabBarProps} from '@react-navigation/bottom-tabs';
 import type {MainTabParamList,RootStackParamList} from './types';
 import {useAuth} from '../auth/AuthContext';
 import {AuthScreen} from '../screens/AuthScreen';
@@ -28,38 +29,99 @@ const Tabs=createBottomTabNavigator<MainTabParamList>();
 const tabGlyph:Record<keyof MainTabParamList,string>={Inbox:'💬',Stories:'✦',People:'👥',Profile:'⚙'};
 const linking:LinkingOptions<RootStackParamList>={prefixes:['haikumessenger://'],config:{screens:{JoinGroup:'join/:token'}}};
 
+function LeftNavRail({state,descriptors,navigation,insets}:BottomTabBarProps){
+  return (
+    <View style={{
+      width:72,
+      paddingTop:Math.max(insets.top,14),
+      paddingBottom:Math.max(insets.bottom,14),
+      backgroundColor:'rgba(10, 16, 13, 0.98)',
+      borderRightWidth:1,
+      borderRightColor:colors.line,
+      alignItems:'center',
+      justifyContent:'space-between',
+      zIndex:10
+    }}>
+      {/* Top: App Logo */}
+      <View style={{alignItems:'center',gap:12}}>
+        <BrandMark size={36}/>
+        <View style={{width:28,height:1,backgroundColor:colors.line}}/>
+      </View>
+
+      {/* Center: Navigation Menu on the left */}
+      <View style={{gap:14,alignItems:'center'}}>
+        {state.routes.map((route,index)=>{
+          const isFocused=state.index===index;
+          const {options}=descriptors[route.key];
+          const label=options.tabBarLabel!==undefined
+            ? options.tabBarLabel
+            : options.title!==undefined
+            ? options.title
+            : route.name;
+          const glyph=tabGlyph[route.name as keyof MainTabParamList];
+
+          const onPress=()=>{
+            const event=navigation.emit({
+              type:'tabPress',
+              target:route.key,
+              canPreventDefault:true
+            });
+            if(!isFocused&&!event.defaultPrevented){
+              navigation.navigate(route.name);
+            }
+          };
+
+          return (
+            <Pressable
+              key={route.key}
+              onPress={onPress}
+              accessibilityRole="button"
+              accessibilityState={isFocused?{selected:true}:{}}
+              accessibilityLabel={typeof label==='string'?label:route.name}
+              style={({pressed})=>[
+                {
+                  width:54,
+                  height:52,
+                  borderRadius:16,
+                  alignItems:'center',
+                  justifyContent:'center',
+                  backgroundColor:isFocused?'rgba(163, 230, 53, 0.14)':pressed?'rgba(255, 255, 255, 0.04)':'transparent',
+                  borderWidth:1,
+                  borderColor:isFocused?'rgba(163, 230, 53, 0.35)':'transparent'
+                }
+              ]}
+            >
+              <Text style={{fontSize:19}}>{glyph}</Text>
+              <Text style={{
+                fontSize:9,
+                fontWeight:isFocused?'800':'600',
+                color:isFocused?colors.mint:colors.muted,
+                marginTop:2,
+                letterSpacing:0.2
+              }}>
+                {typeof label==='string'?label:route.name}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      {/* Bottom: Active status indicator */}
+      <View style={{alignItems:'center',gap:6}}>
+        <View style={{width:8,height:8,borderRadius:4,backgroundColor:colors.mint,opacity:0.85}}/>
+      </View>
+    </View>
+  );
+}
+
 function MainTabs(){
- return <Tabs.Navigator screenOptions={({route})=>({
-   headerShown:false,
-   tabBarActiveTintColor:colors.mint,
-   tabBarInactiveTintColor:colors.muted,
-   tabBarStyle:{
-     height:64,
-     paddingTop:6,
-     paddingBottom:8,
-     backgroundColor:'rgba(10, 16, 13, 0.96)',
-     borderTopWidth:1,
-     borderTopColor:colors.line,
-     elevation:8,
-     shadowColor:'#000',
-     shadowOffset:{width:0,height:-4},
-     shadowOpacity:0.4,
-     shadowRadius:12
-   },
-   tabBarLabelStyle:{fontSize:10,fontWeight:'700',letterSpacing:0.2},
-   tabBarIcon:({color,focused})=>(
-     <View style={{
-       width:38,
-       height:28,
-       borderRadius:14,
-       alignItems:'center',
-       justifyContent:'center',
-       backgroundColor:focused?'rgba(163,230,53,0.12)':'transparent'
-     }}>
-       <Text style={{fontSize:16,color}}>{tabGlyph[route.name]}</Text>
-     </View>
-   )
- })}>
+ return <Tabs.Navigator
+   tabBar={(props)=><LeftNavRail {...props}/>}
+   screenOptions={{
+     headerShown:false,
+     tabBarPosition:'left',
+     sceneStyle:{backgroundColor:colors.canvas}
+   }}>
   <Tabs.Screen name="Inbox" component={InboxScreen} options={{tabBarLabel:'Chats'}}/>
   <Tabs.Screen name="Stories" component={StoriesScreen} options={{tabBarLabel:'Moments'}}/>
   <Tabs.Screen name="People" component={FriendsScreen} options={{tabBarLabel:'People'}}/>

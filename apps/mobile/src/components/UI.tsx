@@ -1,5 +1,5 @@
 import React from 'react';
-import {ActivityIndicator,Image,Pressable,ScrollView,StyleSheet,Text,TextInput as NativeTextInput,TextInputProps,View,ViewStyle} from 'react-native';
+import {ActivityIndicator,Image,ImageStyle,Pressable,ScrollView,StyleSheet,Text,TextInput as NativeTextInput,TextInputProps,View,ViewStyle} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {colors} from '../theme/colors';
 
@@ -8,7 +8,15 @@ export function Screen({children,scroll=false,style}:{children:React.ReactNode;s
     {scroll?<ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={s.scroll}>{children}</ScrollView>:children}
   </SafeAreaView>;
 }
-export function BrandMark({size=38}:{size?:number}){return <View style={[s.brand,{width:size,height:size,borderRadius:size*.34}]}><Text style={[s.brandText,{fontSize:size*.46}]}>h</Text></View>;}
+export function BrandMark({size=38,style}:{size?:number;style?:ImageStyle}){
+  return (
+    <Image
+      source={require('../assets/logo.png')}
+      style={[{width:size,height:size,borderRadius:Math.round(size*0.22)},style]}
+      resizeMode="contain"
+    />
+  );
+}
 export function PageHeading({eyebrow,title,subtitle,right}:{eyebrow?:string;title:string;subtitle?:string;right?:React.ReactNode}){
  return <View style={s.headingRow}><View style={{flex:1}}>{eyebrow?<Text style={s.eyebrow}>{eyebrow}</Text>:null}<Text style={s.heading}>{title}</Text>{subtitle?<Text style={s.subtitle}>{subtitle}</Text>:null}</View>{right}</View>;
 }

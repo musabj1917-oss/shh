@@ -2,9 +2,18 @@
   "name": "haiku-messenger",
   "version": "0.1.0",
   "private": true,
-  "engines": { "node": ">=22.13.0" },
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "packageManager": "npm@10.8.2",
-  "workspaces": ["packages/*", "apps/api", "apps/admin", "apps/web", "apps/mobile", "mcp"],
+  "workspaces": [
+    "packages/*",
+    "apps/api",
+    "apps/admin",
+    "apps/web",
+    "apps/mobile",
+    "mcp"
+  ],
   "scripts": {
     "dev:api": "npm run dev --workspace @haiku/api",
     "dev:web": "npm run dev --workspace @haiku/web",
@@ -20,6 +29,7 @@
     "db:test": "node scripts/test-neon.mjs"
   },
   "devDependencies": {
+    "@resvg/resvg-wasm": "^2.6.2",
     "@types/node": "22.20.5",
     "tsx": "4.23.15",
     "typescript": "6.0.3"
