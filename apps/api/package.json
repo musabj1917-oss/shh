@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node22 --outfile=index.js --packages=external",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node22 --outfile=index.js",
     "dev": "node --env-file-if-exists=../../.env --import tsx --watch src/dev.ts",
     "start": "node --import tsx src/dev.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
@@ -24,12 +24,12 @@
     "firebase-admin": "^14.5.0",
     "google-auth-library": "11.3.1",
     "hono": "4.13.14",
+    "nodemailer": "10.2.1",
     "zod": "4.6.7"
   },
   "devDependencies": {
     "@types/node": "22.20.5",
     "@types/nodemailer": "8.0.2",
-    "nodemailer": "10.2.1",
     "tsx": "4.23.15",
     "typescript": "6.0.3"
   }
