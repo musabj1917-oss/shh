@@ -9,6 +9,13 @@ import type { ApiEnv } from '../types.js';
 export const accountRoutes = new Hono<ApiEnv>();
 accountRoutes.use('*',requireUser);
 
+accountRoutes.get('/',async(c)=>{
+  const user=c.get('user');
+  const rows=await getDb()`SELECT u.id,u.email,u.email_verified_at,u.status,p.username,p.display_name,p.bio,p.location,p.avatar_object_key
+    FROM users u JOIN user_profiles p ON p.user_id=u.id WHERE u.id=${user.id} LIMIT 1`;
+  return c.json({user,account:rows[0]||null});
+});
+
 accountRoutes.get('/sessions',async(c)=>{
   const user=c.get('user');
   const rows=await getDb()`SELECT id,user_agent,created_at,last_seen_at,expires_at

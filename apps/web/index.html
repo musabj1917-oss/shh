@@ -1220,18 +1220,38 @@
 
       try {
         const res = await fetch(url, { ...options, headers });
+        if (res.status === 401) {
+          handleUnauthorized();
+        }
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          throw new Error(data?.error?.message || `Request failed (${res.status})`);
+          const err = new Error(data?.error?.message || `Request failed (${res.status})`);
+          err.status = res.status;
+          throw err;
         }
         return data;
       } catch (err) {
-        console.error(`API Error on ${path}:`, err);
+        if (err.status !== 401) {
+          console.error(`API Error on ${path}:`, err);
+        }
         throw err;
       }
     }
 
     // Auth & Navigation
+    function handleUnauthorized() {
+      if (STATE.pollTimer) clearInterval(STATE.pollTimer);
+      STATE.pollTimer = null;
+      STATE.token = '';
+      STATE.currentUser = null;
+      localStorage.clear();
+      localStorage.removeItem('haiku_token');
+      localStorage.removeItem('haiku_user');
+      el('appShell').classList.remove('chat-open');
+      switchToLoginTab();
+      el('authModal').hidden = false;
+    }
+
     function switchToLoginTab() {
       el('authLoginTab').classList.add('active');
       el('authRegisterTab').classList.remove('active');
@@ -1272,11 +1292,39 @@
       }
     }
 
-    function checkAuth() {
-      if (!STATE.token || STATE.token === 'undefined' || STATE.token === 'null' || !STATE.currentUser) {
-        el('authModal').hidden = false;
-      } else {
-        handlePostAuth();
+    async function checkAuth() {
+      if (!STATE.token || STATE.token === 'undefined' || STATE.token === 'null') {
+        handleUnauthorized();
+        return;
+      }
+
+      try {
+        let res;
+        try {
+          res = await apiRequest('/account');
+        } catch (err) {
+          if (err.status === 404) {
+            res = await apiRequest('/auth/me');
+          } else {
+            throw err;
+          }
+        }
+        if (res && res.user) {
+          STATE.currentUser = res.user;
+          localStorage.setItem('haiku_user', JSON.stringify(res.user));
+        }
+        await handlePostAuth();
+      } catch (err) {
+        if (err.status === 401) {
+          handleUnauthorized();
+        } else {
+          console.warn('Authentication check failed:', err);
+          if (!STATE.currentUser) {
+            handleUnauthorized();
+          } else {
+            await handlePostAuth();
+          }
+        }
       }
     }
 
@@ -1367,15 +1415,8 @@
 
     el('logoutBtn').addEventListener('click', async () => {
       try { await apiRequest('/auth/logout', { method: 'POST' }); } catch {}
-      if (STATE.pollTimer) clearInterval(STATE.pollTimer);
-      STATE.pollTimer = null;
-      STATE.token = '';
-      STATE.currentUser = null;
-      localStorage.removeItem('haiku_token');
-      localStorage.removeItem('haiku_user');
-      el('appShell').classList.remove('chat-open');
       el('settingsModal').hidden = true;
-      checkAuth();
+      handleUnauthorized();
     });
 
     // Conversations
