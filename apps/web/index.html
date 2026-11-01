@@ -1196,7 +1196,7 @@
 
     // Helper functions
     const el = (id) => document.getElementById(id);
-    const esc = (text) => text ? String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : '';
+    const esc = (text) => text != null ? String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;') : '';
 
     function showToast(msg) {
       const t = el('toast');
