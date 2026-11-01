@@ -1083,13 +1083,6 @@
           </div>
           <button type="submit" class="btn-primary" style="margin-top:8px;">Create Account</button>
         </form>
-
-        <!-- Quick Demo Account Button -->
-        <div style="text-align:center; padding-top:10px; border-top:1px solid var(--border);">
-          <button type="button" class="btn-secondary" id="quickDemoBtn" style="width:100%; font-size:12px;">
-            ⚡ Create Quick Test Account
-          </button>
-        </div>
       </div>
     </div>
   </div>
@@ -1220,7 +1213,7 @@
 
       try {
         const res = await fetch(url, { ...options, headers });
-        if (res.status === 401) {
+        if (res.status === 401 && !path.startsWith('/auth/')) {
           handleUnauthorized();
         }
         const data = await res.json().catch(() => ({}));
@@ -1244,7 +1237,6 @@
       STATE.pollTimer = null;
       STATE.token = '';
       STATE.currentUser = null;
-      localStorage.clear();
       localStorage.removeItem('haiku_token');
       localStorage.removeItem('haiku_user');
       el('appShell').classList.remove('chat-open');
@@ -1280,13 +1272,17 @@
       startPolling();
 
       const isMobile = window.innerWidth <= 860 || window.matchMedia('(max-width: 860px)').matches;
-      if (isMobile) {
-        el('appShell').classList.add('chat-open');
-      }
+      const hasConvs = STATE.conversations && STATE.conversations.length > 0;
 
-      if (STATE.conversations && STATE.conversations.length > 0) {
+      if (hasConvs) {
+        if (isMobile) {
+          el('appShell').classList.add('chat-open');
+        }
         await selectConversation(STATE.conversations[0].id);
       } else {
+        if (isMobile) {
+          el('appShell').classList.remove('chat-open');
+        }
         el('noChatSelected').style.display = 'grid';
         el('activeChatContent').style.display = 'none';
       }
@@ -1385,29 +1381,6 @@
         showToast('Account created! Please check your email to verify before signing in.');
         switchToLoginTab();
         if (el('loginIdentifier')) el('loginIdentifier').value = email;
-      } catch (err) {
-        showToast(err.message);
-      }
-    });
-
-    el('quickDemoBtn').addEventListener('click', async () => {
-      const rand = Math.floor(1000 + Math.random() * 9000);
-      const email = `demo_${rand}@haiku.internal`;
-      try {
-        await apiRequest('/auth/register', {
-          method: 'POST',
-          body: JSON.stringify({
-            displayName: `Demo User ${rand}`,
-            username: `demo_${rand}`,
-            email,
-            dateOfBirth: '2000-01-01',
-            password: 'Password123!'
-          })
-        });
-        showToast('Demo account created! Please check your email to verify.');
-        switchToLoginTab();
-        if (el('loginIdentifier')) el('loginIdentifier').value = email;
-        if (el('loginPassword')) el('loginPassword').value = 'Password123!';
       } catch (err) {
         showToast(err.message);
       }
