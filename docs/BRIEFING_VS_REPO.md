@@ -45,7 +45,7 @@ The biggest single correction: **there is no Express, `helmet`, or `express-rate
 | Storage abstraction | `local` disk adapter and `neon-s3` (S3-compatible) adapter, shared interface |
 | Next.js admin dashboard on Vercel | Next.js 16.4.3 app with server-side API proxy and httpOnly session cookie |
 | Mint visual identity, mobile-first | Mint palette (`#…` tokens in `theme/colors.ts`), custom surface/button/field components |
-| No school code required | No school-code concept anywhere |
+| No institutional code required | Independent, private messenger architecture |
 | Minimum age 13 | Enforced client-side and in the API contract (`meetsMinimumAge`) plus server route |
 | Unique usernames | DB unique index + normalization + 30-day change cooldown |
 | Friend request must be accepted before private chat | Direct conversation creation requires a `friendships` row |

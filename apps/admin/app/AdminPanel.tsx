@@ -11,8 +11,8 @@ type AuditEvent={id:string;admin_user_id:string|null;action:string;entity_type:s
 type AdminRow={user_id:string;role_name:string;granted_at:string;revoked_at:string|null;username:string;display_name:string;email:string};
 type Conversation={id:string;kind:string;group_name:string|null;direct_name:string|null;active_message_count:number;last_message_at:string|null};
 type Message={id:string;sender_id:string|null;message_type:string;body:string|null;attachment_id:string|null;created_at:string;edited_at:string|null;expires_at:string|null;username:string|null;display_name:string|null};
-type View='overview'|'reports'|'users'|'groups'|'audit'|'releases'|'admins';
-const NAV:{id:View;label:string;icon:string;permission?:string}[]=[{id:'overview',label:'Overview',icon:'◫'},{id:'reports',label:'Reports & safety',icon:'⚑',permission:'reports.read'},{id:'users',label:'People',icon:'◎',permission:'users.read'},{id:'groups',label:'Groups',icon:'⌘',permission:'groups.read'},{id:'audit',label:'Audit trail',icon:'◷',permission:'audit.read'},{id:'releases',label:'App releases',icon:'⬇',permission:'releases.manage'},{id:'admins',label:'Access control',icon:'♙'}];
+type View='overview'|'releases'|'reports'|'users'|'groups'|'audit'|'admins';
+const NAV:{id:View;label:string;icon:string;permission?:string}[]=[{id:'overview',label:'Overview',icon:'◫'},{id:'releases',label:'App Releases (APK)',icon:'📦'},{id:'reports',label:'Reports & safety',icon:'⚑',permission:'reports.read'},{id:'users',label:'People',icon:'◎',permission:'users.read'},{id:'groups',label:'Groups',icon:'⌘',permission:'groups.read'},{id:'audit',label:'Audit trail',icon:'◷',permission:'audit.read'},{id:'admins',label:'Access control',icon:'♙'}];
 const date=(value?:string|null)=>value?new Date(value).toLocaleString(): '—';
 
 async function call<T=any>(path:string,options:RequestInit={}):Promise<T>{
@@ -27,6 +27,7 @@ function Icon({children}:{children:React.ReactNode}){return <span className="ico
 export default function AdminPanel(){
  const [admin,setAdmin]=useState<Admin|null>(null),[booting,setBooting]=useState(true),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[loggingIn,setLoggingIn]=useState(false),[view,setView]=useState<View>('overview'),[error,setError]=useState(''),[notice,setNotice]=useState('');
  const [summary,setSummary]=useState<Summary|null>(null),[users,setUsers]=useState<UserRow[]>([]),[reports,setReports]=useState<Report[]>([]),[groups,setGroups]=useState<GroupRow[]>([]),[events,setEvents]=useState<AuditEvent[]>([]),[admins,setAdmins]=useState<AdminRow[]>([]);
+ const [release,setRelease]=useState<any>(null),[apkUrl,setApkUrl]=useState(''),[apkVersion,setApkVersion]=useState(''),[apkNotes,setApkNotes]=useState('');
  const [query,setQuery]=useState(''),[searchTerm,setSearchTerm]=useState(''),[statusFilter,setStatusFilter]=useState('open'),[busy,setBusy]=useState('');
  const [selectedUser,setSelectedUser]=useState<UserRow|null>(null),[conversations,setConversations]=useState<Conversation[]>([]),[selectedConversation,setSelectedConversation]=useState(''),[messages,setMessages]=useState<Message[]>([]),[privateNotice,setPrivateNotice]=useState('');
  const visibleNav=useMemo(()=>NAV.filter(item=>item.id==='overview'?true:item.id==='admins'?admin?.role==='owner':!item.permission||can(admin,item.permission)),[admin]);
@@ -35,6 +36,7 @@ export default function AdminPanel(){
   if(!admin)return;setError('');
   try{
    if(view==='overview'){const result=await call<{summary:Summary}>('dashboard');setSummary(result.summary);}
+   if(view==='releases'){const result=await call<{release:any}>('releases');setRelease(result.release);setApkUrl(result.release?.downloadUrl||'');setApkVersion(result.release?.version||'');setApkNotes(result.release?.releaseNotes||'');}
    if(view==='reports'){const result=await call<{reports:Report[]}>(`reports?status=${encodeURIComponent(statusFilter)}`);setReports(result.reports||[]);}
    if(view==='users'){const result=await call<{users:UserRow[]}>(`users?q=${encodeURIComponent(searchTerm)}`);setUsers(result.users||[]);}
    if(view==='groups'){const result=await call<{groups:GroupRow[]}>(`groups?q=${encodeURIComponent(searchTerm)}`);setGroups(result.groups||[]);}
@@ -47,6 +49,18 @@ export default function AdminPanel(){
  const signOut=async()=>{try{await call('logout',{method:'POST'});}catch{}setAdmin(null);setSummary(null);setView('overview');setNotice('You have signed out.');};
  const changeView=(next:View)=>{setError('');setNotice('');setView(next);setQuery('');setSearchTerm('');setSelectedUser(null);setConversations([]);setMessages([]);setSelectedConversation('');};
  const searchSubmit=(event:FormEvent)=>{event.preventDefault();setSearchTerm(query.trim());};
+ const saveReleaseConfig=async(e:FormEvent)=>{
+  e.preventDefault();if(!apkUrl.trim()){setError('Download URL is required.');return;}
+  setBusy('save-apk');setError('');
+  try{
+   const result=await call<{release:any;message:string}>('releases',{
+    method:'PUT',
+    body:JSON.stringify({downloadUrl:apkUrl.trim(),version:apkVersion.trim()||'1.0.0',releaseNotes:apkNotes.trim()})
+   });
+   setRelease(result.release);setNotice(result.message||'Release updated.');
+  }catch(err){setError(err instanceof Error?err.message:'Could not update release configuration.');}
+  finally{setBusy('');}
+ };
  const updateReport=async(item:Report,status:string)=>{const notes=window.prompt('Add a brief private moderation note (optional):',item.admin_notes||'');if(notes===null)return;setBusy(item.id);setError('');try{await call(`reports/${item.id}`,{method:'PATCH',body:JSON.stringify({status,notes})});setNotice(`Report marked ${status}.`);await refresh();}catch(e){setError(e instanceof Error?e.message:'Report could not be updated.');}finally{setBusy('');}};
  const moderateUser=async(item:UserRow,action:'suspend'|'restore'|'delete')=>{const reason=window.prompt(action==='delete'?'Reason for this account deletion:':'Reason for this account action:');if(!reason)return;setBusy(item.id);setError('');try{if(action==='suspend')await call(`users/${item.id}/suspend`,{method:'POST',body:JSON.stringify({reason})});if(action==='restore')await call(`users/${item.id}/restore`,{method:'POST'});if(action==='delete')await call(`users/${item.id}`,{method:'DELETE',body:JSON.stringify({confirmation:'DELETE',reason})});setNotice(action==='restore'?'Account restored.':`Account ${action}d.`);if(selectedUser?.id===item.id){setSelectedUser(null);setConversations([]);setMessages([]);}await refresh();}catch(e){setError(e instanceof Error?e.message:'Account action failed.');}finally{setBusy('');}};
  const moderateGroup=async(item:GroupRow,action:'suspend'|'restore')=>{const reason=action==='suspend'?window.prompt('Reason for group suspension:'):undefined;if(action==='suspend'&&!reason)return;setBusy(item.id);setError('');try{await call(`groups/${item.id}/${action}`,{method:'POST',body:action==='suspend'?JSON.stringify({reason}):undefined});setNotice(action==='suspend'?'Group suspended.':'Group restored.');await refresh();}catch(e){setError(e instanceof Error?e.message:'Group action failed.');}finally{setBusy('');}};
@@ -68,6 +82,54 @@ export default function AdminPanel(){
     {view==='overview'&&<section className="fade-in"><div className="stat-grid">{[
       ['Active accounts',summary?.active_users,'◎','mint'],['New this week',summary?.new_users_7d,'↗','blue'],['Open reports',summary?.open_reports,'⚑','amber'],['Active groups',summary?.active_groups,'⌘','violet'],['Live stories',summary?.live_stories,'◉','pink'],['Messages · 24h',summary?.messages_24h,'▤','mint']
     ].map(([label,value,icon,tone])=><article className="stat-card" key={String(label)}><div className={`stat-icon ${tone}`}><Icon>{String(icon)}</Icon></div><div className="stat-label">{label}</div><div className="stat-value">{value===undefined?'—':Number(value).toLocaleString()}</div><div className="stat-bottom">Current database totals <span>↗</span></div></article>)}</div><div className="overview-grid"><article className="panel"><div className="panel-title"><div><h2>Start with what matters</h2><p>Safety actions are server-authorized and audited.</p></div><div className="panel-badge">● Live data</div></div><div className="action-list"><button onClick={()=>changeView('reports')}><span className="action-number">01</span><span><b>Review open reports</b><small>Prioritize reports that still need a decision.</small></span><span className="action-arrow">→</span></button><button onClick={()=>changeView('users')}><span className="action-number">02</span><span><b>Find an account</b><small>Search by verified email, username, or display name.</small></span><span className="action-arrow">→</span></button><button onClick={()=>changeView('audit')}><span className="action-number">03</span><span><b>Check the audit trail</b><small>Review administrative access and moderation events.</small></span><span className="action-arrow">→</span></button></div></article><article className="panel privacy-panel"><div className="privacy-mark">◇</div><div className="eyebrow">PRIVACY PROMISE</div><h2>Use access with care.</h2><p>Private message review is restricted to the designated owner, requires deliberate selection, and is audit-logged. Expired or deleted content is excluded and cannot be restored from this console.</p><div className="privacy-foot"><span className="secure-dot"/>Role and permission checks run in the API</div></article></div><div className="bottom-note"><b>Deployment reminder</b><span>This console uses an API-backed secure session. Configure <code>HAIKU_API_URL</code> on the server and use HTTPS in production.</span></div></section>}
+
+    {view==='releases'&&<section className="fade-in">
+      <div className="overview-grid">
+        <article className="panel">
+          <div className="panel-title">
+            <div>
+              <h2>Active Android APK (Vercel Blob)</h2>
+              <p>The download link served to landing page visitors and mobile updates.</p>
+            </div>
+            <div className="panel-badge">● Configured</div>
+          </div>
+          <div style={{display:'flex',flexDirection:'column',gap:'14px',marginTop:'14px'}}>
+            <div><small style={{color:'var(--muted)',display:'block',marginBottom:'3px'}}>VERSION</small><strong>{release?.version||'1.0.0'} (Code {release?.versionCode||1})</strong></div>
+            <div><small style={{color:'var(--muted)',display:'block',marginBottom:'3px'}}>STORAGE BACKEND</small><span style={{color:'var(--mint)',fontWeight:'800'}}>Vercel Blob Storage</span></div>
+            <div><small style={{color:'var(--muted)',display:'block',marginBottom:'3px'}}>DOWNLOAD URL</small><code style={{wordBreak:'break-all',fontSize:'12px',padding:'8px',background:'rgba(0,0,0,0.3)',borderRadius:'6px',display:'block',marginTop:'4px'}}>{release?.downloadUrl||'Default'}</code></div>
+            <div><small style={{color:'var(--muted)',display:'block',marginBottom:'3px'}}>LAST UPDATED</small><span>{date(release?.uploadedAt)}</span></div>
+            {release?.downloadUrl&&(
+              <a href={release.downloadUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{width:'fit-content',marginTop:'8px',textDecoration:'none'}}>
+                Test Download Link ↗
+              </a>
+            )}
+          </div>
+        </article>
+
+        <article className="panel">
+          <div className="panel-title">
+            <div>
+              <h2>Update Release Configuration</h2>
+              <p>Point to a new Vercel Blob URL or custom APK hosting link.</p>
+            </div>
+          </div>
+          <form onSubmit={saveReleaseConfig} style={{display:'flex',flexDirection:'column',gap:'14px',marginTop:'14px'}}>
+            <label>Version Name
+              <input type="text" value={apkVersion} onChange={e=>setApkVersion(e.target.value)} placeholder="v1.0.0" required />
+            </label>
+            <label>Vercel Blob / APK Download URL
+              <input type="url" value={apkUrl} onChange={e=>setApkUrl(e.target.value)} placeholder="https://...blob.vercel-storage.com/...apk" required />
+            </label>
+            <label>Release Notes
+              <textarea value={apkNotes} onChange={e=>setApkNotes(e.target.value)} placeholder="Changelog and release notes..." style={{minHeight:'80px',padding:'10px',borderRadius:'8px',background:'rgba(10,16,12,0.6)',border:'1px solid var(--border)',color:'#fff'}} />
+            </label>
+            <button type="submit" className="btn btn-primary" disabled={busy==='save-apk'}>
+              {busy==='save-apk'?'Updating...':'Save Release Configuration'}
+            </button>
+          </form>
+        </article>
+      </div>
+    </section>}
 
     {view==='reports'&&<section className="fade-in"><div className="toolbar"><div className="filters"><span className="filter-label">STATUS</span>{['open','reviewing','resolved','dismissed','all'].map(option=><button key={option} className={`filter-chip ${statusFilter===option?'selected':''}`} onClick={()=>setStatusFilter(option)}>{option.replace('_',' ')}</button>)}</div><span className="results-count">{reports.length} reports</span></div>{reports.length===0?<div className="empty-panel"><div className="empty-mark">✳</div><h3>No reports in this view.</h3><p>New reports will appear here when community members submit them.</p></div>:<div className="report-list">{reports.map(report=><article className="panel report-card" key={report.id}><div className="report-top"><div className="report-type"><span className={`report-icon ${report.status}`}>⚑</span><div><div className="report-title">{report.category.replace('_',' ')}</div><small>Submitted {date(report.created_at)}</small></div></div><span className={`badge badge-${report.status}`}>{report.status}</span></div><div className="report-details"><div><label>Reported by</label><strong>{report.reporter_name||'Deleted account'} <small>@{report.reporter_username||'—'}</small></strong></div><div><label>Target</label><strong>{report.target_name||report.group_name||'Reported message'}{report.target_username&&<small>@{report.target_username}</small>}</strong></div></div>{report.reason&&<div className="report-reason"><label>Reason submitted</label><p>{report.reason}</p></div>}{report.message_id&&<div className="evidence-quote"><span>REPORTED MESSAGE</span>{report.reported_message?<p>“{report.reported_message}”</p>:<p className="muted">Message expired, was deleted, or is no longer available. It cannot be recovered.</p>}{report.message_created_at&&<small>{date(report.message_created_at)}</small>}</div>}{report.admin_notes&&<div className="admin-note"><label>Previous moderator note</label><p>{report.admin_notes}</p></div>}<div className="report-footer">{report.evidence_attachment_id?<button className="text-action" disabled={busy===`evidence-${report.evidence_attachment_id}`} onClick={()=>void reviewEvidence(report.evidence_attachment_id!)}>↗ Review evidence</button>:<span className="muted">No attachment evidence</span>}<div className="report-actions">{report.message_id&&can(admin,'messages.moderate')&&<button className="table-action danger" disabled={!!busy} onClick={()=>void removeMessage(report.message_id!)}>Remove message</button>}{report.status==='open'&&can(admin,'reports.resolve')&&<button className="btn btn-secondary btn-small" disabled={!!busy} onClick={()=>void updateReport(report,'reviewing')}>Mark reviewing</button>}{(report.status==='open'||report.status==='reviewing')&&can(admin,'reports.resolve')&&<><button className="btn btn-primary btn-small" disabled={!!busy} onClick={()=>void updateReport(report,'resolved')}>Resolve</button><button className="btn btn-danger-soft btn-small" disabled={!!busy} onClick={()=>void updateReport(report,'dismissed')}>Dismiss</button></>}</div></div></article>)}</div>}</section>}
 

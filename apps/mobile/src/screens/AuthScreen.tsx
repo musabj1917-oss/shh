@@ -67,7 +67,7 @@ export function AuthScreen({navigation}:Props){
       {isRegister?'Create your Haiku account':'Sign in to Haiku'}
     </Text>
     <Text style={{fontSize:13,lineHeight:19,color:colors.body,marginBottom:20}}>
-      {isRegister?'A calm, private space for your conversations. No school code needed.':'Calm, ephemeral, and weightless messaging.'}
+      {isRegister?'A calm, private space for your conversations.':'Calm, ephemeral, and weightless messaging.'}
     </Text>
 
     {error?<Notice tone="error">{error}</Notice>:null}

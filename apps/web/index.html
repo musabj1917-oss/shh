@@ -1443,6 +1443,223 @@
       }
     }
 
+    /* === GOOGLE STITCH LANDING PAGE === */
+    .landing-page {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .landing-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 36px;
+      background: rgba(7, 13, 10, 0.88);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .landing-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+    .landing-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .landing-nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+    .landing-nav-link:hover {
+      color: var(--primary);
+    }
+    .landing-hero {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 72px 24px 50px;
+      background: radial-gradient(ellipse 900px 480px at 50% -40px, rgba(163, 230, 53, 0.14) 0%, transparent 80%);
+    }
+    .stitch-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(163, 230, 53, 0.08);
+      border: 1px solid rgba(163, 230, 53, 0.25);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .landing-title {
+      font-size: clamp(34px, 5.5vw, 62px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.12;
+      max-width: 860px;
+      margin-bottom: 18px;
+    }
+    .landing-subtitle {
+      font-size: clamp(15px, 2vw, 19px);
+      color: var(--text-muted);
+      max-width: 620px;
+      line-height: 1.6;
+      margin-bottom: 34px;
+    }
+    .landing-cta-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 48px;
+    }
+    .btn-download-apk {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px 30px;
+      border-radius: 16px;
+      background: var(--primary);
+      color: var(--primary-contrast);
+      font-weight: 800;
+      font-size: 15px;
+      text-decoration: none;
+      box-shadow: 0 10px 30px rgba(163, 230, 53, 0.32);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-download-apk:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 40px rgba(163, 230, 53, 0.45);
+    }
+    .btn-launch-web {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px 28px;
+      border-radius: 16px;
+      background: rgba(20, 32, 25, 0.7);
+      border: 1px solid rgba(163, 230, 53, 0.25);
+      color: var(--text-main);
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-launch-web:hover {
+      background: rgba(28, 44, 34, 0.9);
+      border-color: var(--primary);
+    }
+    .landing-showcase {
+      max-width: 1140px;
+      margin: 0 auto 70px;
+      padding: 0 24px;
+      width: 100%;
+    }
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 24px;
+      align-items: center;
+      background: rgba(14, 22, 17, 0.75);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(20px);
+    }
+    @media (max-width: 860px) {
+      .mockup-grid {
+        grid-template-columns: 1fr;
+      }
+      .landing-nav {
+        padding: 14px 20px;
+      }
+      .landing-nav-links {
+        display: none;
+      }
+    }
+    .feature-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      max-width: 1140px;
+      margin: 0 auto 70px;
+      padding: 0 24px;
+      width: 100%;
+    }
+    .stitch-feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .stitch-feature-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--primary);
+    }
+    .feature-icon-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: rgba(163, 230, 53, 0.12);
+      border: 1px solid rgba(163, 230, 53, 0.24);
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+    }
+    .download-section {
+      max-width: 880px;
+      margin: 0 auto 80px;
+      padding: 36px 30px;
+      background: linear-gradient(135deg, rgba(20, 32, 25, 0.85) 0%, rgba(10, 16, 12, 0.95) 100%);
+      border: 1px solid var(--primary-glow);
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .landing-footer {
+      border-top: 1px solid var(--border);
+      padding: 36px 24px;
+      text-align: center;
+      color: var(--text-sub);
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
     /* Reduced Motion Accessibility */
     @media (prefers-reduced-motion: reduce) {
       * {
@@ -1454,6 +1671,197 @@
   </style>
 </head>
 <body>
+  <!-- GOOGLE STITCH LANDING PAGE -->
+  <div class="landing-page" id="landingPage">
+    <!-- Landing Navigation -->
+    <header class="landing-nav">
+      <div class="landing-brand">
+        <img src="/logo.svg" alt="Haiku Logo" style="width:34px; height:34px; border-radius:9px;" />
+        <span>Haiku</span>
+      </div>
+      <nav class="landing-nav-links">
+        <a href="#features" class="landing-nav-link">Features</a>
+        <a href="#ephemeral" class="landing-nav-link">Ephemeral</a>
+        <a href="#download" class="landing-nav-link">Download</a>
+      </nav>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <a id="navDownloadBtn" class="btn-download-apk" href="https://github.com/musabj1917-oss/shh/releases/latest" style="padding:10px 18px; font-size:13px;">
+          <span>🤖</span> Download APK
+        </a>
+        <button id="navOpenWebBtn" class="btn-launch-web" style="padding:10px 18px; font-size:13px;">
+          <span>🌐</span> Launch Web
+        </button>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="landing-hero">
+      <div class="stitch-badge">
+        <span>✦</span> Google Stitch Architecture · Obsidian Velvet
+      </div>
+      <h1 class="landing-title">
+        Calm, Ephemeral, Weightless Messaging.
+      </h1>
+      <p class="landing-subtitle">
+        Private by design. Real-time conversations with disappearing messages, voice notes, and zero tracking. Built with Stitch aesthetics for Android and the Web.
+      </p>
+      <div class="landing-cta-row">
+        <a id="heroDownloadApkBtn" class="btn-download-apk" href="https://github.com/musabj1917-oss/shh/releases/latest">
+          <span style="font-size:20px;">🤖</span>
+          <span>Download Android APK</span>
+          <span id="heroApkBadge" style="font-size:11px; opacity:0.85; padding:2px 8px; border-radius:6px; background:rgba(0,0,0,0.15);">v1.0</span>
+        </a>
+        <button id="heroOpenWebBtn" class="btn-launch-web">
+          <span style="font-size:18px;">🌐</span>
+          <span>Use Web Version</span>
+        </button>
+      </div>
+
+      <!-- Live Mockup Showcase (Stitch UI for Mobile & Web) -->
+      <div class="landing-showcase" id="features">
+        <div class="mockup-grid">
+          <!-- Mobile Phone Mockup -->
+          <div style="background:#070d0a; border:2px solid var(--border); border-radius:32px; padding:16px 12px; box-shadow:var(--shadow-float); display:flex; flex-direction:column; height:420px; overflow:hidden;">
+            <!-- Phone Status Bar -->
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--text-sub); padding:0 8px 10px;">
+              <span>09:41</span>
+              <span>●●● 5G</span>
+            </div>
+            <!-- Phone App Interior: Left Rail + Chat -->
+            <div style="flex:1; display:flex; gap:8px; overflow:hidden;">
+              <!-- Left Rail -->
+              <div style="width:48px; background:rgba(10,16,13,0.96); border-right:1px solid var(--border); border-radius:14px; padding:10px 4px; display:flex; flex-direction:column; align-items:center; justify-content:space-between;">
+                <img src="/logo.svg" style="width:24px; height:24px; border-radius:6px;" alt="Logo"/>
+                <div style="display:flex; flex-direction:column; gap:12px; align-items:center;">
+                  <span style="font-size:16px; padding:6px; border-radius:8px; background:rgba(163,230,53,0.15); border:1px solid rgba(163,230,53,0.3);">💬</span>
+                  <span style="font-size:15px; opacity:0.6;">✦</span>
+                  <span style="font-size:15px; opacity:0.6;">👥</span>
+                  <span style="font-size:15px; opacity:0.6;">⚙</span>
+                </div>
+                <div style="width:6px; height:6px; border-radius:3px; background:var(--primary);"></div>
+              </div>
+              <!-- Chat Stream -->
+              <div style="flex:1; display:flex; flex-direction:column; justify-content:flex-end; gap:8px; padding:6px;">
+                <div style="align-self:flex-start; max-width:85%; background:rgba(22,34,27,0.9); border:1px solid var(--border); padding:8px 12px; border-radius:14px 14px 14px 4px; font-size:11px; line-height:1.4;">
+                  Disappearing in 5m ⏱
+                </div>
+                <div style="align-self:flex-end; max-width:85%; background:var(--bubble-me); color:#07120a; padding:8px 12px; border-radius:14px 14px 4px 14px; font-size:11px; font-weight:600; line-height:1.4;">
+                  Calm & weightless. ✓✓
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Web Client Mockup -->
+          <div style="display:flex; flex-direction:column; gap:16px; text-align:left; padding:12px 16px;">
+            <div class="stitch-badge" style="width:fit-content; margin-bottom:0;">Desktop & Mobile Parity</div>
+            <h2 style="font-size:28px; font-weight:800; letter-spacing:-0.02em;">Designed for quiet focus.</h2>
+            <p style="color:var(--text-muted); font-size:15px; line-height:1.6;">
+              Haiku Messenger rethinks messaging from the ground up. Both the web client and mobile Android app feature our signature Left Navigation Rail, tactile stitch borders, and instant ephemeral delivery.
+            </p>
+            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:8px;">
+              <span style="padding:6px 12px; border-radius:10px; background:rgba(20,32,25,0.7); border:1px solid var(--border); font-size:12px; font-weight:700;">✦ Neon Lakebase Storage</span>
+              <span style="padding:6px 12px; border-radius:10px; background:rgba(20,32,25,0.7); border:1px solid var(--border); font-size:12px; font-weight:700;">✦ Vercel Blob APK Updates</span>
+              <span style="padding:6px 12px; border-radius:10px; background:rgba(20,32,25,0.7); border:1px solid var(--border); font-size:12px; font-weight:700;">✦ Zero Telemetry</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feature Stitches -->
+    <section class="feature-cards-grid" id="ephemeral">
+      <div class="stitch-feature-card">
+        <div class="feature-icon-badge">🌿</div>
+        <h3 style="font-size:18px; font-weight:800;">Stitch Architecture</h3>
+        <p style="color:var(--text-muted); font-size:13px; line-height:1.6;">
+          Deep obsidian velvet canvas (`#070D0A`) layered with translucent glass panels and luminous 1px stitch seams for weightless interaction.
+        </p>
+      </div>
+
+      <div class="stitch-feature-card">
+        <div class="feature-icon-badge">⏱</div>
+        <h3 style="font-size:18px; font-weight:800;">Ephemeral by Default</h3>
+        <p style="color:var(--text-muted); font-size:13px; line-height:1.6;">
+          Messages self-destruct cleanly on timers from 10 seconds to 24 hours. No persistent archives, no digital baggage.
+        </p>
+      </div>
+
+      <div class="stitch-feature-card">
+        <div class="feature-icon-badge">📦</div>
+        <h3 style="font-size:18px; font-weight:800;">Split Cloud Storage</h3>
+        <p style="color:var(--text-muted); font-size:13px; line-height:1.6;">
+          Neon Object Storage powers encrypted voice notes, images, and stories, while Vercel Blob manages direct APK updates.
+        </p>
+      </div>
+
+      <div class="stitch-feature-card">
+        <div class="feature-icon-badge">🔒</div>
+        <h3 style="font-size:18px; font-weight:800;">Personal Sanctuary</h3>
+        <p style="color:var(--text-muted); font-size:13px; line-height:1.6;">
+          Zero surveillance algorithms, zero third-party ads, no tracking cookies, and no data selling. Pure private conversations.
+        </p>
+      </div>
+    </section>
+
+    <!-- Download Section -->
+    <div style="padding:0 24px;">
+      <section class="download-section" id="download">
+        <div style="flex:1; min-width:280px;">
+          <div class="stitch-badge" style="width:fit-content; margin-bottom:12px;">Get Started</div>
+          <h2 style="font-size:30px; font-weight:800; letter-spacing:-0.02em; margin-bottom:10px;">Download for Android</h2>
+          <p style="color:var(--text-muted); font-size:14px; line-height:1.6; margin-bottom:20px;">
+            Install the native Android APK directly on your phone or launch the web version in any modern browser.
+          </p>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <a id="cardDownloadApkBtn" class="btn-download-apk" href="https://github.com/musabj1917-oss/shh/releases/latest">
+              <span>🤖</span> Download APK
+            </a>
+            <button id="cardOpenWebBtn" class="btn-launch-web">
+              <span>🌐</span> Open Web Client
+            </button>
+          </div>
+        </div>
+        <div style="background:rgba(10,16,12,0.8); border:1px solid var(--border); border-radius:20px; padding:20px; text-align:center;">
+          <div style="width:140px; height:140px; margin:0 auto 12px; background:#fff; border-radius:12px; padding:10px; display:grid; place-items:center;">
+            <!-- SVG QR Code Icon -->
+            <svg viewBox="0 0 100 100" width="120" height="120" fill="#07120a">
+              <rect x="0" y="0" width="30" height="30" rx="4"/>
+              <rect x="70" y="0" width="30" height="30" rx="4"/>
+              <rect x="0" y="70" width="30" height="30" rx="4"/>
+              <rect x="6" y="6" width="18" height="18" fill="#fff" rx="2"/>
+              <rect x="76" y="6" width="18" height="18" fill="#fff" rx="2"/>
+              <rect x="6" y="76" width="18" height="18" fill="#fff" rx="2"/>
+              <rect x="10" y="10" width="10" height="10" rx="1"/>
+              <rect x="80" y="10" width="10" height="10" rx="1"/>
+              <rect x="10" y="80" width="10" height="10" rx="1"/>
+              <rect x="40" y="10" width="10" height="20"/>
+              <rect x="40" y="40" width="20" height="20"/>
+              <rect x="10" y="40" width="20" height="10"/>
+              <rect x="70" y="40" width="20" height="10"/>
+              <rect x="40" y="70" width="20" height="20"/>
+              <rect x="70" y="70" width="10" height="20"/>
+              <rect x="85" y="85" width="15" height="15"/>
+            </svg>
+          </div>
+          <small style="color:var(--text-sub); font-size:11px; font-weight:700;">SCAN TO INSTALL ON ANDROID</small>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <img src="/logo.svg" alt="Logo" style="width:20px; height:20px; border-radius:5px;"/>
+        <strong style="color:var(--text-main);">Haiku Messenger</strong>
+      </div>
+      <p style="margin:0; font-size:12px;">Google Stitch UI · Neon Lakebase Storage · Vercel Blob APK Releases</p>
+      <div style="display:flex; gap:16px; margin-top:4px;">
+        <button id="footerLaunchWebBtn" style="background:none; border:none; color:var(--primary); font-size:12px; font-weight:700; cursor:pointer;">Launch Web Version →</button>
+      </div>
+    </footer>
+  </div>
+
   <div class="app-shell" id="appShell">
     <!-- 1. LEFT RAIL -->
     <aside class="rail">
@@ -2084,6 +2492,38 @@
     }
 
     // === AUTH & SESSIONS ===
+    function showLandingPage() {
+      if (el('landingPage')) el('landingPage').style.display = 'flex';
+      if (el('appShell')) el('appShell').style.display = 'none';
+      if (el('authModal')) el('authModal').hidden = true;
+    }
+
+    function openWebVersion() {
+      if (el('landingPage')) el('landingPage').style.display = 'none';
+      if (el('appShell')) el('appShell').style.display = 'grid';
+      if (!STATE.token) {
+        switchToLoginTab();
+        el('authModal').hidden = false;
+      }
+    }
+
+    async function loadLatestApkInfo() {
+      try {
+        const res = await fetch(`${STATE.apiUrl.replace(/\/$/, '')}/releases/latest-apk`).then(r => r.json());
+        if (res && res.release && res.release.downloadUrl) {
+          const url = res.release.downloadUrl;
+          const ver = res.release.version || 'v1.0';
+          ['heroDownloadApkBtn', 'navDownloadBtn', 'cardDownloadApkBtn'].forEach(id => {
+            const btn = el(id);
+            if (btn) btn.href = url;
+          });
+          if (el('heroApkBadge')) el('heroApkBadge').textContent = ver;
+        }
+      } catch (err) {
+        console.warn('[Landing] Could not fetch latest APK:', err);
+      }
+    }
+
     function handleUnauthorized() {
       if (STATE.pollTimer) clearInterval(STATE.pollTimer);
       STATE.pollTimer = null;
@@ -2092,8 +2532,7 @@
       localStorage.removeItem('haiku_token');
       localStorage.removeItem('haiku_user');
       el('appShell').classList.remove('chat-open');
-      switchToLoginTab();
-      el('authModal').hidden = false;
+      showLandingPage();
     }
 
     function switchToLoginTab() {
@@ -2116,6 +2555,8 @@
     el('authRegisterTab').addEventListener('click', switchToRegisterTab);
 
     async function handlePostAuth() {
+      if (el('landingPage')) el('landingPage').style.display = 'none';
+      if (el('appShell')) el('appShell').style.display = 'grid';
       el('authModal').hidden = true;
       if (STATE.currentUser) {
         el('myAvatarBtn').textContent = (STATE.currentUser.displayName || STATE.currentUser.username || 'U')[0].toUpperCase();
@@ -2923,7 +3364,18 @@
       }
     });
 
+    // Landing Page Actions
+    if (el('navOpenWebBtn')) el('navOpenWebBtn').addEventListener('click', openWebVersion);
+    if (el('heroOpenWebBtn')) el('heroOpenWebBtn').addEventListener('click', openWebVersion);
+    if (el('cardOpenWebBtn')) el('cardOpenWebBtn').addEventListener('click', openWebVersion);
+    if (el('footerLaunchWebBtn')) el('footerLaunchWebBtn').addEventListener('click', openWebVersion);
+    if (el('brandLogo')) {
+      el('brandLogo').style.cursor = 'pointer';
+      el('brandLogo').addEventListener('click', showLandingPage);
+    }
+
     // Boot
+    loadLatestApkInfo();
     checkAuth();
   </script>
   <script>

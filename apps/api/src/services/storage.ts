@@ -1,3 +1,10 @@
+/**
+ * Haiku Split Storage Architecture:
+ * - Part 1: Neon Object Storage (S3-compatible) handles user messaging media,
+ *   attachments, voice notes, stories, and avatars.
+ * - Part 2: Vercel Blob Storage (see `services/vercel-blob.ts`) handles Android APK
+ *   application releases configured via the Admin Console.
+ */
 import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';

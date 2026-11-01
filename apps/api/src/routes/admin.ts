@@ -8,6 +8,7 @@ import { hasAdminPermission, requireAdmin } from '../middleware/admin.js';
 import { auditAdmin } from '../services/audit.js';
 import { getStorage } from '../services/storage.js';
 import { releaseAdminRoutes } from './app-releases.js';
+import { getLatestApkRelease, setLatestApkRelease } from '../services/vercel-blob.js';
 import { publishMessageCreated } from '../services/realtime.js';
 import type { ApiEnv } from '../types.js';
 
@@ -276,4 +277,29 @@ adminRoutes.get('/audit',async(c)=>{
   const rows=await getDb()`SELECT a.id,a.admin_user_id,a.action,a.entity_type,a.entity_id,a.reason,a.metadata,a.created_at,p.username,p.display_name
     FROM admin_audit_events a LEFT JOIN user_profiles p ON p.user_id=a.admin_user_id ORDER BY a.created_at DESC LIMIT ${limit} OFFSET ${offset}`;
   return c.json({events:rows,pagination:{page,limit}});
+});
+
+adminRoutes.get('/releases',async(c)=>{
+  const release=await getLatestApkRelease();
+  return c.json({release});
+});
+
+adminRoutes.put('/releases',async(c)=>{
+  const actor=c.get('user');
+  if(c.get('admin').role!=='owner')return jsonError(c,403,'OWNER_REQUIRED','Only the owner can update release configurations.');
+  const body=await c.req.json().catch(()=>null);
+  if(!body||!body.downloadUrl){
+    return jsonError(c,400,'INVALID_CONFIG','A valid downloadUrl is required.');
+  }
+  const current=await getLatestApkRelease();
+  const updated=await setLatestApkRelease({
+    ...current,
+    version:body.version||current.version,
+    versionCode:Number(body.versionCode||current.versionCode),
+    downloadUrl:String(body.downloadUrl).trim(),
+    releaseNotes:body.releaseNotes!==undefined?String(body.releaseNotes):current.releaseNotes,
+    uploadedAt:new Date().toISOString()
+  });
+  await auditAdmin(actor.id,'releases.update','apk_release',null,undefined,{version:updated.version,downloadUrl:updated.downloadUrl});
+  return c.json({release:updated,message:'Release configuration updated successfully.'});
 });

@@ -15,7 +15,9 @@
     "@aws-sdk/s3-request-presigner": "3.1156.0",
     "@haiku/contracts": "file:../../packages/contracts",
     "@neondatabase/serverless": "1.2.0",
+    "@vercel/blob": "^2.8.2",
     "ably": "2.30.0",
+    "firebase-admin": "^14.5.0",
     "google-auth-library": "11.3.1",
     "hono": "4.13.14",
     "zod": "4.6.7"

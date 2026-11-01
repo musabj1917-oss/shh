@@ -8,6 +8,7 @@ import { errorCode, jsonError, parseJson } from '../http.js';
 import { createOpaqueToken, hashPassword, sha256, verifyPassword } from '../security.js';
 import { createSession } from '../services/session.js';
 import { sendPasswordResetEmail, sendVerificationEmail } from '../services/email.js';
+import { verifyFirebaseToken } from '../services/firebase.js';
 import { requireUser } from '../middleware/auth.js';
 import { enforceRateLimit } from '../middleware/rate-limit.js';
 import type { ApiEnv } from '../types.js';
@@ -123,6 +124,55 @@ authRoutes.post('/google',async(c)=>{
     if(errorCode(error)==='CONFIG_GOOGLE_MISSING')return jsonError(c,503,'CONFIG_GOOGLE_MISSING','Google sign-in is not configured.');
     console.error('Google identity verification failed',safeName(error));
     return jsonError(c,401,'GOOGLE_IDENTITY_INVALID','Google identity verification failed.');
+  }
+});
+
+authRoutes.post('/firebase',async(c)=>{
+  const limited=await enforceRateLimit(c,'firebase-auth',10,3600);if(limited)return limited;
+  const body=await c.req.json().catch(()=>null);
+  const idToken=body?.idToken;
+  if(!idToken||typeof idToken!=='string'){
+    return jsonError(c,400,'TOKEN_MISSING','Firebase ID token is required.');
+  }
+  const verified=await verifyFirebaseToken(idToken);
+  if(!verified){
+    return jsonError(c,401,'FIREBASE_TOKEN_INVALID','Firebase authentication could not be verified.');
+  }
+  const email=verified.email?verified.email.trim().toLowerCase():null;
+  if(!email){
+    return jsonError(c,422,'EMAIL_MISSING','Firebase account must have an associated email address.');
+  }
+  try{
+    const existingIdentity=await getDb()`SELECT user_id FROM auth_identities WHERE provider='firebase' AND provider_subject=${verified.uid} LIMIT 1`;
+    let userId:string;
+    if(existingIdentity.length){
+      userId=String(existingIdentity[0].user_id);
+    }else{
+      const existingUser=await getDb()`SELECT id FROM users WHERE email=${email} LIMIT 1`;
+      if(existingUser.length){
+        userId=String(existingUser[0].id);
+        await getDb()`INSERT INTO auth_identities(id,user_id,provider,provider_subject,provider_email) VALUES (${randomUUID()},${userId},'firebase',${verified.uid},${email})`;
+      }else{
+        const dob=body?.dateOfBirth||'2000-01-01';
+        const baseName=(verified.displayName||email.split('@')[0]).replace(/[^a-zA-Z0-9_]/g,'').slice(0,20)||'user';
+        const username=body?.username||`${baseName}_${randomUUID().slice(0,4)}`;
+        userId=randomUUID();
+        await getDb().transaction([
+          getDb()`INSERT INTO users(id,email,email_verified_at,date_of_birth,status) VALUES (${userId},${email},now(),${dob},'active')`,
+          getDb()`INSERT INTO user_profiles(user_id,username,display_name) VALUES (${userId},${username},${verified.displayName||username})`,
+          getDb()`INSERT INTO auth_identities(id,user_id,provider,provider_subject,provider_email) VALUES (${randomUUID()},${userId},'firebase',${verified.uid},${email})`,
+        ]);
+      }
+    }
+    const row=await profileFor(userId) as Record<string,unknown>;
+    if(!row||row.status==='suspended'||row.status==='deleted'){
+      return jsonError(c,403,'ACCOUNT_UNAVAILABLE','This account cannot sign in.');
+    }
+    const session=await createSession(userId,c.req.header('user-agent'));
+    return c.json({accessToken:session.token,tokenType:'Bearer',expiresIn:session.expiresInSeconds,user:publicUser(row)});
+  }catch(err){
+    console.error('Firebase sign-in error:',err);
+    return jsonError(c,500,'FIREBASE_SIGNIN_FAILED','Could not complete Firebase sign-in.');
   }
 });
 

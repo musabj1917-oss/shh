@@ -21,8 +21,10 @@ export const colors = {
   body: '#9AB3A6',             // Secondary muted text
   muted: '#61796D',            // Subdued captions & placeholders
 
-  // Borders & Glows
-  line: 'rgba(163, 230, 53, 0.14)',
+  // Stitch Lines & Glows
+  line: 'rgba(163, 230, 53, 0.16)',
+  stitch: 'rgba(163, 230, 53, 0.16)',
+  stitchGlow: 'rgba(163, 230, 53, 0.32)',
   borderLight: 'rgba(255, 255, 255, 0.08)',
   borderFocus: '#A3E635',
 
