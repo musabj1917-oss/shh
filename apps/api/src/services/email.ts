@@ -32,12 +32,12 @@ export async function sendVerificationEmail(email: string, token: string) {
 }
 
 export async function sendPasswordResetEmail(email: string, token: string) {
-  // Prefer ADMIN_WEB_URL (the Next.js frontend); fall back to the
-  // known production admin URL so the reset link never points at
-  // the API server, which has no /reset-password page.
+  // Prefer ADMIN_WEB_URL (the Next.js admin frontend). Fall back to
+  // the known production admin URL so the reset link never accidentally
+  // points at the API server (which has no /reset-password page).
   const base =
     process.env.ADMIN_WEB_URL?.replace(/\/$/, '') ||
-    'https://shh-jet-five.vercel.app';
+    'https://admin-musab12.vercel.app';
   const link = `${base}/reset-password?token=${encodeURIComponent(token)}`;
   const host = process.env.SMTP_HOST;
   if (!host) {
