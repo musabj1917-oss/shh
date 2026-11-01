@@ -12,6 +12,8 @@ import { storyRoutes } from './routes/stories.js';
 import { reportRoutes } from './routes/reports.js';
 import { accountRoutes } from './routes/account.js';
 import { adminRoutes } from './routes/admin.js';
+import { appPublicRoutes } from './routes/app-releases.js';
+import { brandAssets } from './brand-assets.js';
 import { internalRoutes } from './routes/internal.js';
 import { getDb, dbReady } from './db.js';
 import { getWebUiHtml } from './web-ui.js';
@@ -54,6 +56,9 @@ app.get('/',(c)=>{
 
 app.get('/app',(c)=>c.html(getWebUiHtml()));
 app.get('/web',(c)=>c.html(getWebUiHtml()));
+for(const [assetPath,asset] of Object.entries(brandAssets)){
+  app.get(assetPath,(c)=>c.body(asset.body as never,200,{'Content-Type':asset.type,'Cache-Control':'public, max-age=86400'}));
+}
 app.get('/v1/health',async(c)=>{
   let databaseConnected = false;
   if(dbReady()){
@@ -84,6 +89,7 @@ app.route('/v1/reports',reportRoutes);
 app.route('/v1/account',accountRoutes);
 app.route('/v1/admin',adminRoutes);
 app.route('/v1/internal',internalRoutes);
+app.route('/v1/app',appPublicRoutes);
 
 app.notFound((c)=>c.json({error:{code:'NOT_FOUND',message:'Endpoint not found.'}},404));
 app.onError((error,c)=>{

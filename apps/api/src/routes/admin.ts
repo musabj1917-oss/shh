@@ -7,6 +7,7 @@ import { requireUser } from '../middleware/auth.js';
 import { hasAdminPermission, requireAdmin } from '../middleware/admin.js';
 import { auditAdmin } from '../services/audit.js';
 import { getStorage } from '../services/storage.js';
+import { releaseAdminRoutes } from './app-releases.js';
 import { publishMessageCreated } from '../services/realtime.js';
 import type { ApiEnv } from '../types.js';
 
@@ -14,6 +15,7 @@ export const adminRoutes = new Hono<ApiEnv>();
 adminRoutes.use('*',requireUser,requireAdmin);
 const pageArgs=(c:any)=>({page:Math.max(1,Number.parseInt(c.req.query('page')||'1',10)||1),limit:Math.min(100,Math.max(1,Number.parseInt(c.req.query('limit')||'25',10)||25))});
 const check=(c:any,permission:string)=>hasAdminPermission(c,permission);
+adminRoutes.route('/app-releases',releaseAdminRoutes);
 
 adminRoutes.get('/me',async(c)=>{
   const user=c.get('user'),admin=c.get('admin');

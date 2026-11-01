@@ -9,7 +9,7 @@ export type UploadPlan = { mode: 'proxy' | 'signed'; url: string; method: 'PUT';
 export type StorageAdapter = {
   mode: 'local' | 'neon-s3';
   uploadPlan(objectKey: string, mimeType: string, byteSize: number, baseUrl: string, attachmentId: string): Promise<UploadPlan>;
-  downloadUrl(objectKey: string, baseUrl: string): Promise<{ mode: 'proxy' | 'signed'; url: string; expiresInSeconds: number }>;
+  downloadUrl(objectKey: string, baseUrl: string, opts?: { fileName?: string; contentType?: string }): Promise<{ mode: 'proxy' | 'signed'; url: string; expiresInSeconds: number }>;
   putLocal?(objectKey: string, bytes: Uint8Array): Promise<void>;
   readLocal?(objectKey: string): Promise<Buffer>;
   checkObject?(objectKey: string, expectedMimeType?: string): Promise<{ byteSize: number; mimeType: string; prefix: Uint8Array }>;
@@ -59,8 +59,9 @@ function neonS3Storage(): StorageAdapter {
       const url = await getSignedUrl(s3, command, { expiresIn: 300 });
       return { mode: 'signed', url, method: 'PUT', headers: { 'Content-Type': mimeType }, expiresInSeconds: 300 };
     },
-    async downloadUrl(objectKey) {
-      const url = await getSignedUrl(s3, new GetObjectCommand({ Bucket: bucket, Key: objectKey }), { expiresIn: 60 });
+    async downloadUrl(objectKey, _baseUrl, opts) {
+      const safeName = opts?.fileName ? opts.fileName.replace(/[^A-Za-z0-9._-]/g, '_') : undefined;
+      const url = await getSignedUrl(s3, new GetObjectCommand({ Bucket: bucket, Key: objectKey, ...(safeName ? { ResponseContentDisposition: `attachment; filename="${safeName}"` } : {}), ...(opts?.contentType ? { ResponseContentType: opts.contentType } : {}) }), { expiresIn: 60 });
       return { mode: 'signed', url, expiresInSeconds: 60 };
     },
     async checkObject(objectKey) {

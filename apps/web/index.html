@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#070d0a" />
   <title>Haiku Messenger — Calm, Connected Conversations</title>
-  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-  <link rel="alternate icon" type="image/png" href="/favicon.ico" />
-  <link rel="apple-touch-icon" href="/logo.svg" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
+  <link rel="alternate icon" type="image/x-icon" sizes="any" href="/favicon.ico?v=2" />
+  <link rel="apple-touch-icon" href="/logo.png?v=2" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -1544,6 +1544,7 @@
             A calm, weightless space for private conversations. Pick a chat from the left or connect with friends.
           </p>
           <button class="btn-primary" style="padding:0 24px;" id="welcomeNewChatBtn">Start a Conversation</button>
+          <a class="btn-primary" data-apk-link href="/v1/app/download" style="display:none; padding:0 24px; text-decoration:none;"><span>⬇ Download Android app <small data-apk-meta style="font-weight:600; font-size:11px; opacity:.8; margin-left:6px;"></small></span></a>
         </div>
       </div>
 
@@ -1686,6 +1687,8 @@
           </div>
           <button type="submit" class="btn-primary" style="margin-top:10px;">Create Account</button>
         </form>
+
+        <a class="btn-secondary" data-apk-link href="/v1/app/download" style="display:none; margin-top:14px; padding:0 18px; text-decoration:none;"><span>⬇ Download Android app <small data-apk-meta style="font-weight:600; font-size:11px; opacity:.8; margin-left:6px;"></small></span></a>
       </div>
     </div>
   </div>
@@ -2922,6 +2925,21 @@
 
     // Boot
     checkAuth();
+  </script>
+  <script>
+    // Shows the Android download button once an APK has been published from the admin console.
+    (function () {
+      try {
+        var base = localStorage.getItem('haiku_api_url') || (location.port === '3002' ? 'http://localhost:3001/v1' : location.origin + '/v1');
+        base = base.replace(/\/$/, '');
+        fetch(base + '/app/latest').then(function (r) { return r.json(); }).then(function (d) {
+          if (!d || !d.available) return;
+          var label = 'v' + d.version + (d.byteSize ? ' · ' + Math.round(d.byteSize / 1048576) + ' MB' : '');
+          document.querySelectorAll('[data-apk-link]').forEach(function (a) { a.href = base + '/app/download'; a.style.display = 'grid'; });
+          document.querySelectorAll('[data-apk-meta]').forEach(function (s) { s.textContent = label; });
+        }).catch(function () {});
+      } catch (e) {}
+    })();
   </script>
 </body>
 </html>
