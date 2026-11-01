@@ -1,6 +1,7 @@
 {
   "cleanUrls": true,
   "rewrites": [
+    { "source": "/v1/:path*", "destination": "https://shh-jet-five.vercel.app/v1/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
