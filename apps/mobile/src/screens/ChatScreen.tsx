@@ -101,21 +101,53 @@ export function ChatScreen({route,navigation}:Props){
   const mine=item.sender_id===user?.id;
   const isMedia=Boolean(item.attachment_id)&&item.message_type!=='text';
   return <View style={{width:'100%',alignItems:mine?'flex-end':'flex-start',paddingHorizontal:14,marginBottom:9}}>
-   {kind==='group'&&!mine&&item.sender?.displayName?<Text style={{fontSize:9,color:colors.muted,marginLeft:8,marginBottom:3}}>{item.sender.displayName}</Text>:null}
-   <Pressable onLongPress={()=>messageActions(item)} style={{maxWidth:'84%',padding:10,borderRadius:17,borderBottomRightRadius:mine?5:17,borderBottomLeftRadius:mine?17:5,backgroundColor:mine?colors.mint:'#fff',borderWidth:mine?0:1,borderColor:colors.line}}>
-    {item.reply_to_id?<Text style={{fontSize:9,color:mine?'#DCF3E8':'#8B9A94',marginBottom:4}}>↪ Reply</Text>:null}
-    {isMedia&&item.message_type==='image'?mediaUrls[item.attachment_id!]?<Image source={{uri:mediaUrls[item.attachment_id!]}} style={{width:220,height:190,borderRadius:11,backgroundColor:colors.mintPale}} resizeMode="cover"/>:<View style={{width:210,height:110,alignItems:'center',justifyContent:'center',backgroundColor:mine?'#3A987D':colors.mintPale,borderRadius:10}}><Text style={{color:mine?'#fff':colors.mint,fontSize:12}}>Loading photo…</Text></View>:null}
-    {isMedia&&item.message_type==='video'?<Pressable onPress={async()=>{try{const result=await api<{url:string}>(`/media/${item.attachment_id}`);await Linking.openURL(result.url);}catch(e){setError(messageForError(e));}}} style={{padding:13,backgroundColor:mine?'#3A987D':colors.mintPale,borderRadius:10}}><Text style={{color:mine?'#fff':colors.mintDark,fontWeight:'700'}}>▶  Open video</Text></Pressable>:null}
-    {item.body?<Text style={{fontSize:13,lineHeight:19,color:mine?'#fff':colors.ink}}>{item.body}</Text>:null}
-    <Text style={{textAlign:'right',fontSize:9,color:mine?'#D8F1E6':colors.muted,marginTop:5}}>{timeLabel(item.created_at)}{item.edited_at?' · edited':''}{mine&&item.receipt_status?` · ${item.receipt_status==='read'?'Seen':item.receipt_status==='delivered'?'Delivered':'Sent'}`:''}</Text>
+   {kind==='group'&&!mine&&item.sender?.displayName?<Text style={{fontSize:9,color:colors.body,marginLeft:8,marginBottom:3}}>{item.sender.displayName}</Text>:null}
+   <Pressable
+     onLongPress={()=>messageActions(item)}
+     style={{
+       maxWidth:'84%',
+       paddingHorizontal:13,
+       paddingVertical:10,
+       borderRadius:18,
+       borderBottomRightRadius:mine?4:18,
+       borderBottomLeftRadius:mine?18:4,
+       backgroundColor:mine?colors.mint:colors.card,
+       borderWidth:mine?0:1,
+       borderColor:colors.line,
+       elevation:2,
+       shadowColor:mine?colors.mint:'#000',
+       shadowOpacity:mine?0.25:0.4,
+       shadowRadius:mine?8:4
+     }}
+   >
+    {item.reply_to_id?<Text style={{fontSize:10,fontWeight:'700',color:mine?colors.mintContrast:colors.mintAccent,marginBottom:4}}>↪ Quoted reply</Text>:null}
+    {isMedia&&item.message_type==='image'?mediaUrls[item.attachment_id!]?<Image source={{uri:mediaUrls[item.attachment_id!]}} style={{width:220,height:190,borderRadius:12,backgroundColor:colors.mintPale}} resizeMode="cover"/>:<View style={{width:210,height:110,alignItems:'center',justifyContent:'center',backgroundColor:mine?colors.mintDark:colors.mintPale,borderRadius:10}}><Text style={{color:mine?colors.mintContrast:colors.mint,fontSize:12}}>Loading photo…</Text></View>:null}
+    {isMedia&&item.message_type==='video'?<Pressable onPress={async()=>{try{const result=await api<{url:string}>(`/media/${item.attachment_id}`);await Linking.openURL(result.url);}catch(e){setError(messageForError(e));}}} style={{padding:13,backgroundColor:mine?colors.mintDark:colors.mintPale,borderRadius:10}}><Text style={{color:mine?colors.mintContrast:colors.mintDark,fontWeight:'700'}}>▶  Open video</Text></Pressable>:null}
+    {item.body?<Text style={{fontSize:14,lineHeight:20,fontWeight:mine?'600':'400',color:mine?colors.mintContrast:colors.ink}}>{item.body}</Text>:null}
+    <Text style={{textAlign:'right',fontSize:9,fontWeight:'600',color:mine?'rgba(7,18,10,0.65)':colors.muted,marginTop:5}}>
+      {timeLabel(item.created_at)}{item.edited_at?' · edited':''}{mine&&item.receipt_status?` · ${item.receipt_status==='read'?'✓✓ Seen':item.receipt_status==='delivered'?'✓✓':'✓'}`:''}
+    </Text>
    </Pressable>
   </View>;
  };
  return <View style={{flex:1,backgroundColor:colors.canvas}}>
-  <View style={{height:60,paddingHorizontal:12,flexDirection:'row',alignItems:'center',gap:10,borderBottomWidth:1,borderBottomColor:colors.line,backgroundColor:'#fff'}}>
-    <Pressable onPress={()=>navigation.goBack()} accessibilityRole="button" accessibilityLabel="Back" style={{width:36,height:38,alignItems:'center',justifyContent:'center'}}><Text style={{fontSize:23,color:colors.mint}}>‹</Text></Pressable>
-    <Avatar name={title} color={kind==='group'?colors.blue:colors.mint}/><View style={{flex:1}}><Text numberOfLines={1} style={{fontWeight:'800',fontSize:14,color:colors.ink}}>{title}</Text><Text style={{fontSize:10,color:realtimeStatus==='Live'?colors.mint:colors.muted,marginTop:2}}>{kind==='group'?'Group chat':'Private chat'} · {realtimeStatus}</Text></View>
-    <Pressable onPress={()=>void load()} accessibilityRole="button" accessibilityLabel="Refresh messages" style={{padding:8}}><Text style={{fontSize:17,color:colors.mint}}>↻</Text></Pressable>
+  <View style={{height:62,paddingHorizontal:14,flexDirection:'row',alignItems:'center',gap:12,borderBottomWidth:1,borderBottomColor:colors.line,backgroundColor:'rgba(10, 16, 13, 0.96)'}}>
+    <Pressable onPress={()=>navigation.goBack()} accessibilityRole="button" accessibilityLabel="Back" style={{width:38,height:38,borderRadius:12,backgroundColor:colors.mintPale,borderWidth:1,borderColor:colors.line,alignItems:'center',justifyContent:'center'}}>
+      <Text style={{fontSize:20,color:colors.mint,marginTop:-2}}>‹</Text>
+    </Pressable>
+    <View style={{position:'relative'}}>
+      <Avatar name={title} color={kind==='group'?colors.blue:colors.mint}/>
+      <View style={{position:'absolute',bottom:0,right:0,width:10,height:10,borderRadius:5,backgroundColor:realtimeStatus==='Live'?colors.online:colors.offline,borderWidth:1.5,borderColor:colors.canvas}}/>
+    </View>
+    <View style={{flex:1}}>
+      <Text numberOfLines={1} style={{fontWeight:'800',fontSize:15,color:colors.ink}}>{title}</Text>
+      <Text style={{fontSize:10,color:realtimeStatus==='Live'?colors.mint:colors.muted,marginTop:2}}>
+        {realtimeStatus==='Live'?'● Active now':kind==='group'?'Group conversation':realtimeStatus}
+      </Text>
+    </View>
+    <Pressable onPress={()=>void load()} accessibilityRole="button" accessibilityLabel="Refresh messages" style={{width:38,height:38,borderRadius:12,backgroundColor:colors.mintPale,borderWidth:1,borderColor:colors.line,alignItems:'center',justifyContent:'center'}}>
+      <Text style={{fontSize:16,color:colors.mint}}>↻</Text>
+    </Pressable>
   </View>
   {error?<View style={{paddingHorizontal:12,paddingTop:8}}><Notice tone="error">{error}</Notice></View>:null}
   {typing?<Text style={{fontSize:10,color:colors.muted,paddingHorizontal:18,paddingTop:7}}>{title} is typing…</Text>:null}
@@ -123,11 +155,11 @@ export function ChatScreen({route,navigation}:Props){
    {loading?<View style={{flex:1,alignItems:'center',justifyContent:'center'}}><Text style={{color:colors.muted}}>Loading conversation…</Text></View>:messages.length===0?<EmptyState title="A fresh beginning." detail="Send a message to start this conversation."/>:<FlatList inverted data={[...messages].reverse()} keyExtractor={item=>item.id} renderItem={renderMessage} contentContainerStyle={{paddingTop:16,paddingBottom:12}} keyboardShouldPersistTaps="handled" onRefresh={()=>{setRefreshing(true);load();}} refreshing={refreshing} onEndReached={()=>{void loadOlder();}} onEndReachedThreshold={0.35} ListFooterComponent={loadingOlder?<Text style={{textAlign:'center',fontSize:10,color:colors.muted,padding:12}}>Loading older messages…</Text>:undefined}/>}
    {editingId?<View style={{paddingHorizontal:13,paddingTop:7,flexDirection:'row',justifyContent:'space-between'}}><Text style={{fontSize:10,color:colors.mint,fontWeight:'700'}}>Editing message</Text><Pressable onPress={()=>{setEditingId('');setText('');}}><Text style={{fontSize:10,color:colors.red}}>Cancel</Text></Pressable></View>:replyingTo?<View style={{paddingHorizontal:13,paddingTop:7,flexDirection:'row',justifyContent:'space-between'}}><Text numberOfLines={1} style={{fontSize:10,color:colors.mint,fontWeight:'700',flex:1}}>Replying to {replyingTo.sender_id===user?.id?'yourself':replyingTo.sender?.displayName||title}</Text><Pressable onPress={()=>setReplyingTo(null)}><Text style={{fontSize:10,color:colors.red}}>Cancel</Text></Pressable></View>:null}
    <View style={{paddingHorizontal:10,paddingTop:8,paddingBottom:Platform.OS==='ios'?14:10,backgroundColor:colors.canvas}}>
-    {!editingId?<View style={{flexDirection:'row',alignItems:'center',gap:6,paddingHorizontal:5,paddingBottom:7}}><Text style={{fontSize:8,fontWeight:'800',letterSpacing:.7,color:colors.muted}}>DISAPPEARS</Text>{expiryOptions.map(option=><Pressable key={option.label} onPress={()=>setExpiresInHours(option.value)} accessibilityRole="button" accessibilityState={{selected:expiresInHours===option.value}} accessibilityLabel={option.value===null?'Messages do not expire':`Messages expire after ${option.label}`} style={{paddingVertical:4,paddingHorizontal:8,borderRadius:9,borderWidth:1,borderColor:expiresInHours===option.value?colors.mint:colors.line,backgroundColor:expiresInHours===option.value?colors.mintPale:'#fff'}}><Text style={{fontSize:9,fontWeight:'700',color:expiresInHours===option.value?colors.mintDark:colors.muted}}>{option.label}</Text></Pressable>)}<Text numberOfLines={2} style={{fontSize:9,color:colors.muted,marginLeft:2,flexShrink:1}}>{expiresInHours===null?'Text and photos stay in history; video and voice notes clear after 10 minutes':`Text and photos clear after ${expiresInHours===168?'7 days':`${expiresInHours} hour${expiresInHours===1?'':'s'}`}; video and voice notes clear after 10 minutes`}</Text></View>:null}
-    <View style={{minHeight:52,flexDirection:'row',alignItems:'flex-end',gap:6,paddingHorizontal:7,paddingVertical:6,borderWidth:1,borderColor:colors.line,borderRadius:17,backgroundColor:'#fff'}}>
-     <Pressable onPress={uploading?undefined:uploadMedia} accessibilityRole="button" accessibilityLabel="Attach photo or video" style={{width:36,height:36,alignItems:'center',justifyContent:'center'}}><Text style={{fontSize:22,color:colors.mint}}>{uploading?'…':'＋'}</Text></Pressable>
-     <TextInput value={text} onChangeText={onChangeText} placeholder={editingId?'Edit your message…':'Write a message…'} placeholderTextColor="#9AA6A1" multiline style={{flex:1,maxHeight:110,minHeight:36,paddingVertical:8,color:colors.ink,fontSize:13}} editable={!uploading}/>
-     <Pressable onPress={send} disabled={!text.trim()||sending||uploading} accessibilityRole="button" accessibilityLabel={editingId?'Save edit':'Send message'} style={{width:38,height:38,borderRadius:13,alignItems:'center',justifyContent:'center',backgroundColor:text.trim()?colors.mint:'#E8EEEA'}}><Text style={{fontSize:17,color:text.trim()?'#fff':'#9AA6A1'}}>↑</Text></Pressable>
+    {!editingId?<View style={{flexDirection:'row',alignItems:'center',gap:6,paddingHorizontal:5,paddingBottom:7}}><Text style={{fontSize:8,fontWeight:'800',letterSpacing:.7,color:colors.muted}}>DISAPPEARS</Text>{expiryOptions.map(option=><Pressable key={option.label} onPress={()=>setExpiresInHours(option.value)} accessibilityRole="button" accessibilityState={{selected:expiresInHours===option.value}} accessibilityLabel={option.value===null?'Messages do not expire':`Messages expire after ${option.label}`} style={{paddingVertical:4,paddingHorizontal:8,borderRadius:9,borderWidth:1,borderColor:expiresInHours===option.value?colors.mint:colors.line,backgroundColor:expiresInHours===option.value?colors.mint:colors.card}}><Text style={{fontSize:9,fontWeight:'700',color:expiresInHours===option.value?colors.mintContrast:colors.muted}}>{option.label}</Text></Pressable>)}<Text numberOfLines={2} style={{fontSize:9,color:colors.muted,marginLeft:2,flexShrink:1}}>{expiresInHours===null?'Text & photos stay; video & voice clear after 10m':`Clears after ${expiresInHours===168?'7d':`${expiresInHours}h`}`}</Text></View>:null}
+    <View style={{minHeight:52,flexDirection:'row',alignItems:'flex-end',gap:8,paddingHorizontal:10,paddingVertical:7,borderWidth:1,borderColor:colors.line,borderRadius:20,backgroundColor:'rgba(14, 22, 17, 0.95)'}}>
+     <Pressable onPress={uploading?undefined:uploadMedia} accessibilityRole="button" accessibilityLabel="Attach photo or video" style={{width:36,height:36,borderRadius:12,backgroundColor:colors.mintPale,borderWidth:1,borderColor:colors.line,alignItems:'center',justifyContent:'center'}}><Text style={{fontSize:20,color:colors.mint}}>{uploading?'…':'＋'}</Text></Pressable>
+     <TextInput value={text} onChangeText={onChangeText} placeholder={editingId?'Edit your message…':'Write a thoughtful message…'} placeholderTextColor={colors.muted} multiline style={{flex:1,maxHeight:110,minHeight:36,paddingVertical:8,color:colors.ink,fontSize:14}} editable={!uploading}/>
+     <Pressable onPress={send} disabled={!text.trim()||sending||uploading} accessibilityRole="button" accessibilityLabel={editingId?'Save edit':'Send message'} style={{width:38,height:38,borderRadius:14,alignItems:'center',justifyContent:'center',backgroundColor:text.trim()?colors.mint:'rgba(163,230,53,0.12)'}}><Text style={{fontSize:16,fontWeight:'800',color:text.trim()?colors.mintContrast:colors.muted}}>↑</Text></Pressable>
     </View>
     {uploading?<Text style={{fontSize:10,color:colors.muted,marginLeft:9,marginTop:5}}>Uploading securely…</Text>:null}
    </View>

@@ -28,14 +28,14 @@ export function GroupsScreen(){
     <Pressable onPress={()=>navigation.navigate('GroupDetail',{groupId:item.id,name:item.name,role:item.role})} accessibilityRole="button" accessibilityLabel={`Manage ${item.name}`} style={{padding:8}}><Text style={{fontSize:19,color:colors.mint}}>···</Text></Pressable>
    </Surface>}/>} 
   <Modal visible={joinModal} transparent animationType="fade" onRequestClose={()=>setJoinModal(false)}>
-   <View style={{flex:1,backgroundColor:'rgba(16,35,29,.42)',justifyContent:'center',padding:18}}><View style={{backgroundColor:'#fff',borderRadius:22,padding:18}}>
+   <View style={{flex:1,backgroundColor:'rgba(0,0,0,0.72)',justifyContent:'center',padding:18}}><View style={{backgroundColor:'rgba(23,23,23,0.98)',borderRadius:24,borderWidth:1,borderColor:'rgba(255,255,255,0.1)',padding:22}}>
     <Text style={{fontSize:20,fontWeight:'800',color:colors.ink}}>Join a group</Text><Text style={{fontSize:11,color:colors.muted,marginTop:5,marginBottom:14}}>Paste the invitation link or token shared by a group member.</Text>
     {error?<Notice tone="error">{error}</Notice>:null}<Field label="Invitation link or token" value={joinToken} onChangeText={setJoinToken} autoCapitalize="none" autoCorrect={false}/>
     <View style={{flexDirection:'row',gap:8,marginTop:8}}><Button title="Cancel" kind="secondary" onPress={()=>setJoinModal(false)} style={{flex:1}}/><Button title="Continue" onPress={join} loading={joining} style={{flex:1}}/></View>
    </View></View>
   </Modal>
   <Modal visible={modal} transparent animationType="fade" onRequestClose={()=>setModal(false)}>
-   <View style={{flex:1,backgroundColor:'rgba(16,35,29,.42)',justifyContent:'center',padding:18}}><View style={{maxHeight:'86%',backgroundColor:'#fff',borderRadius:22,padding:18}}>
+   <View style={{flex:1,backgroundColor:'rgba(0,0,0,0.72)',justifyContent:'center',padding:18}}><View style={{maxHeight:'86%',backgroundColor:'rgba(23,23,23,0.98)',borderRadius:24,borderWidth:1,borderColor:'rgba(255,255,255,0.1)',padding:22}}>
     <Text style={{fontSize:20,fontWeight:'800',color:colors.ink}}>Create a group</Text><Text style={{fontSize:11,color:colors.muted,marginTop:5,marginBottom:14}}>You’ll be the owner. Choose friends to add now or later.</Text>
     {error?<Notice tone="error">{error}</Notice>:null}
     <Field label="Group name" value={name} onChangeText={setName} placeholder="Weekend plans" maxLength={80}/>

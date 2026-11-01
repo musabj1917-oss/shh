@@ -25,15 +25,45 @@ import {BrandMark} from '../components/UI';
 
 const Stack=createNativeStackNavigator<RootStackParamList>();
 const Tabs=createBottomTabNavigator<MainTabParamList>();
-const tabGlyph:Record<keyof MainTabParamList,string>={Inbox:'◌',Stories:'◉',People:'♧',Profile:'○'};
+const tabGlyph:Record<keyof MainTabParamList,string>={Inbox:'💬',Stories:'✦',People:'👥',Profile:'⚙'};
 const linking:LinkingOptions<RootStackParamList>={prefixes:['haikumessenger://'],config:{screens:{JoinGroup:'join/:token'}}};
 
 function MainTabs(){
- return <Tabs.Navigator screenOptions={({route})=>({headerShown:false,tabBarActiveTintColor:colors.mint,tabBarInactiveTintColor:'#8A9691',tabBarStyle:{height:62,paddingTop:7,paddingBottom:7,backgroundColor:'#fff',borderTopColor:colors.line},tabBarLabelStyle:{fontSize:10,fontWeight:'700'},tabBarIcon:({color})=><Text style={{fontSize:20,color,lineHeight:22}}>{tabGlyph[route.name]}</Text>})}>
+ return <Tabs.Navigator screenOptions={({route})=>({
+   headerShown:false,
+   tabBarActiveTintColor:colors.mint,
+   tabBarInactiveTintColor:colors.muted,
+   tabBarStyle:{
+     height:64,
+     paddingTop:6,
+     paddingBottom:8,
+     backgroundColor:'rgba(10, 16, 13, 0.96)',
+     borderTopWidth:1,
+     borderTopColor:colors.line,
+     elevation:8,
+     shadowColor:'#000',
+     shadowOffset:{width:0,height:-4},
+     shadowOpacity:0.4,
+     shadowRadius:12
+   },
+   tabBarLabelStyle:{fontSize:10,fontWeight:'700',letterSpacing:0.2},
+   tabBarIcon:({color,focused})=>(
+     <View style={{
+       width:38,
+       height:28,
+       borderRadius:14,
+       alignItems:'center',
+       justifyContent:'center',
+       backgroundColor:focused?'rgba(163,230,53,0.12)':'transparent'
+     }}>
+       <Text style={{fontSize:16,color}}>{tabGlyph[route.name]}</Text>
+     </View>
+   )
+ })}>
   <Tabs.Screen name="Inbox" component={InboxScreen} options={{tabBarLabel:'Chats'}}/>
-  <Tabs.Screen name="Stories" component={StoriesScreen}/>
-  <Tabs.Screen name="People" component={FriendsScreen}/>
-  <Tabs.Screen name="Profile" component={ProfileScreen}/>
+  <Tabs.Screen name="Stories" component={StoriesScreen} options={{tabBarLabel:'Moments'}}/>
+  <Tabs.Screen name="People" component={FriendsScreen} options={{tabBarLabel:'People'}}/>
+  <Tabs.Screen name="Profile" component={ProfileScreen} options={{tabBarLabel:'Settings'}}/>
  </Tabs.Navigator>;
 }
 

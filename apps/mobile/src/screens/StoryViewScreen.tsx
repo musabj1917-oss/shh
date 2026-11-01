@@ -6,6 +6,7 @@ import {api,messageForError} from '../api/client';
 import {useAuth} from '../auth/AuthContext';
 import type {RootStackParamList} from '../navigation/types';
 import {Button,LoadingState,Notice} from '../components/UI';
+import {colors} from '../theme/colors';
 
 type Props=NativeStackScreenProps<RootStackParamList,'StoryView'>;
 type Story={id:string;user_id:string;media_type:'image'|'video';caption:string|null;expires_at:string;attachment_id:string;display_name:string;username:string};
@@ -21,13 +22,13 @@ export function StoryViewScreen({route,navigation}:Props){
  if(loading)return <LoadingState message="Opening story…"/>;
  if(!story)return <View style={{flex:1,justifyContent:'center',padding:20}}>{error?<Notice tone="error">{error}</Notice>:null}<Button title="Close" onPress={()=>navigation.goBack()}/></View>;
  const own=story.user_id===user?.id;
- return <View style={{flex:1,backgroundColor:'#10211D',padding:16,paddingTop:28}}>
-  <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginBottom:12}}><View><Text style={{fontSize:16,fontWeight:'800',color:'#fff'}}>{story.display_name}</Text><Text style={{fontSize:10,color:'#B9CDC4',marginTop:3}}>@{story.username} · expires {new Date(story.expires_at).toLocaleString()}</Text></View>{own?<Pressable onPress={remove} style={{padding:8}}><Text style={{fontSize:11,color:'#FFD3CE',fontWeight:'700'}}>Delete</Text></Pressable>:<Pressable onPress={authorActions} style={{padding:8}}><Text style={{fontSize:11,color:'#FFD3CE',fontWeight:'700'}}>···</Text></Pressable>}</View>
+ return <View style={{flex:1,backgroundColor:colors.canvas,padding:16,paddingTop:28}}>
+  <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginBottom:12}}><View><Text style={{fontSize:16,fontWeight:'800',color:colors.ink}}>{story.display_name}</Text><Text style={{fontSize:10,color:colors.muted,marginTop:3}}>@{story.username} · expires {new Date(story.expires_at).toLocaleString()}</Text></View>{own?<Pressable onPress={remove} style={{padding:8}}><Text style={{fontSize:11,color:colors.red,fontWeight:'700'}}>Delete</Text></Pressable>:<Pressable onPress={authorActions} style={{padding:8}}><Text style={{fontSize:11,color:colors.muted,fontWeight:'700'}}>···</Text></Pressable>}</View>
   {error?<Notice tone="error">{error}</Notice>:null}
-  <View style={{flex:1,backgroundColor:'#203A32',borderRadius:21,overflow:'hidden',alignItems:'center',justifyContent:'center'}}>
-   {story.media_type==='image'&&url?<Image source={{uri:url}} resizeMode="contain" style={{width:'100%',height:'100%'}}/>:story.media_type==='video'?<Button title="▶  Play video" onPress={()=>url?Linking.openURL(url):setError('Video is not available.')} kind="secondary"/>:<Text style={{fontSize:12,color:'#fff'}}>Loading media…</Text>}
-   {story.caption?<View style={{position:'absolute',bottom:12,left:12,right:12,padding:12,borderRadius:12,backgroundColor:'rgba(14,28,24,.78)'}}><Text style={{color:'#fff',fontSize:13,lineHeight:19}}>{story.caption}</Text></View>:null}
+  <View style={{flex:1,backgroundColor:colors.card,borderRadius:22,borderWidth:1,borderColor:colors.line,overflow:'hidden',alignItems:'center',justifyContent:'center'}}>
+   {story.media_type==='image'&&url?<Image source={{uri:url}} resizeMode="contain" style={{width:'100%',height:'100%'}}/>:story.media_type==='video'?<Button title="▶  Play video" onPress={()=>url?Linking.openURL(url):setError('Video is not available.')} kind="secondary"/>:<Text style={{fontSize:12,color:colors.muted}}>Loading media…</Text>}
+   {story.caption?<View style={{position:'absolute',bottom:12,left:12,right:12,padding:12,borderRadius:12,backgroundColor:'rgba(10,16,12,0.85)',borderWidth:1,borderColor:colors.line}}><Text style={{color:colors.ink,fontSize:13,lineHeight:19}}>{story.caption}</Text></View>:null}
   </View>
-  {own?<View style={{marginTop:12}}><Text style={{fontSize:10,fontWeight:'800',color:'#DCEDE5',marginBottom:7}}>VIEWED BY {viewers.length}</Text><Text numberOfLines={1} style={{fontSize:10,color:'#B9CDC4'}}>{viewers.slice(0,6).map(item=>item.display_name).join(' · ')||'No views yet'}</Text></View>:<View style={{flexDirection:'row',gap:8,alignItems:'center',marginTop:12}}>{sent?<Text style={{flex:1,color:'#BFE9D5',fontSize:11}}>Reply sent.</Text>:<TextInput value={text} onChangeText={setText} placeholder="Reply to this story…" placeholderTextColor="#B9CDC4" style={{flex:1,minHeight:44,borderRadius:14,backgroundColor:'#27483E',paddingHorizontal:13,color:'#fff',fontSize:12}}/>}<Button title="Send" onPress={reply} loading={busy} disabled={!text.trim()} small/></View>}
+  {own?<View style={{marginTop:12}}><Text style={{fontSize:10,fontWeight:'800',color:colors.mint,marginBottom:7}}>VIEWED BY {viewers.length}</Text><Text numberOfLines={1} style={{fontSize:10,color:colors.muted}}>{viewers.slice(0,6).map(item=>item.display_name).join(' · ')||'No views yet'}</Text></View>:<View style={{flexDirection:'row',gap:8,alignItems:'center',marginTop:12}}>{sent?<Text style={{flex:1,color:colors.mint,fontSize:11}}>Reply sent.</Text>:<TextInput value={text} onChangeText={setText} placeholder="Reply to this story…" placeholderTextColor={colors.muted} style={{flex:1,minHeight:44,borderRadius:14,backgroundColor:colors.inputBg,borderWidth:1,borderColor:colors.line,paddingHorizontal:13,color:colors.ink,fontSize:12}}/>}<Button title="Send" onPress={reply} loading={busy} disabled={!text.trim()} small/></View>}
  </View>;
 }
