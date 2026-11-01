@@ -7541,14 +7541,14 @@ var init_is_redirect = __esm({
 });
 
 // ../../node_modules/node-fetch/src/response.js
-var INTERNALS2, Response2;
+var INTERNALS2, Response3;
 var init_response = __esm({
   "../../node_modules/node-fetch/src/response.js"() {
     init_headers();
     init_body();
     init_is_redirect();
     INTERNALS2 = /* @__PURE__ */ Symbol("Response internals");
-    Response2 = class _Response extends Body {
+    Response3 = class _Response2 extends Body {
       constructor(body = null, options = {}) {
         super(body, options);
         const status = options.status != null ? options.status : 200;
@@ -7602,7 +7602,7 @@ var init_response = __esm({
        * @return  Response
        */
       clone() {
-        return new _Response(clone(this, this.highWaterMark), {
+        return new _Response2(clone(this, this.highWaterMark), {
           type: this.type,
           url: this.url,
           status: this.status,
@@ -7623,7 +7623,7 @@ var init_response = __esm({
         if (!isRedirect(status)) {
           throw new RangeError('Failed to execute "redirect" on "response": Invalid status code');
         }
-        return new _Response(null, {
+        return new _Response2(null, {
           headers: {
             location: new URL(url2).toString()
           },
@@ -7631,7 +7631,7 @@ var init_response = __esm({
         });
       }
       static error() {
-        const response = new _Response(null, { status: 0, statusText: "" });
+        const response = new _Response2(null, { status: 0, statusText: "" });
         response[INTERNALS2].type = "error";
         return response;
       }
@@ -7644,7 +7644,7 @@ var init_response = __esm({
         if (!headers.has("content-type")) {
           headers.set("content-type", "application/json");
         }
-        return new _Response(body, {
+        return new _Response2(body, {
           ...init,
           headers
         });
@@ -7653,7 +7653,7 @@ var init_response = __esm({
         return "Response";
       }
     };
-    Object.defineProperties(Response2.prototype, {
+    Object.defineProperties(Response3.prototype, {
       type: { enumerable: true },
       url: { enumerable: true },
       status: { enumerable: true },
@@ -7829,7 +7829,7 @@ var init_referrer = __esm({
 // ../../node_modules/node-fetch/src/request.js
 import { format as formatUrl } from "node:url";
 import { deprecate as deprecate2 } from "node:util";
-var INTERNALS3, isRequest, doBadDataWarn, Request2, getNodeRequestOptions;
+var INTERNALS3, isRequest, doBadDataWarn, Request3, getNodeRequestOptions;
 var init_request = __esm({
   "../../node_modules/node-fetch/src/request.js"() {
     init_headers();
@@ -7847,7 +7847,7 @@ var init_request = __esm({
       ".data is not a valid RequestInit property, use .body instead",
       "https://github.com/node-fetch/node-fetch/issues/1000 (request)"
     );
-    Request2 = class _Request extends Body {
+    Request3 = class _Request extends Body {
       constructor(input2, init = {}) {
         let parsedURL;
         if (isRequest(input2)) {
@@ -7962,7 +7962,7 @@ var init_request = __esm({
         return "Request";
       }
     };
-    Object.defineProperties(Request2.prototype, {
+    Object.defineProperties(Request3.prototype, {
       method: { enumerable: true },
       url: { enumerable: true },
       headers: { enumerable: true },
@@ -8053,8 +8053,8 @@ __export(src_exports, {
   File: () => file_default,
   FormData: () => FormData2,
   Headers: () => Headers2,
-  Request: () => Request2,
-  Response: () => Response2,
+  Request: () => Request3,
+  Response: () => Response3,
   blobFrom: () => blobFrom,
   blobFromSync: () => blobFromSync,
   default: () => fetch2,
@@ -8069,14 +8069,14 @@ import Stream2, { PassThrough as PassThrough2, pipeline as pump } from "node:str
 import { Buffer as Buffer3 } from "node:buffer";
 async function fetch2(url2, options_) {
   return new Promise((resolve3, reject) => {
-    const request = new Request2(url2, options_);
+    const request = new Request3(url2, options_);
     const { parsedURL, options } = getNodeRequestOptions(request);
     if (!supportedSchemas.has(parsedURL.protocol)) {
       throw new TypeError(`node-fetch cannot load ${url2}. URL scheme "${parsedURL.protocol.replace(/:$/, "")}" is not supported.`);
     }
     if (parsedURL.protocol === "data:") {
       const data = dist_default(request.url);
-      const response2 = new Response2(data, { headers: { "Content-Type": data.typeFull } });
+      const response2 = new Response3(data, { headers: { "Content-Type": data.typeFull } });
       resolve3(response2);
       return;
     }
@@ -8199,7 +8199,7 @@ async function fetch2(url2, options_) {
             if (responseReferrerPolicy) {
               requestOptions.referrerPolicy = responseReferrerPolicy;
             }
-            resolve3(fetch2(new Request2(locationURL, requestOptions)));
+            resolve3(fetch2(new Request3(locationURL, requestOptions)));
             finalize2();
             return;
           }
@@ -8231,7 +8231,7 @@ async function fetch2(url2, options_) {
       };
       const codings = headers.get("Content-Encoding");
       if (!request.compress || request.method === "HEAD" || codings === null || response_.statusCode === 204 || response_.statusCode === 304) {
-        response = new Response2(body, responseOptions);
+        response = new Response3(body, responseOptions);
         resolve3(response);
         return;
       }
@@ -8245,7 +8245,7 @@ async function fetch2(url2, options_) {
             reject(error64);
           }
         });
-        response = new Response2(body, responseOptions);
+        response = new Response3(body, responseOptions);
         resolve3(response);
         return;
       }
@@ -8269,12 +8269,12 @@ async function fetch2(url2, options_) {
               }
             });
           }
-          response = new Response2(body, responseOptions);
+          response = new Response3(body, responseOptions);
           resolve3(response);
         });
         raw2.once("end", () => {
           if (!response) {
-            response = new Response2(body, responseOptions);
+            response = new Response3(body, responseOptions);
             resolve3(response);
           }
         });
@@ -8286,11 +8286,11 @@ async function fetch2(url2, options_) {
             reject(error64);
           }
         });
-        response = new Response2(body, responseOptions);
+        response = new Response3(body, responseOptions);
         resolve3(response);
         return;
       }
-      response = new Response2(body, responseOptions);
+      response = new Response3(body, responseOptions);
       resolve3(response);
     });
     writeToStream(request_, request).catch(reject);
@@ -11717,22 +11717,22 @@ var require_crypto2 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.NodeCrypto = void 0;
-    var crypto9 = __require("crypto");
+    var crypto10 = __require("crypto");
     var NodeCrypto = class {
       async sha256DigestBase64(str) {
-        return crypto9.createHash("sha256").update(str).digest("base64");
+        return crypto10.createHash("sha256").update(str).digest("base64");
       }
       randomBytesBase64(count) {
-        return crypto9.randomBytes(count).toString("base64");
+        return crypto10.randomBytes(count).toString("base64");
       }
       async verify(pubkey, data, signature) {
-        const verifier = crypto9.createVerify("RSA-SHA256");
+        const verifier = crypto10.createVerify("RSA-SHA256");
         verifier.update(data);
         verifier.end();
         return verifier.verify(pubkey, signature, "base64");
       }
       async sign(privateKey, data) {
-        const signer = crypto9.createSign("RSA-SHA256");
+        const signer = crypto10.createSign("RSA-SHA256");
         signer.update(data);
         signer.end();
         return signer.sign(privateKey, "base64");
@@ -11750,7 +11750,7 @@ var require_crypto2 = __commonJS({
        *   string in hexadecimal encoding.
        */
       async sha256DigestHex(str) {
-        return crypto9.createHash("sha256").update(str).digest("hex");
+        return crypto10.createHash("sha256").update(str).digest("hex");
       }
       /**
        * Computes the HMAC hash of a message using the provided crypto key and the
@@ -11762,7 +11762,7 @@ var require_crypto2 = __commonJS({
        */
       async signWithHmacSha256(key, msg) {
         const cryptoKey = typeof key === "string" ? key : toBuffer3(key);
-        return toArrayBuffer2(crypto9.createHmac("sha256", cryptoKey).update(msg).digest());
+        return toArrayBuffer2(crypto10.createHmac("sha256", cryptoKey).update(msg).digest());
       }
     };
     exports.NodeCrypto = NodeCrypto;
@@ -12673,10 +12673,10 @@ var require_oauth2client = __commonJS({
        * https://github.com/googleapis/google-auth-library-nodejs/blob/main/samples/oauth2-codeVerifier.js
        */
       async generateCodeVerifierAsync() {
-        const crypto9 = (0, crypto_1.createCrypto)();
-        const randomString2 = crypto9.randomBytesBase64(96);
+        const crypto10 = (0, crypto_1.createCrypto)();
+        const randomString2 = crypto10.randomBytesBase64(96);
         const codeVerifier = randomString2.replace(/\+/g, "~").replace(/=/g, "_").replace(/\//g, "-");
-        const unencodedCodeChallenge = await crypto9.sha256DigestBase64(codeVerifier);
+        const unencodedCodeChallenge = await crypto10.sha256DigestBase64(codeVerifier);
         const codeChallenge = unencodedCodeChallenge.split("=")[0].replace(/\+/g, "-").replace(/\//g, "_");
         return { codeVerifier, codeChallenge };
       }
@@ -13117,7 +13117,7 @@ var require_oauth2client = __commonJS({
        * @return Returns a promise resolving to LoginTicket on verification.
        */
       async verifySignedJwtWithCertsAsync(jwt2, certs, requiredAudience, issuers, maxExpiry) {
-        const crypto9 = (0, crypto_1.createCrypto)();
+        const crypto10 = (0, crypto_1.createCrypto)();
         if (!maxExpiry) {
           maxExpiry = _OAuth2Client.DEFAULT_MAX_TOKEN_LIFETIME_SECS_;
         }
@@ -13130,7 +13130,7 @@ var require_oauth2client = __commonJS({
         let envelope;
         let payload;
         try {
-          envelope = JSON.parse(crypto9.decodeBase64StringUtf8(segments[0]));
+          envelope = JSON.parse(crypto10.decodeBase64StringUtf8(segments[0]));
         } catch (err) {
           if (err instanceof Error) {
             err.message = `Can't parse token envelope: ${segments[0]}': ${err.message}`;
@@ -13141,7 +13141,7 @@ var require_oauth2client = __commonJS({
           throw new Error("Can't parse token envelope: " + segments[0]);
         }
         try {
-          payload = JSON.parse(crypto9.decodeBase64StringUtf8(segments[1]));
+          payload = JSON.parse(crypto10.decodeBase64StringUtf8(segments[1]));
         } catch (err) {
           if (err instanceof Error) {
             err.message = `Can't parse token payload '${segments[0]}`;
@@ -13158,7 +13158,7 @@ var require_oauth2client = __commonJS({
         if (envelope.alg === "ES256") {
           signature = formatEcdsa.joseToDer(signature, "ES256").toString("base64");
         }
-        const verified = await crypto9.verify(cert2, signed, signature);
+        const verified = await crypto10.verify(cert2, signed, signature);
         if (!verified) {
           throw new Error("Invalid token signature: " + jwt2);
         }
@@ -13533,14 +13533,14 @@ var require_buffer_equal_constant_time = __commonJS({
 var require_jwa = __commonJS({
   "../../node_modules/jwa/index.js"(exports, module) {
     var Buffer4 = require_safe_buffer().Buffer;
-    var crypto9 = __require("crypto");
+    var crypto10 = __require("crypto");
     var formatEcdsa = require_ecdsa_sig_formatter();
     var util3 = __require("util");
     var MSG_INVALID_ALGORITHM = '"%s" is not a valid algorithm.\n  Supported algorithms are:\n  "HS256", "HS384", "HS512", "RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512" and "none".';
     var MSG_INVALID_SECRET = "secret must be a string or buffer";
     var MSG_INVALID_VERIFIER_KEY = "key must be a string or a buffer";
     var MSG_INVALID_SIGNER_KEY = "key must be a string, a buffer or an object";
-    var supportsKeyObjects = typeof crypto9.createPublicKey === "function";
+    var supportsKeyObjects = typeof crypto10.createPublicKey === "function";
     if (supportsKeyObjects) {
       MSG_INVALID_VERIFIER_KEY += " or a KeyObject";
       MSG_INVALID_SECRET += "or a KeyObject";
@@ -13630,17 +13630,17 @@ var require_jwa = __commonJS({
       return function sign4(thing, secret) {
         checkIsSecretKey(secret);
         thing = normalizeInput(thing);
-        var hmac2 = crypto9.createHmac("sha" + bits, secret);
+        var hmac2 = crypto10.createHmac("sha" + bits, secret);
         var sig2 = (hmac2.update(thing), hmac2.digest("base64"));
         return fromBase642(sig2);
       };
     }
     var bufferEqual;
-    var timingSafeEqual4 = "timingSafeEqual" in crypto9 ? function timingSafeEqual5(a6, b6) {
+    var timingSafeEqual4 = "timingSafeEqual" in crypto10 ? function timingSafeEqual5(a6, b6) {
       if (a6.byteLength !== b6.byteLength) {
         return false;
       }
-      return crypto9.timingSafeEqual(a6, b6);
+      return crypto10.timingSafeEqual(a6, b6);
     } : function timingSafeEqual5(a6, b6) {
       if (!bufferEqual) {
         bufferEqual = require_buffer_equal_constant_time();
@@ -13657,7 +13657,7 @@ var require_jwa = __commonJS({
       return function sign4(thing, privateKey) {
         checkIsPrivateKey(privateKey);
         thing = normalizeInput(thing);
-        var signer = crypto9.createSign("RSA-SHA" + bits);
+        var signer = crypto10.createSign("RSA-SHA" + bits);
         var sig2 = (signer.update(thing), signer.sign(privateKey, "base64"));
         return fromBase642(sig2);
       };
@@ -13667,7 +13667,7 @@ var require_jwa = __commonJS({
         checkIsPublicKey(publicKey);
         thing = normalizeInput(thing);
         signature = toBase643(signature);
-        var verifier = crypto9.createVerify("RSA-SHA" + bits);
+        var verifier = crypto10.createVerify("RSA-SHA" + bits);
         verifier.update(thing);
         return verifier.verify(publicKey, signature, "base64");
       };
@@ -13676,11 +13676,11 @@ var require_jwa = __commonJS({
       return function sign4(thing, privateKey) {
         checkIsPrivateKey(privateKey);
         thing = normalizeInput(thing);
-        var signer = crypto9.createSign("RSA-SHA" + bits);
+        var signer = crypto10.createSign("RSA-SHA" + bits);
         var sig2 = (signer.update(thing), signer.sign({
           key: privateKey,
-          padding: crypto9.constants.RSA_PKCS1_PSS_PADDING,
-          saltLength: crypto9.constants.RSA_PSS_SALTLEN_DIGEST
+          padding: crypto10.constants.RSA_PKCS1_PSS_PADDING,
+          saltLength: crypto10.constants.RSA_PSS_SALTLEN_DIGEST
         }, "base64"));
         return fromBase642(sig2);
       };
@@ -13690,12 +13690,12 @@ var require_jwa = __commonJS({
         checkIsPublicKey(publicKey);
         thing = normalizeInput(thing);
         signature = toBase643(signature);
-        var verifier = crypto9.createVerify("RSA-SHA" + bits);
+        var verifier = crypto10.createVerify("RSA-SHA" + bits);
         verifier.update(thing);
         return verifier.verify({
           key: publicKey,
-          padding: crypto9.constants.RSA_PKCS1_PSS_PADDING,
-          saltLength: crypto9.constants.RSA_PSS_SALTLEN_DIGEST
+          padding: crypto10.constants.RSA_PKCS1_PSS_PADDING,
+          saltLength: crypto10.constants.RSA_PSS_SALTLEN_DIGEST
         }, signature, "base64");
       };
     }
@@ -14447,16 +14447,16 @@ var require_jwtaccess = __commonJS({
        * @returns A string that returns the cached key.
        */
       getCachedKey(url2, scopes) {
-        let cacheKey = url2;
+        let cacheKey2 = url2;
         if (scopes && Array.isArray(scopes) && scopes.length) {
-          cacheKey = url2 ? `${url2}_${scopes.join("_")}` : `${scopes.join("_")}`;
+          cacheKey2 = url2 ? `${url2}_${scopes.join("_")}` : `${scopes.join("_")}`;
         } else if (typeof scopes === "string") {
-          cacheKey = url2 ? `${url2}_${scopes}` : scopes;
+          cacheKey2 = url2 ? `${url2}_${scopes}` : scopes;
         }
-        if (!cacheKey) {
+        if (!cacheKey2) {
           throw Error("Scopes or url must be provided");
         }
-        return cacheKey;
+        return cacheKey2;
       }
       /**
        * Get a non-expired access token, after refreshing if necessary.
@@ -16271,14 +16271,14 @@ var require_awsrequestsigner = __commonJS({
       }
     };
     exports.AwsRequestSigner = AwsRequestSigner;
-    async function sign4(crypto9, key, msg) {
-      return await crypto9.signWithHmacSha256(key, msg);
+    async function sign4(crypto10, key, msg) {
+      return await crypto10.signWithHmacSha256(key, msg);
     }
-    async function getSigningKey(crypto9, key, dateStamp, region, serviceName) {
-      const kDate = await sign4(crypto9, `AWS4${key}`, dateStamp);
-      const kRegion = await sign4(crypto9, kDate, region);
-      const kService = await sign4(crypto9, kRegion, serviceName);
-      const kSigning = await sign4(crypto9, kService, "aws4_request");
+    async function getSigningKey(crypto10, key, dateStamp, region, serviceName) {
+      const kDate = await sign4(crypto10, `AWS4${key}`, dateStamp);
+      const kRegion = await sign4(crypto10, kDate, region);
+      const kService = await sign4(crypto10, kRegion, serviceName);
+      const kSigning = await sign4(crypto10, kService, "aws4_request");
       return kSigning;
     }
     async function generateAuthenticationHeaderMap(options) {
@@ -17244,7 +17244,7 @@ var require_gdchclient = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.GdchClient = exports.GDCH_SERVICE_ACCOUNT_TYPE = void 0;
-    var crypto9 = __require("crypto");
+    var crypto10 = __require("crypto");
     var fs7 = __require("fs");
     var https3 = __require("https");
     var oauth2client_1 = require_oauth2client();
@@ -17435,7 +17435,7 @@ var require_gdchclient = __commonJS({
         const encodedHeader = this.base64UrlEncode(JSON.stringify(header));
         const encodedPayload = this.base64UrlEncode(JSON.stringify(payload));
         const signingInput = `${encodedHeader}.${encodedPayload}`;
-        const signature = crypto9.sign("sha256", Buffer.from(signingInput), {
+        const signature = crypto10.sign("sha256", Buffer.from(signingInput), {
           key: this.privateKey,
           dsaEncoding: "ieee-p1363"
         });
@@ -18298,24 +18298,24 @@ var require_googleauth = __commonJS({
           const signed = await client.sign(data);
           return signed.signedBlob;
         }
-        const crypto9 = (0, crypto_1.createCrypto)();
+        const crypto10 = (0, crypto_1.createCrypto)();
         if (client instanceof jwtclient_1.JWT && client.key) {
-          const sign4 = await crypto9.sign(client.key, data);
+          const sign4 = await crypto10.sign(client.key, data);
           return sign4;
         }
         const creds = await this.getCredentials();
         if (!creds.client_email) {
           throw new Error("Cannot sign data without `client_email`.");
         }
-        return this.signBlob(crypto9, creds.client_email, data, endpoint);
+        return this.signBlob(crypto10, creds.client_email, data, endpoint);
       }
-      async signBlob(crypto9, emailOrUniqueId, data, endpoint) {
+      async signBlob(crypto10, emailOrUniqueId, data, endpoint) {
         const url2 = new URL(endpoint + `${emailOrUniqueId}:signBlob`);
         const res = await this.request({
           method: "POST",
           url: url2.href,
           data: {
-            payload: crypto9.encodeBase64StringUtf8(data)
+            payload: crypto10.encodeBase64StringUtf8(data)
           },
           retry: true,
           retryConfig: {
@@ -22318,7 +22318,7 @@ var require_basename = __commonJS({
 var require_multipart = __commonJS({
   "../../node_modules/firebase-admin/node_modules/@fastify/busboy/lib/types/multipart.js"(exports, module) {
     "use strict";
-    var { Readable: Readable9 } = __require("node:stream");
+    var { Readable: Readable10 } = __require("node:stream");
     var { inherits } = __require("node:util");
     var Dicer = require_Dicer();
     var parseParams = require_parseParams();
@@ -22601,11 +22601,11 @@ var require_multipart = __commonJS({
       return typeof value === "string" && (value.includes("\r") || value.includes("\n"));
     }
     function FileStream(opts) {
-      Readable9.call(this, opts);
+      Readable10.call(this, opts);
       this.bytesRead = 0;
       this.truncated = false;
     }
-    inherits(FileStream, Readable9);
+    inherits(FileStream, Readable10);
     FileStream.prototype._read = function(n3) {
     };
     module.exports = Multipart;
@@ -27506,8 +27506,8 @@ var require_crypto_signer = __commonJS({
        * @inheritDoc
        */
       sign(buffer) {
-        const crypto9 = __require("node:crypto");
-        const sign4 = crypto9.createSign("RSA-SHA256");
+        const crypto10 = __require("node:crypto");
+        const sign4 = crypto10.createSign("RSA-SHA256");
         sign4.update(buffer);
         return Promise.resolve(sign4.sign(this.credential.privateKey));
       }
@@ -31216,11 +31216,11 @@ async function prepareKey(entry, key, usage) {
       return keyObject.export();
   }
   cache ||= /* @__PURE__ */ new WeakMap();
-  const cacheKey = key;
-  let cached4 = cache.get(cacheKey);
+  const cacheKey2 = key;
+  let cached4 = cache.get(cacheKey2);
   if (cached4?.[alg])
     return cached4[alg];
-  if (cached4 || cache.set(cacheKey, cached4 = {}), keyObject && typeof keyObject.toCryptoKey == "function") {
+  if (cached4 || cache.set(cacheKey2, cached4 = {}), keyObject && typeof keyObject.toCryptoKey == "function") {
     const isPublic = keyObject.type === "public", crv = nist[keyObject.asymmetricKeyDetails?.namedCurve], params = entry.resolve?.({ crv, asymmetricKeyType: keyObject.asymmetricKeyType }) ?? entry.subtle;
     return cached4[alg] = keyObject.toCryptoKey(params, isPublic, entry.usages[isPublic ? 0 : 1]);
   }
@@ -35173,20 +35173,20 @@ var require_sync = __commonJS({
       function emit(event, ...parameters) {
         emitter.emit(event, ...parameters);
       }
-      function isPromise(result2) {
+      function isPromise2(result2) {
         return result2 && result2.then && typeof result2.then === "function";
       }
       function processResult(result2) {
         let res = result2;
         if (clone3) {
-          if (isPromise(res)) {
+          if (isPromise2(res)) {
             res = res.then(lodash_clonedeep_1.default);
           } else {
             res = (0, lodash_clonedeep_1.default)(res);
           }
         }
         if (freeze) {
-          if (isPromise(res)) {
+          if (isPromise2(res)) {
             res = res.then(freeze_1.deepFreeze);
           } else {
             (0, freeze_1.deepFreeze)(res);
@@ -42222,9 +42222,9 @@ var require_event_target = __commonJS({
        *     the listener would be automatically removed when invoked.
        * @public
        */
-      addEventListener(type, handler, options = {}) {
+      addEventListener(type, handler2, options = {}) {
         for (const listener of this.listeners(type)) {
-          if (!options[kForOnEventAttribute] && listener[kListener] === handler && !listener[kForOnEventAttribute]) {
+          if (!options[kForOnEventAttribute] && listener[kListener] === handler2 && !listener[kForOnEventAttribute]) {
             return;
           }
         }
@@ -42235,7 +42235,7 @@ var require_event_target = __commonJS({
               data: isBinary ? data : data.toString()
             });
             event[kTarget] = this;
-            callListener(handler, this, event);
+            callListener(handler2, this, event);
           };
         } else if (type === "close") {
           wrapper = function onClose(code, message2) {
@@ -42245,7 +42245,7 @@ var require_event_target = __commonJS({
               wasClean: this._closeFrameReceived && this._closeFrameSent
             });
             event[kTarget] = this;
-            callListener(handler, this, event);
+            callListener(handler2, this, event);
           };
         } else if (type === "error") {
           wrapper = function onError(error64) {
@@ -42254,19 +42254,19 @@ var require_event_target = __commonJS({
               message: error64.message
             });
             event[kTarget] = this;
-            callListener(handler, this, event);
+            callListener(handler2, this, event);
           };
         } else if (type === "open") {
           wrapper = function onOpen() {
             const event = new Event2("open");
             event[kTarget] = this;
-            callListener(handler, this, event);
+            callListener(handler2, this, event);
           };
         } else {
           return;
         }
         wrapper[kForOnEventAttribute] = !!options[kForOnEventAttribute];
-        wrapper[kListener] = handler;
+        wrapper[kListener] = handler2;
         if (options.once) {
           this.once(type, wrapper);
         } else {
@@ -42280,9 +42280,9 @@ var require_event_target = __commonJS({
        * @param {(Function|Object)} handler The listener to remove
        * @public
        */
-      removeEventListener(type, handler) {
+      removeEventListener(type, handler2) {
         for (const listener of this.listeners(type)) {
-          if (listener[kListener] === handler && !listener[kForOnEventAttribute]) {
+          if (listener[kListener] === handler2 && !listener[kForOnEventAttribute]) {
             this.removeListener(type, listener);
             break;
           }
@@ -42469,7 +42469,7 @@ var require_websocket = __commonJS({
     var net8 = __require("net");
     var tls3 = __require("tls");
     var { randomBytes: randomBytes3, createHash: createHash7 } = __require("crypto");
-    var { Duplex, Readable: Readable9 } = __require("stream");
+    var { Duplex, Readable: Readable10 } = __require("stream");
     var { URL: URL2 } = __require("url");
     var PerMessageDeflate = require_permessage_deflate();
     var Receiver = require_receiver();
@@ -42935,15 +42935,15 @@ var require_websocket = __commonJS({
           }
           return null;
         },
-        set(handler) {
+        set(handler2) {
           for (const listener of this.listeners(method)) {
             if (listener[kForOnEventAttribute]) {
               this.removeListener(method, listener);
               break;
             }
           }
-          if (typeof handler !== "function") return;
-          this.addEventListener(method, handler, {
+          if (typeof handler2 !== "function") return;
+          this.addEventListener(method, handler2, {
             [kForOnEventAttribute]: true
           });
         }
@@ -44402,11 +44402,11 @@ var require_p_cancelable = __commonJS({
             this._isPending = false;
             reject(error64);
           };
-          const onCancel = (handler) => {
+          const onCancel = (handler2) => {
             if (!this._isPending) {
               throw new Error("The `onCancel` handler was attached after the promise settled.");
             }
-            this._cancelHandlers.push(handler);
+            this._cancelHandlers.push(handler2);
           };
           Object.defineProperties(onCancel, {
             shouldReject: {
@@ -44435,8 +44435,8 @@ var require_p_cancelable = __commonJS({
         this._isCanceled = true;
         if (this._cancelHandlers.length > 0) {
           try {
-            for (const handler of this._cancelHandlers) {
-              handler();
+            for (const handler2 of this._cancelHandlers) {
+              handler2();
             }
           } catch (error64) {
             this._reject(error64);
@@ -46136,9 +46136,9 @@ var require_lowercase_keys = __commonJS({
 var require_src7 = __commonJS({
   "../../node_modules/responselike/src/index.js"(exports, module) {
     "use strict";
-    var Readable9 = __require("stream").Readable;
+    var Readable10 = __require("stream").Readable;
     var lowercaseKeys = require_lowercase_keys();
-    var Response3 = class extends Readable9 {
+    var Response4 = class extends Readable10 {
       constructor(statusCode, headers, body, url2) {
         if (typeof statusCode !== "number") {
           throw new TypeError("Argument `statusCode` should be a number");
@@ -46163,7 +46163,7 @@ var require_src7 = __commonJS({
         this.push(null);
       }
     };
-    module.exports = Response3;
+    module.exports = Response4;
   }
 });
 
@@ -46477,7 +46477,7 @@ var require_src10 = __commonJS({
     var normalizeUrl = require_normalize_url();
     var getStream = require_get_stream();
     var CachePolicy = require_http_cache_semantics();
-    var Response3 = require_src7();
+    var Response4 = require_src7();
     var lowercaseKeys = require_lowercase_keys();
     var cloneResponse = require_src8();
     var Keyv = require_src9();
@@ -46541,13 +46541,13 @@ var require_src10 = __commonJS({
                 }
               };
             });
-            const handler = (response) => {
+            const handler2 = (response) => {
               if (revalidate && !opts2.forceRefresh) {
                 response.status = response.statusCode;
                 const revalidatedPolicy = CachePolicy.fromObject(revalidate.cachePolicy).revalidatedPolicy(opts2, response);
                 if (!revalidatedPolicy.modified) {
                   const headers = revalidatedPolicy.policy.responseHeaders();
-                  response = new Response3(revalidate.statusCode, headers, revalidate.body, revalidate.url);
+                  response = new Response4(revalidate.statusCode, headers, revalidate.body, revalidate.url);
                   response.cachePolicy = revalidatedPolicy.policy;
                   response.fromCache = true;
                 }
@@ -46600,7 +46600,7 @@ var require_src10 = __commonJS({
               }
             };
             try {
-              const req = request(opts2, handler);
+              const req = request(opts2, handler2);
               req.once("error", requestErrorCallback);
               req.once("abort", requestErrorCallback);
               ee.emit("request", req);
@@ -46618,7 +46618,7 @@ var require_src10 = __commonJS({
               const policy = CachePolicy.fromObject(cacheEntry.cachePolicy);
               if (policy.satisfiesWithoutRevalidation(opts2) && !opts2.forceRefresh) {
                 const headers = policy.responseHeaders();
-                const response = new Response3(cacheEntry.statusCode, headers, cacheEntry.body, cacheEntry.url);
+                const response = new Response4(cacheEntry.statusCode, headers, cacheEntry.body, cacheEntry.url);
                 response.cachePolicy = policy;
                 response.fromCache = true;
                 ee.emit("response", response);
@@ -47358,8 +47358,8 @@ Please report this to https://github.com/szmarczak/http2-wrapper/`
 var require_incoming_message = __commonJS({
   "../../node_modules/http2-wrapper/source/incoming-message.js"(exports, module) {
     "use strict";
-    var { Readable: Readable9 } = __require("stream");
-    var IncomingMessage = class extends Readable9 {
+    var { Readable: Readable10 } = __require("stream");
+    var IncomingMessage = class extends Readable10 {
       constructor(socket, highWaterMark) {
         super({
           highWaterMark,
@@ -48138,8 +48138,8 @@ var require_unhandle = __commonJS({
           handlers.push({ origin, event, fn });
         },
         unhandleAll() {
-          for (const handler of handlers) {
-            const { origin, event, fn } = handler;
+          for (const handler2 of handlers) {
+            const { origin, event, fn } = handler2;
             origin.removeListener(event, fn);
           }
           handlers.length = 0;
@@ -48692,14 +48692,14 @@ var require_core = __commonJS({
       }
       Object.defineProperties(to2, properties);
     };
-    var RequestError = class extends Error {
+    var RequestError2 = class extends Error {
       constructor(message2, error64, self2) {
         var _a6, _b2;
         super(message2);
         Error.captureStackTrace(this, this.constructor);
         this.name = "RequestError";
         this.code = (_a6 = error64.code) !== null && _a6 !== void 0 ? _a6 : "ERR_GOT_REQUEST_ERROR";
-        if (self2 instanceof Request3) {
+        if (self2 instanceof Request4) {
           Object.defineProperty(this, "request", {
             enumerable: false,
             value: self2
@@ -48734,8 +48734,8 @@ var require_core = __commonJS({
         }
       }
     };
-    exports.RequestError = RequestError;
-    var MaxRedirectsError = class extends RequestError {
+    exports.RequestError = RequestError2;
+    var MaxRedirectsError = class extends RequestError2 {
       constructor(request) {
         super(`Redirected ${request.options.maxRedirects} times. Aborting.`, {}, request);
         this.name = "MaxRedirectsError";
@@ -48743,7 +48743,7 @@ var require_core = __commonJS({
       }
     };
     exports.MaxRedirectsError = MaxRedirectsError;
-    var HTTPError = class extends RequestError {
+    var HTTPError = class extends RequestError2 {
       constructor(response) {
         super(`Response code ${response.statusCode} (${response.statusMessage})`, {}, response.request);
         this.name = "HTTPError";
@@ -48751,7 +48751,7 @@ var require_core = __commonJS({
       }
     };
     exports.HTTPError = HTTPError;
-    var CacheError = class extends RequestError {
+    var CacheError = class extends RequestError2 {
       constructor(error64, request) {
         super(error64.message, error64, request);
         this.name = "CacheError";
@@ -48759,7 +48759,7 @@ var require_core = __commonJS({
       }
     };
     exports.CacheError = CacheError;
-    var UploadError = class extends RequestError {
+    var UploadError = class extends RequestError2 {
       constructor(error64, request) {
         super(error64.message, error64, request);
         this.name = "UploadError";
@@ -48767,7 +48767,7 @@ var require_core = __commonJS({
       }
     };
     exports.UploadError = UploadError;
-    var TimeoutError = class extends RequestError {
+    var TimeoutError = class extends RequestError2 {
       constructor(error64, timings, request) {
         super(error64.message, error64, request);
         this.name = "TimeoutError";
@@ -48776,7 +48776,7 @@ var require_core = __commonJS({
       }
     };
     exports.TimeoutError = TimeoutError;
-    var ReadError = class extends RequestError {
+    var ReadError = class extends RequestError2 {
       constructor(error64, request) {
         super(error64.message, error64, request);
         this.name = "ReadError";
@@ -48784,7 +48784,7 @@ var require_core = __commonJS({
       }
     };
     exports.ReadError = ReadError;
-    var UnsupportedProtocolError = class extends RequestError {
+    var UnsupportedProtocolError = class extends RequestError2 {
       constructor(options) {
         super(`Unsupported protocol "${options.url.protocol}"`, {}, options);
         this.name = "UnsupportedProtocolError";
@@ -48800,7 +48800,7 @@ var require_core = __commonJS({
       "upgrade",
       "timeout"
     ];
-    var Request3 = class extends stream_1.Duplex {
+    var Request4 = class extends stream_1.Duplex {
       constructor(url2, options = {}, defaults) {
         super({
           // This must be false, to enable throwing after destroy
@@ -48882,7 +48882,7 @@ var require_core = __commonJS({
             this[kJobs].length = 0;
             this.requestInitialized = true;
           } catch (error64) {
-            if (error64 instanceof RequestError) {
+            if (error64 instanceof RequestError2) {
               this._beforeError(error64);
               return;
             }
@@ -49059,17 +49059,17 @@ var require_core = __commonJS({
         const { cache: cache6 } = options;
         if (cache6) {
           if (!cacheableStore.has(cache6)) {
-            cacheableStore.set(cache6, new CacheableRequest(((requestOptions, handler) => {
-              const result = requestOptions[kRequest](requestOptions, handler);
+            cacheableStore.set(cache6, new CacheableRequest(((requestOptions, handler2) => {
+              const result = requestOptions[kRequest](requestOptions, handler2);
               if (is_1.default.promise(result)) {
-                result.once = (event, handler2) => {
+                result.once = (event, handler3) => {
                   if (event === "error") {
-                    result.catch(handler2);
+                    result.catch(handler3);
                   } else if (event === "abort") {
                     (async () => {
                       try {
                         const request = await result;
-                        request.once("abort", handler2);
+                        request.once("abort", handler3);
                       } catch (_a7) {
                       }
                     })();
@@ -49320,7 +49320,7 @@ var require_core = __commonJS({
             const redirectString = redirectUrl.toString();
             decodeURI(redirectString);
             if (!isUnixSocketURL(url2) && isUnixSocketURL(redirectUrl)) {
-              this._beforeError(new RequestError("Cannot redirect to UNIX socket", {}, this));
+              this._beforeError(new RequestError2("Cannot redirect to UNIX socket", {}, this));
               return;
             }
             if (redirectUrl.hostname !== url2.hostname || redirectUrl.port !== url2.port) {
@@ -49407,7 +49407,7 @@ var require_core = __commonJS({
           var _a6;
           request.destroy();
           (_a6 = request.res) === null || _a6 === void 0 ? void 0 : _a6.removeAllListeners("end");
-          error64 = error64 instanceof timed_out_1.TimeoutError ? new TimeoutError(error64, this.timings, this) : new RequestError(error64.message, error64, this);
+          error64 = error64 instanceof timed_out_1.TimeoutError ? new TimeoutError(error64, this.timings, this) : new RequestError2(error64.message, error64, this);
           this._beforeError(error64);
         });
         this[kUnproxyEvents] = proxy_events_1.default(request, this, proxiedRequestEvents);
@@ -49596,7 +49596,7 @@ var require_core = __commonJS({
           if (error64 instanceof CacheableRequest.CacheError) {
             throw new CacheError(error64, this);
           }
-          throw new RequestError(error64.message, error64, this);
+          throw new RequestError2(error64.message, error64, this);
         }
       }
       async _error(error64) {
@@ -49605,7 +49605,7 @@ var require_core = __commonJS({
             error64 = await hook(error64);
           }
         } catch (error_) {
-          error64 = new RequestError(error_.message, error_, this);
+          error64 = new RequestError2(error_.message, error_, this);
         }
         this.destroy(error64);
       }
@@ -49616,8 +49616,8 @@ var require_core = __commonJS({
         const { options } = this;
         const retryCount = this.retryCount + 1;
         this[kStopReading] = true;
-        if (!(error64 instanceof RequestError)) {
-          error64 = new RequestError(error64.message, error64, this);
+        if (!(error64 instanceof RequestError2)) {
+          error64 = new RequestError2(error64.message, error64, this);
         }
         const typedError = error64;
         const { response } = typedError;
@@ -49659,7 +49659,7 @@ var require_core = __commonJS({
                 })
               });
             } catch (error_) {
-              void this._error(new RequestError(error_.message, error_, this));
+              void this._error(new RequestError2(error_.message, error_, this));
               return;
             }
             if (backoff) {
@@ -49669,7 +49669,7 @@ var require_core = __commonJS({
                     await hook(this.options, typedError, retryCount);
                   }
                 } catch (error_) {
-                  void this._error(new RequestError(error_.message, error64, this));
+                  void this._error(new RequestError2(error_.message, error64, this));
                   return;
                 }
                 if (this.destroyed) {
@@ -49771,8 +49771,8 @@ var require_core = __commonJS({
             this[kRequest].destroy();
           }
         }
-        if (error64 !== null && !is_1.default.undefined(error64) && !(error64 instanceof RequestError)) {
-          error64 = new RequestError(error64.message, error64, this);
+        if (error64 !== null && !is_1.default.undefined(error64) && !(error64 instanceof RequestError2)) {
+          error64 = new RequestError2(error64.message, error64, this);
         }
         callback(error64);
       }
@@ -49887,7 +49887,7 @@ var require_core = __commonJS({
         return this;
       }
     };
-    exports.default = Request3;
+    exports.default = Request4;
   }
 });
 
@@ -50330,7 +50330,7 @@ var require_create = __commonJS({
             isMutableDefaults = value.mutableDefaults;
           }
         }
-        handlers = handlers.filter((handler) => handler !== exports.defaultHandler);
+        handlers = handlers.filter((handler2) => handler2 !== exports.defaultHandler);
         if (handlers.length === 0) {
           handlers.push(exports.defaultHandler);
         }
@@ -51325,11 +51325,11 @@ var require_ably_node = __commonJS({
           this.shouldLog = (level) => {
             return level <= this.logLevel;
           };
-          this.setLog = (level, handler) => {
+          this.setLog = (level, handler2) => {
             if (level !== void 0)
               this.logLevel = level;
-            if (handler !== void 0)
-              this.logHandler = this.logErrorHandler = handler;
+            if (handler2 !== void 0)
+              this.logHandler = this.logErrorHandler = handler2;
           };
           this.logLevel = _Logger2.defaultLogLevel;
           this.logHandler = _Logger2.defaultLogHandler;
@@ -60145,7 +60145,7 @@ var require_ably_node = __commonJS({
       _DefaultRealtime._PresenceMap = PresenceMap;
       _DefaultRealtime._MessageEncoding = MessageEncoding;
       var DefaultRealtime = _DefaultRealtime;
-      var import_crypto2 = __toESM2(__require("crypto"));
+      var import_crypto3 = __toESM2(__require("crypto"));
       var BufferUtils = class {
         constructor() {
           this.base64CharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -60209,12 +60209,12 @@ var require_ably_node = __commonJS({
         }
         sha256(message2) {
           const messageBuffer = this.toBuffer(message2);
-          return import_crypto2.default.createHash("SHA256").update(messageBuffer).digest();
+          return import_crypto3.default.createHash("SHA256").update(messageBuffer).digest();
         }
         hmacSha256(message2, key) {
           const messageBuffer = this.toBuffer(message2);
           const keyBuffer = this.toBuffer(key);
-          return import_crypto2.default.createHmac("SHA256", keyBuffer).update(messageBuffer).digest();
+          return import_crypto3.default.createHmac("SHA256", keyBuffer).update(messageBuffer).digest();
         }
       };
       var bufferutils_default = new BufferUtils();
@@ -60477,7 +60477,7 @@ var require_ably_node = __commonJS({
         }
       }, _a6.methods = [HttpMethods_default.Get, HttpMethods_default.Delete, HttpMethods_default.Post, HttpMethods_default.Put, HttpMethods_default.Patch], _a6.methodsWithoutBody = [HttpMethods_default.Get, HttpMethods_default.Delete], _a6.methodsWithBody = [HttpMethods_default.Post, HttpMethods_default.Put, HttpMethods_default.Patch], _a6);
       var http_default = Http2;
-      var import_crypto3 = __toESM2(__require("crypto"));
+      var import_crypto32 = __toESM2(__require("crypto"));
       var import_ws = __toESM2(require_ws());
       var import_util22 = __toESM2(__require("util"));
       var Config = {
@@ -60498,7 +60498,7 @@ var require_ably_node = __commonJS({
         inherits: import_util22.default.inherits,
         addEventListener: null,
         getRandomArrayBuffer: async function(byteLength) {
-          return import_util22.default.promisify(import_crypto3.default.randomBytes)(byteLength);
+          return import_util22.default.promisify(import_crypto32.default.randomBytes)(byteLength);
         }
       };
       var config_default = Config;
@@ -60840,7 +60840,7 @@ var require_ably_node = __commonJS({
           return req;
         }
         createRequest(uri, headers, params, body, requestMode) {
-          return new Request3(uri, headers, params, body, requestMode, this.format, this.timeouts, this);
+          return new Request4(uri, headers, params, body, requestMode, this.format, this.timeouts, this);
         }
         addPending() {
           ++this.pendingRequests;
@@ -60858,7 +60858,7 @@ var require_ably_node = __commonJS({
           this.once("nopending", listener);
         }
       };
-      var Request3 = class extends eventemitter_default {
+      var Request4 = class extends eventemitter_default {
         constructor(uri, headers, params, body, requestMode, format2, timeouts, transport) {
           super(transport.logger);
           if (typeof uri == "string")
@@ -61250,11 +61250,11 @@ var init_setCredentialFeature = __esm({
 });
 
 // ../../node_modules/@smithy/core/dist-es/submodules/retry/middleware-retry/isStreamingPayload/isStreamingPayload.js
-import { Readable } from "node:stream";
+import { Readable as Readable2 } from "node:stream";
 var isStreamingPayload;
 var init_isStreamingPayload = __esm({
   "../../node_modules/@smithy/core/dist-es/submodules/retry/middleware-retry/isStreamingPayload/isStreamingPayload.js"() {
-    isStreamingPayload = (request) => request?.body instanceof Readable || typeof ReadableStream !== "undefined" && request?.body instanceof ReadableStream;
+    isStreamingPayload = (request) => request?.body instanceof Readable2 || typeof ReadableStream !== "undefined" && request?.body instanceof ReadableStream;
   }
 });
 
@@ -61501,14 +61501,14 @@ var init_MiddlewareStack = __esm({
             identifyOnResolve = toggle;
           return identifyOnResolve;
         },
-        resolve: (handler, context) => {
+        resolve: (handler2, context) => {
           for (const middleware of getMiddlewareList().map((entry) => entry.middleware).reverse()) {
-            handler = middleware(handler, context);
+            handler2 = middleware(handler2, context);
           }
           if (identifyOnResolve) {
             console.log(stack.identify());
           }
-          return handler;
+          return handler2;
         }
       };
       return stack;
@@ -62139,27 +62139,27 @@ var init_client = __esm({
         const options = typeof optionsOrCb !== "function" ? optionsOrCb : void 0;
         const callback = typeof optionsOrCb === "function" ? optionsOrCb : cb;
         const useHandlerCache = options === void 0 && this.config.cacheMiddleware === true;
-        let handler;
+        let handler2;
         if (useHandlerCache) {
           if (!this.handlers) {
             this.handlers = /* @__PURE__ */ new WeakMap();
           }
           const handlers = this.handlers;
           if (handlers.has(command5.constructor)) {
-            handler = handlers.get(command5.constructor);
+            handler2 = handlers.get(command5.constructor);
           } else {
-            handler = command5.resolveMiddleware(this.middlewareStack, this.config, options);
-            handlers.set(command5.constructor, handler);
+            handler2 = command5.resolveMiddleware(this.middlewareStack, this.config, options);
+            handlers.set(command5.constructor, handler2);
           }
         } else {
           delete this.handlers;
-          handler = command5.resolveMiddleware(this.middlewareStack, this.config, options);
+          handler2 = command5.resolveMiddleware(this.middlewareStack, this.config, options);
         }
         if (callback) {
-          handler(command5).then((result) => callback(null, result.output), (err) => callback(err)).catch(() => {
+          handler2(command5).then((result) => callback(null, result.output), (err) => callback(err)).catch(() => {
           });
         } else {
-          return handler(command5).then((result) => result.output);
+          return handler2(command5).then((result) => result.output);
         }
       }
       destroy() {
@@ -67278,12 +67278,12 @@ var init_hash_node = __esm({
 });
 
 // ../../node_modules/@smithy/core/dist-es/submodules/serde/util-stream/checksum/ChecksumStream.js
-import { Readable as Readable2 } from "node:stream";
+import { Readable as Readable3 } from "node:stream";
 var ChecksumStream;
 var init_ChecksumStream = __esm({
   "../../node_modules/@smithy/core/dist-es/submodules/serde/util-stream/checksum/ChecksumStream.js"() {
     init_toBase64();
-    ChecksumStream = class extends Readable2 {
+    ChecksumStream = class extends Readable3 {
       expectedChecksum;
       checksumSourceLocation;
       checksum;
@@ -67636,12 +67636,12 @@ var init_createBufferedReadable_browser = __esm({
 });
 
 // ../../node_modules/@smithy/core/dist-es/submodules/serde/util-stream/createBufferedReadable.js
-import { Readable as Readable3 } from "node:stream";
+import { Readable as Readable4 } from "node:stream";
 function createBufferedReadable(upstream, size, logger2) {
   if (isReadableStream(upstream)) {
     return createBufferedReadableStream(upstream, size, logger2);
   }
-  const downstream = new Readable3({ read() {
+  const downstream = new Readable4({ read() {
   } });
   let streamBufferingLoggedWarning = false;
   let bytesSeen = 0;
@@ -67735,7 +67735,7 @@ ${value}\r
 });
 
 // ../../node_modules/@smithy/core/dist-es/submodules/serde/util-stream/getAwsChunkedEncodingStream.js
-import { Readable as Readable4 } from "node:stream";
+import { Readable as Readable5 } from "node:stream";
 function getAwsChunkedEncodingStream2(stream, options) {
   const readable = stream;
   const readableStream = stream;
@@ -67747,7 +67747,7 @@ function getAwsChunkedEncodingStream2(stream, options) {
   const digest4 = checksumRequired ? streamHasher(checksumAlgorithmFn, readable) : void 0;
   Promise.resolve(digest4).catch(() => {
   });
-  const awsChunkedEncodingStream = new Readable4({
+  const awsChunkedEncodingStream = new Readable5({
     read() {
       readable.resume();
     }
@@ -68030,7 +68030,7 @@ var init_stream_collector = __esm({
 });
 
 // ../../node_modules/@smithy/core/dist-es/submodules/serde/util-stream/sdk-stream-mixin.js
-import { Readable as Readable5 } from "node:stream";
+import { Readable as Readable6 } from "node:stream";
 var ERR_MSG_STREAM_HAS_BEEN_TRANSFORMED2, sdkStreamMixin2;
 var init_sdk_stream_mixin = __esm({
   "../../node_modules/@smithy/core/dist-es/submodules/serde/util-stream/sdk-stream-mixin.js"() {
@@ -68039,7 +68039,7 @@ var init_sdk_stream_mixin = __esm({
     init_stream_collector();
     ERR_MSG_STREAM_HAS_BEEN_TRANSFORMED2 = "The stream has already been transformed.";
     sdkStreamMixin2 = (stream) => {
-      if (!(stream instanceof Readable5)) {
+      if (!(stream instanceof Readable6)) {
         try {
           return sdkStreamMixin(stream);
         } catch (ignored) {
@@ -68073,11 +68073,11 @@ var init_sdk_stream_mixin = __esm({
           if (stream.readableFlowing !== null) {
             throw new Error("The stream has been consumed by other callbacks.");
           }
-          if (typeof Readable5.toWeb !== "function") {
+          if (typeof Readable6.toWeb !== "function") {
             throw new Error("Readable.toWeb() is not supported. Please ensure a polyfill is available.");
           }
           transformed = true;
-          return Readable5.toWeb(stream);
+          return Readable6.toWeb(stream);
         }
       });
     };
@@ -69621,7 +69621,7 @@ var init_EventStreamMarshaller = __esm({
 });
 
 // ../../node_modules/@smithy/core/dist-es/submodules/event-streams/eventstream-serde/EventStreamMarshaller.js
-import { Readable as Readable6 } from "node:stream";
+import { Readable as Readable7 } from "node:stream";
 async function* readableToIterable(readStream) {
   let streamEnded = false;
   let generationEnded = false;
@@ -69665,7 +69665,7 @@ var init_EventStreamMarshaller2 = __esm({
         return this.universalMarshaller.deserialize(bodyIterable, deserializer);
       }
       serialize(input2, serializer) {
-        return Readable6.from(this.universalMarshaller.serialize(input2, serializer));
+        return Readable7.from(this.universalMarshaller.serialize(input2, serializer));
       }
     };
     eventStreamSerdeProvider2 = (options) => new EventStreamMarshaller2(options);
@@ -71098,8 +71098,8 @@ var init_httpExtensionConfiguration = __esm({
         runtimeConfig.requestHandler?.updateHttpClientConfig?.(/* @__PURE__ */ Symbol.for("logger"), runtimeConfig.logger);
       }
       return {
-        setHttpHandler(handler) {
-          runtimeConfig.requestHandler = handler;
+        setHttpHandler(handler2) {
+          runtimeConfig.requestHandler = handler2;
         },
         httpHandler() {
           return runtimeConfig.requestHandler;
@@ -77946,11 +77946,11 @@ ${toHex2(hashedRequest)}`;
     var createScope = (shortDate, region, service) => `${shortDate}/${region}/${service}/${KEY_TYPE_IDENTIFIER}`;
     var getSigningKey = async (sha256Constructor, credentials, shortDate, region, service) => {
       const credsHash = await hmac2(sha256Constructor, credentials.secretAccessKey, credentials.accessKeyId);
-      const cacheKey = `${shortDate}:${region}:${service}:${toHex2(credsHash)}:${credentials.sessionToken}`;
-      if (cacheKey in signingKeyCache) {
-        return signingKeyCache[cacheKey];
+      const cacheKey2 = `${shortDate}:${region}:${service}:${toHex2(credsHash)}:${credentials.sessionToken}`;
+      if (cacheKey2 in signingKeyCache) {
+        return signingKeyCache[cacheKey2];
       }
-      cacheQueue.push(cacheKey);
+      cacheQueue.push(cacheKey2);
       while (cacheQueue.length > MAX_CACHE_SIZE2) {
         delete signingKeyCache[cacheQueue.shift()];
       }
@@ -77958,12 +77958,12 @@ ${toHex2(hashedRequest)}`;
       for (const signable of [shortDate, region, service, KEY_TYPE_IDENTIFIER]) {
         key = await hmac2(sha256Constructor, key, signable);
       }
-      return signingKeyCache[cacheKey] = key;
+      return signingKeyCache[cacheKey2] = key;
     };
     var clearCredentialCache = () => {
       cacheQueue.length = 0;
-      Object.keys(signingKeyCache).forEach((cacheKey) => {
-        delete signingKeyCache[cacheKey];
+      Object.keys(signingKeyCache).forEach((cacheKey2) => {
+        delete signingKeyCache[cacheKey2];
       });
     };
     var hmac2 = (ctor, secret, data) => {
@@ -78480,9 +78480,9 @@ var init_s3ExpressHttpSigningMiddleware = __esm({
 });
 
 // ../../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/submodules/s3/to-stream/toStream.js
-import { Readable as Readable7 } from "node:stream";
+import { Readable as Readable8 } from "node:stream";
 function toStream(bytes2) {
-  return Readable7.from(Buffer.from(bytes2));
+  return Readable8.from(Buffer.from(bytes2));
 }
 var init_toStream = __esm({
   "../../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/submodules/s3/to-stream/toStream.js"() {
@@ -81747,7 +81747,7 @@ var require_dist_cjs7 = __commonJS({
     exports.streamCollector = streamCollector7;
     var { buildQueryString: buildQueryString2, HttpResponse: HttpResponse2 } = (init_protocols(), __toCommonJS(protocols_exports));
     var node_https = __require("node:https");
-    var { Readable: Readable9 } = __require("node:stream");
+    var { Readable: Readable10 } = __require("node:stream");
     var http22 = __require("node:http2");
     function buildAbortError(abortSignal) {
       const reason = abortSignal && typeof abortSignal === "object" && "reason" in abortSignal ? abortSignal.reason : void 0;
@@ -81923,7 +81923,7 @@ var require_dist_cjs7 = __commonJS({
       }
     }
     function writeBody(httpRequest, body) {
-      if (body instanceof Readable9) {
+      if (body instanceof Readable10) {
         body.pipe(httpRequest);
         return;
       }
@@ -97977,8 +97977,8 @@ var require_dist_cjs17 = __commonJS({
         toMiddleware: "awsAuthMiddleware",
         override: true
       });
-      const handler = command5.resolveMiddleware(clientStack, client.config, {});
-      const { output: output2 } = await handler({ input: command5.input });
+      const handler2 = command5.resolveMiddleware(clientStack, client.config, {});
+      const { output: output2 } = await handler2({ input: command5.input });
       const { presigned } = output2;
       return formatUrl3(presigned);
     };
@@ -98106,9 +98106,9 @@ var require_exchange_vercel_oidc_token = __commonJS({
       return Array.from(new Uint8Array(digest4)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
     }
     async function exchangeVercelOidcToken2(options) {
-      const cacheKey = await getCacheKey(options);
+      const cacheKey2 = await getCacheKey(options);
       if (!options.skipCache) {
-        const cached4 = tokenCache.get(cacheKey);
+        const cached4 = tokenCache.get(cacheKey2);
         if (cached4 !== void 0) {
           return cached4;
         }
@@ -98147,7 +98147,7 @@ var require_exchange_vercel_oidc_token = __commonJS({
       if (expiry !== void 0) {
         const expiresAt = expiry * 1e3;
         if (expiresAt > Date.now()) {
-          tokenCache.set({ key: cacheKey, token, expiresAt });
+          tokenCache.set({ key: cacheKey2, token, expiresAt });
         }
       }
       return token;
@@ -100837,15 +100837,15 @@ var require_lookup = __commonJS({
       return resolution.found ? toVercelCliInvocation(resolution) : null;
     }
     function resolveCachedCliInvocation(cwd, pathValue) {
-      const cacheKey = getCliInvocationCacheKey(cwd, pathValue);
-      if (cliInvocationCache.has(cacheKey)) {
-        return cliInvocationCache.get(cacheKey);
+      const cacheKey2 = getCliInvocationCacheKey(cwd, pathValue);
+      if (cliInvocationCache.has(cacheKey2)) {
+        return cliInvocationCache.get(cacheKey2);
       }
       const resolution = resolveCliInvocation(cwd, pathValue).catch((error64) => {
-        cliInvocationCache.delete(cacheKey);
+        cliInvocationCache.delete(cacheKey2);
         throw error64;
       });
-      cliInvocationCache.set(cacheKey, resolution);
+      cliInvocationCache.set(cacheKey2, resolution);
       return resolution;
     }
     function toVercelCliInvocation(resolution) {
@@ -104380,9 +104380,9 @@ var require_webcrypto = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.isCryptoKey = void 0;
-    var crypto9 = __require("node:crypto");
+    var crypto10 = __require("node:crypto");
     var util3 = __require("node:util");
-    var webcrypto = crypto9.webcrypto;
+    var webcrypto = crypto10.webcrypto;
     exports.default = webcrypto;
     var isCryptoKey2 = (key) => util3.types.isCryptoKey(key);
     exports.isCryptoKey = isCryptoKey2;
@@ -106674,17 +106674,17 @@ var require_sign2 = __commonJS({
   "../../node_modules/@vercel/oidc/node_modules/jose/dist/node/cjs/runtime/sign.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var crypto9 = __require("node:crypto");
+    var crypto10 = __require("node:crypto");
     var node_util_1 = __require("node:util");
     var dsa_digest_js_1 = require_dsa_digest();
     var hmac_digest_js_1 = require_hmac_digest();
     var node_key_js_1 = require_node_key();
     var get_sign_verify_key_js_1 = require_get_sign_verify_key();
-    var oneShotSign = (0, node_util_1.promisify)(crypto9.sign);
+    var oneShotSign = (0, node_util_1.promisify)(crypto10.sign);
     var sign4 = async (alg, key, data) => {
       const k5 = (0, get_sign_verify_key_js_1.default)(alg, key, "sign");
       if (alg.startsWith("HS")) {
-        const hmac2 = crypto9.createHmac((0, hmac_digest_js_1.default)(alg), k5);
+        const hmac2 = crypto10.createHmac((0, hmac_digest_js_1.default)(alg), k5);
         hmac2.update(data);
         return hmac2.digest();
       }
@@ -106699,20 +106699,20 @@ var require_verify2 = __commonJS({
   "../../node_modules/@vercel/oidc/node_modules/jose/dist/node/cjs/runtime/verify.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var crypto9 = __require("node:crypto");
+    var crypto10 = __require("node:crypto");
     var node_util_1 = __require("node:util");
     var dsa_digest_js_1 = require_dsa_digest();
     var node_key_js_1 = require_node_key();
     var sign_js_1 = require_sign2();
     var get_sign_verify_key_js_1 = require_get_sign_verify_key();
-    var oneShotVerify = (0, node_util_1.promisify)(crypto9.verify);
+    var oneShotVerify = (0, node_util_1.promisify)(crypto10.verify);
     var verify = async (alg, key, signature, data) => {
       const k5 = (0, get_sign_verify_key_js_1.default)(alg, key, "verify");
       if (alg.startsWith("HS")) {
         const expected = await (0, sign_js_1.default)(alg, k5, data);
         const actual = signature;
         try {
-          return crypto9.timingSafeEqual(actual, expected);
+          return crypto10.timingSafeEqual(actual, expected);
         } catch {
           return false;
         }
@@ -109820,31 +109820,31 @@ var require_util3 = __commonJS({
     function isBuffer2(buffer) {
       return buffer instanceof Uint8Array || Buffer.isBuffer(buffer);
     }
-    function validateHandler(handler, method, upgrade) {
-      if (!handler || typeof handler !== "object") {
+    function validateHandler(handler2, method, upgrade) {
+      if (!handler2 || typeof handler2 !== "object") {
         throw new InvalidArgumentError("handler must be an object");
       }
-      if (typeof handler.onConnect !== "function") {
+      if (typeof handler2.onConnect !== "function") {
         throw new InvalidArgumentError("invalid onConnect method");
       }
-      if (typeof handler.onError !== "function") {
+      if (typeof handler2.onError !== "function") {
         throw new InvalidArgumentError("invalid onError method");
       }
-      if (typeof handler.onBodySent !== "function" && handler.onBodySent !== void 0) {
+      if (typeof handler2.onBodySent !== "function" && handler2.onBodySent !== void 0) {
         throw new InvalidArgumentError("invalid onBodySent method");
       }
       if (upgrade || method === "CONNECT") {
-        if (typeof handler.onUpgrade !== "function") {
+        if (typeof handler2.onUpgrade !== "function") {
           throw new InvalidArgumentError("invalid onUpgrade method");
         }
       } else {
-        if (typeof handler.onHeaders !== "function") {
+        if (typeof handler2.onHeaders !== "function") {
           throw new InvalidArgumentError("invalid onHeaders method");
         }
-        if (typeof handler.onData !== "function") {
+        if (typeof handler2.onData !== "function") {
           throw new InvalidArgumentError("invalid onData method");
         }
-        if (typeof handler.onComplete !== "function") {
+        if (typeof handler2.onComplete !== "function") {
           throw new InvalidArgumentError("invalid onComplete method");
         }
       }
@@ -110271,7 +110271,7 @@ var require_request2 = __commonJS({
     var { headerNameLowerCasedRecord } = require_constants3();
     var invalidPathRegex = /[^\u0021-\u00ff]/;
     var kHandler = /* @__PURE__ */ Symbol("handler");
-    var Request3 = class {
+    var Request4 = class {
       constructor(origin, {
         path: path7,
         method,
@@ -110287,7 +110287,7 @@ var require_request2 = __commonJS({
         throwOnError,
         expectContinue,
         servername
-      }, handler) {
+      }, handler2) {
         if (typeof path7 !== "string") {
           throw new InvalidArgumentError("path must be a string");
         } else if (path7[0] !== "/" && !(path7.startsWith("http://") || path7.startsWith("https://")) && method !== "CONNECT") {
@@ -110392,9 +110392,9 @@ var require_request2 = __commonJS({
         } else if (headers != null) {
           throw new InvalidArgumentError("headers must be an object or an array");
         }
-        validateHandler(handler, method, upgrade);
+        validateHandler(handler2, method, upgrade);
         this.servername = servername || getServerName(this.host);
-        this[kHandler] = handler;
+        this[kHandler] = handler2;
         if (channels.create.hasSubscribers) {
           channels.create.publish({ request: this });
         }
@@ -110636,7 +110636,7 @@ var require_request2 = __commonJS({
         request.headers.push(key, val);
       }
     }
-    module.exports = Request3;
+    module.exports = Request4;
   }
 });
 
@@ -110832,20 +110832,20 @@ var require_dispatcher_base = __commonJS({
           queueMicrotask(onDestroyed);
         });
       }
-      [kInterceptedDispatch](opts, handler) {
+      [kInterceptedDispatch](opts, handler2) {
         if (!this[kInterceptors] || this[kInterceptors].length === 0) {
           this[kInterceptedDispatch] = this[kDispatch];
-          return this[kDispatch](opts, handler);
+          return this[kDispatch](opts, handler2);
         }
         let dispatch = this[kDispatch].bind(this);
         for (let i6 = this[kInterceptors].length - 1; i6 >= 0; i6--) {
           dispatch = this[kInterceptors][i6](dispatch);
         }
         this[kInterceptedDispatch] = dispatch;
-        return dispatch(opts, handler);
+        return dispatch(opts, handler2);
       }
-      dispatch(opts, handler) {
-        if (!handler || typeof handler !== "object") {
+      dispatch(opts, handler2) {
+        if (!handler2 || typeof handler2 !== "object") {
           throw new InvalidArgumentError("handler must be an object");
         }
         try {
@@ -110858,12 +110858,12 @@ var require_dispatcher_base = __commonJS({
           if (this[kClosed]) {
             throw new ClientClosedError();
           }
-          return this[kInterceptedDispatch](opts, handler);
+          return this[kInterceptedDispatch](opts, handler2);
         } catch (err) {
-          if (typeof handler.onError !== "function") {
+          if (typeof handler2.onError !== "function") {
             throw new InvalidArgumentError("invalid onError method");
           }
-          handler.onError(err);
+          handler2.onError(err);
           return false;
         }
       }
@@ -111780,7 +111780,7 @@ var require_constants5 = __commonJS({
       /** @type {const} */
       ["omit", "same-origin", "include"]
     );
-    var requestCache = (
+    var requestCache2 = (
       /** @type {const} */
       [
         "default",
@@ -111842,7 +111842,7 @@ var require_constants5 = __commonJS({
       requestRedirect,
       requestMode,
       requestCredentials,
-      requestCache,
+      requestCache: requestCache2,
       redirectStatus: redirectStatus2,
       corsSafeListedMethods,
       nullBodyStatus,
@@ -112682,11 +112682,11 @@ var require_util4 = __commonJS({
     var { isUint8Array } = __require("node:util/types");
     var { webidl } = require_webidl();
     var supportedHashes = [];
-    var crypto9;
+    var crypto10;
     try {
-      crypto9 = __require("node:crypto");
+      crypto10 = __require("node:crypto");
       const possibleRelevantHashes = ["sha256", "sha384", "sha512"];
-      supportedHashes = crypto9.getHashes().filter((hash2) => possibleRelevantHashes.includes(hash2));
+      supportedHashes = crypto10.getHashes().filter((hash2) => possibleRelevantHashes.includes(hash2));
     } catch {
     }
     function responseURL(response) {
@@ -112959,7 +112959,7 @@ var require_util4 = __commonJS({
       }
     }
     function bytesMatch(bytes2, metadataList) {
-      if (crypto9 === void 0) {
+      if (crypto10 === void 0) {
         return true;
       }
       const parsedMetadata = parseMetadata(metadataList);
@@ -112974,7 +112974,7 @@ var require_util4 = __commonJS({
       for (const item of metadata) {
         const algorithm = item.algo;
         const expectedValue = item.hash;
-        let actualValue = crypto9.createHash(algorithm).update(bytes2).digest("base64");
+        let actualValue = crypto10.createHash(algorithm).update(bytes2).digest("base64");
         if (actualValue[actualValue.length - 1] === "=") {
           if (actualValue[actualValue.length - 2] === "=") {
             actualValue = actualValue.slice(0, -2);
@@ -114038,8 +114038,8 @@ var require_body = __commonJS({
     var { multipartFormDataParser } = require_formdata_parser();
     var random;
     try {
-      const crypto9 = __require("node:crypto");
-      random = (max) => crypto9.randomInt(0, max);
+      const crypto10 = __require("node:crypto");
+      random = (max) => crypto10.randomInt(0, max);
     } catch {
       random = (max) => Math.floor(Math.random(max));
     }
@@ -116053,17 +116053,17 @@ var require_redirect_handler = __commonJS({
       }
     };
     var RedirectHandler = class {
-      constructor(dispatch, maxRedirections, opts, handler) {
+      constructor(dispatch, maxRedirections, opts, handler2) {
         if (maxRedirections != null && (!Number.isInteger(maxRedirections) || maxRedirections < 0)) {
           throw new InvalidArgumentError("maxRedirections must be a positive number");
         }
-        util3.validateHandler(handler, opts.method, opts.upgrade);
+        util3.validateHandler(handler2, opts.method, opts.upgrade);
         this.dispatch = dispatch;
         this.location = null;
         this.abort = null;
         this.opts = { ...opts, maxRedirections: 0 };
         this.maxRedirections = maxRedirections;
-        this.handler = handler;
+        this.handler = handler2;
         this.history = [];
         this.redirectionLimitReached = false;
         if (util3.isStream(this.opts.body)) {
@@ -116196,12 +116196,12 @@ var require_redirect_interceptor = __commonJS({
     var RedirectHandler = require_redirect_handler();
     function createRedirectInterceptor({ maxRedirections: defaultMaxRedirections }) {
       return (dispatch) => {
-        return function Intercept(opts, handler) {
+        return function Intercept(opts, handler2) {
           const { maxRedirections = defaultMaxRedirections } = opts;
           if (!maxRedirections) {
-            return dispatch(opts, handler);
+            return dispatch(opts, handler2);
           }
-          const redirectHandler = new RedirectHandler(dispatch, maxRedirections, opts, handler);
+          const redirectHandler = new RedirectHandler(dispatch, maxRedirections, opts, handler2);
           opts = { ...opts, maxRedirections: 0 };
           return dispatch(opts, redirectHandler);
         };
@@ -116220,7 +116220,7 @@ var require_client = __commonJS({
     var http4 = __require("node:http");
     var util3 = require_util3();
     var { channels } = require_diagnostics();
-    var Request3 = require_request2();
+    var Request4 = require_request2();
     var DispatcherBase = require_dispatcher_base();
     var {
       InvalidArgumentError,
@@ -116461,9 +116461,9 @@ var require_client = __commonJS({
         connect(this);
         this.once("connect", cb);
       }
-      [kDispatch](opts, handler) {
+      [kDispatch](opts, handler2) {
         const origin = opts.origin || this[kUrl].origin;
-        const request = new Request3(origin, opts, handler);
+        const request = new Request4(origin, opts, handler2);
         this[kQueue].push(request);
         if (this[kResuming]) {
         } else if (util3.bodyLength(request.body) == null && util3.isIterable(request.body)) {
@@ -116912,13 +116912,13 @@ var require_pool_base = __commonJS({
         }
         await Promise.all(this[kClients].map((c5) => c5.destroy(err)));
       }
-      [kDispatch](opts, handler) {
+      [kDispatch](opts, handler2) {
         const dispatcher = this[kGetDispatcher]();
         if (!dispatcher) {
           this[kNeedDrain] = true;
-          this[kQueue].push({ opts, handler });
+          this[kQueue].push({ opts, handler: handler2 });
           this[kQueued]++;
-        } else if (!dispatcher.dispatch(opts, handler)) {
+        } else if (!dispatcher.dispatch(opts, handler2)) {
           dispatcher[kNeedDrain] = true;
           this[kNeedDrain] = !this[kGetDispatcher]();
         }
@@ -117257,7 +117257,7 @@ var require_agent2 = __commonJS({
         }
         return ret;
       }
-      [kDispatch](opts, handler) {
+      [kDispatch](opts, handler2) {
         let key;
         if (opts.origin && (typeof opts.origin === "string" || opts.origin instanceof URL)) {
           key = String(opts.origin);
@@ -117269,7 +117269,7 @@ var require_agent2 = __commonJS({
           dispatcher = this[kFactory](opts.origin, this[kOptions]).on("drain", this[kOnDrain]).on("connect", this[kOnConnect]).on("disconnect", this[kOnDisconnect]).on("connectionError", this[kOnConnectionError]);
           this[kClients].set(key, dispatcher);
         }
-        return dispatcher.dispatch(opts, handler);
+        return dispatcher.dispatch(opts, handler2);
       }
       async [kClose]() {
         const closePromises = [];
@@ -117339,12 +117339,12 @@ var require_proxy_agent = __commonJS({
           this.#client = new Client2(proxyUrl, { connect });
         }
       }
-      [kDispatch](opts, handler) {
-        const onHeaders = handler.onHeaders;
-        handler.onHeaders = function(statusCode, data, resume) {
+      [kDispatch](opts, handler2) {
+        const onHeaders = handler2.onHeaders;
+        handler2.onHeaders = function(statusCode, data, resume) {
           if (statusCode === 407) {
-            if (typeof handler.onError === "function") {
-              handler.onError(new InvalidArgumentError("Proxy Authentication Required (407)"));
+            if (typeof handler2.onError === "function") {
+              handler2.onError(new InvalidArgumentError("Proxy Authentication Required (407)"));
             }
             return;
           }
@@ -117361,7 +117361,7 @@ var require_proxy_agent = __commonJS({
           headers.host = host;
         }
         opts.headers = { ...this[kProxyHeaders], ...headers };
-        return this.#client[kDispatch](opts, handler);
+        return this.#client[kDispatch](opts, handler2);
       }
       async [kClose]() {
         return this.#client.close();
@@ -117458,7 +117458,7 @@ var require_proxy_agent = __commonJS({
           }
         });
       }
-      dispatch(opts, handler) {
+      dispatch(opts, handler2) {
         const headers = buildHeaders(opts.headers);
         throwIfProxyAuthIsSent(headers);
         if (headers && !("host" in headers) && !("Host" in headers)) {
@@ -117470,7 +117470,7 @@ var require_proxy_agent = __commonJS({
             ...opts,
             headers
           },
-          handler
+          handler2
         );
       }
       /**
@@ -117557,10 +117557,10 @@ var require_env_http_proxy_agent = __commonJS({
         }
         this.#parseNoProxy();
       }
-      [kDispatch](opts, handler) {
+      [kDispatch](opts, handler2) {
         const url2 = new URL(opts.origin);
         const agent = this.#getProxyAgentForUrl(url2);
-        return agent.dispatch(opts, handler);
+        return agent.dispatch(opts, handler2);
       }
       async [kClose]() {
         await this[kNoProxyAgent].close();
@@ -118014,13 +118014,13 @@ var require_retry_agent = __commonJS({
         this.#agent = agent;
         this.#options = options;
       }
-      dispatch(opts, handler) {
+      dispatch(opts, handler2) {
         const retry2 = new RetryHandler({
           ...opts,
           retryOptions: this.#options
         }, {
           dispatch: this.#agent.dispatch.bind(this.#agent),
-          handler
+          handler: handler2
         });
         return this.#agent.dispatch(opts, retry2);
       }
@@ -118040,7 +118040,7 @@ var require_readable = __commonJS({
   "../../node_modules/@vercel/blob/node_modules/undici/lib/api/readable.js"(exports, module) {
     "use strict";
     var assert2 = __require("node:assert");
-    var { Readable: Readable9 } = __require("node:stream");
+    var { Readable: Readable10 } = __require("node:stream");
     var { RequestAbortedError, NotSupportedError, InvalidArgumentError, AbortError: AbortError2 } = require_errors5();
     var util3 = require_util3();
     var { ReadableStreamFrom } = require_util3();
@@ -118052,7 +118052,7 @@ var require_readable = __commonJS({
     var kContentLength = /* @__PURE__ */ Symbol("kContentLength");
     var noop2 = () => {
     };
-    var BodyReadable = class extends Readable9 {
+    var BodyReadable = class extends Readable10 {
       constructor({
         resume,
         abort,
@@ -118394,7 +118394,7 @@ var require_api_request2 = __commonJS({
   "../../node_modules/@vercel/blob/node_modules/undici/lib/api/api-request.js"(exports, module) {
     "use strict";
     var assert2 = __require("node:assert");
-    var { Readable: Readable9 } = require_readable();
+    var { Readable: Readable10 } = require_readable();
     var { InvalidArgumentError, RequestAbortedError } = require_errors5();
     var util3 = require_util3();
     var { getResolveErrorBodyCallback } = require_util5();
@@ -118489,7 +118489,7 @@ var require_api_request2 = __commonJS({
         const parsedHeaders = responseHeaders === "raw" ? util3.parseHeaders(rawHeaders) : headers;
         const contentType = parsedHeaders["content-type"];
         const contentLength = parsedHeaders["content-length"];
-        const res = new Readable9({
+        const res = new Readable10({
           resume,
           abort,
           contentType,
@@ -118804,7 +118804,7 @@ var require_api_pipeline = __commonJS({
   "../../node_modules/@vercel/blob/node_modules/undici/lib/api/api-pipeline.js"(exports, module) {
     "use strict";
     var {
-      Readable: Readable9,
+      Readable: Readable10,
       Duplex,
       PassThrough: PassThrough8
     } = __require("node:stream");
@@ -118818,7 +118818,7 @@ var require_api_pipeline = __commonJS({
     var { addSignal, removeSignal } = require_abort_signal();
     var assert2 = __require("node:assert");
     var kResume = /* @__PURE__ */ Symbol("resume");
-    var PipelineRequest = class extends Readable9 {
+    var PipelineRequest = class extends Readable10 {
       constructor() {
         super({ autoDestroy: true });
         this[kResume] = null;
@@ -118835,7 +118835,7 @@ var require_api_pipeline = __commonJS({
         callback(err);
       }
     };
-    var PipelineResponse = class extends Readable9 {
+    var PipelineResponse = class extends Readable10 {
       constructor(resume) {
         super({ autoDestroy: true });
         this[kResume] = resume;
@@ -118851,11 +118851,11 @@ var require_api_pipeline = __commonJS({
       }
     };
     var PipelineHandler = class extends AsyncResource {
-      constructor(opts, handler) {
+      constructor(opts, handler2) {
         if (!opts || typeof opts !== "object") {
           throw new InvalidArgumentError("invalid opts");
         }
-        if (typeof handler !== "function") {
+        if (typeof handler2 !== "function") {
           throw new InvalidArgumentError("invalid handler");
         }
         const { signal, method, opaque, onInfo, responseHeaders } = opts;
@@ -118871,7 +118871,7 @@ var require_api_pipeline = __commonJS({
         super("UNDICI_PIPELINE");
         this.opaque = opaque || null;
         this.responseHeaders = responseHeaders || null;
-        this.handler = handler;
+        this.handler = handler2;
         this.abort = null;
         this.context = null;
         this.onInfo = onInfo || null;
@@ -118926,7 +118926,7 @@ var require_api_pipeline = __commonJS({
         this.context = context;
       }
       onHeaders(statusCode, rawHeaders, resume) {
-        const { opaque, handler, context } = this;
+        const { opaque, handler: handler2, context } = this;
         if (statusCode < 200) {
           if (this.onInfo) {
             const headers = this.responseHeaders === "raw" ? util3.parseRawHeaders(rawHeaders) : util3.parseHeaders(rawHeaders);
@@ -118939,7 +118939,7 @@ var require_api_pipeline = __commonJS({
         try {
           this.handler = null;
           const headers = this.responseHeaders === "raw" ? util3.parseRawHeaders(rawHeaders) : util3.parseHeaders(rawHeaders);
-          body = this.runInAsyncScope(handler, null, {
+          body = this.runInAsyncScope(handler2, null, {
             statusCode,
             headers,
             opaque,
@@ -118986,9 +118986,9 @@ var require_api_pipeline = __commonJS({
         util3.destroy(ret, err);
       }
     };
-    function pipeline4(opts, handler) {
+    function pipeline4(opts, handler2) {
       try {
-        const pipelineHandler = new PipelineHandler(opts, handler);
+        const pipelineHandler = new PipelineHandler(opts, handler2);
         this.dispatch({ ...opts, body: pipelineHandler.req }, pipelineHandler);
         return pipelineHandler.ret;
       } catch (err) {
@@ -119262,7 +119262,7 @@ var require_mock_utils = __commonJS({
     var { STATUS_CODES } = __require("node:http");
     var {
       types: {
-        isPromise
+        isPromise: isPromise2
       }
     } = __require("node:util");
     function matchValue(match2, value) {
@@ -119436,7 +119436,7 @@ var require_mock_utils = __commonJS({
       }
       return Buffer.concat(buffers).toString("utf8");
     }
-    function mockDispatch(opts, handler) {
+    function mockDispatch(opts, handler2) {
       const key = buildKey(opts);
       const mockDispatch2 = getMockDispatch(this[kDispatches], key);
       mockDispatch2.timesInvoked++;
@@ -119449,7 +119449,7 @@ var require_mock_utils = __commonJS({
       mockDispatch2.pending = timesInvoked < times;
       if (error64 !== null) {
         deleteMockDispatch(this[kDispatches], key);
-        handler.onError(error64);
+        handler2.onError(error64);
         return true;
       }
       if (typeof delay === "number" && delay > 0) {
@@ -119462,17 +119462,17 @@ var require_mock_utils = __commonJS({
       function handleReply(mockDispatches, _data5 = data) {
         const optsHeaders = Array.isArray(opts.headers) ? buildHeadersFromArray(opts.headers) : opts.headers;
         const body = typeof _data5 === "function" ? _data5({ ...opts, headers: optsHeaders }) : _data5;
-        if (isPromise(body)) {
+        if (isPromise2(body)) {
           body.then((newData) => handleReply(mockDispatches, newData));
           return;
         }
         const responseData = getResponseData(body);
         const responseHeaders = generateKeyValues(headers);
         const responseTrailers = generateKeyValues(trailers);
-        handler.onConnect?.((err) => handler.onError(err), null);
-        handler.onHeaders?.(statusCode, responseHeaders, resume, getStatusText(statusCode));
-        handler.onData?.(Buffer.from(responseData));
-        handler.onComplete?.(responseTrailers);
+        handler2.onConnect?.((err) => handler2.onError(err), null);
+        handler2.onHeaders?.(statusCode, responseHeaders, resume, getStatusText(statusCode));
+        handler2.onData?.(Buffer.from(responseData));
+        handler2.onComplete?.(responseTrailers);
         deleteMockDispatch(mockDispatches, key);
       }
       function resume() {
@@ -119483,10 +119483,10 @@ var require_mock_utils = __commonJS({
       const agent = this[kMockAgent];
       const origin = this[kOrigin];
       const originalDispatch = this[kOriginalDispatch];
-      return function dispatch(opts, handler) {
+      return function dispatch(opts, handler2) {
         if (agent.isMockActive) {
           try {
-            mockDispatch.call(this, opts, handler);
+            mockDispatch.call(this, opts, handler2);
           } catch (error64) {
             if (error64 instanceof MockNotMatchedError) {
               const netConnect = agent[kGetNetConnect]();
@@ -119494,7 +119494,7 @@ var require_mock_utils = __commonJS({
                 throw new MockNotMatchedError(`${error64.message}: subsequent request to origin ${origin} was not allowed (net.connect disabled)`);
               }
               if (checkNetConnect(netConnect, origin)) {
-                originalDispatch.call(this, opts, handler);
+                originalDispatch.call(this, opts, handler2);
               } else {
                 throw new MockNotMatchedError(`${error64.message}: subsequent request to origin ${origin} was not allowed (net.connect is not enabled for this origin)`);
               }
@@ -119503,7 +119503,7 @@ var require_mock_utils = __commonJS({
             }
           }
         } else {
-          originalDispatch.call(this, opts, handler);
+          originalDispatch.call(this, opts, handler2);
         }
       };
     }
@@ -119927,9 +119927,9 @@ var require_mock_agent = __commonJS({
         }
         return dispatcher;
       }
-      dispatch(opts, handler) {
+      dispatch(opts, handler2) {
         this.get(opts.origin);
-        return this[kAgent].dispatch(opts, handler);
+        return this[kAgent].dispatch(opts, handler2);
       }
       async close() {
         await this[kAgent].close();
@@ -120049,11 +120049,11 @@ var require_decorator_handler = __commonJS({
     "use strict";
     module.exports = class DecoratorHandler {
       #handler;
-      constructor(handler) {
-        if (typeof handler !== "object" || handler === null) {
+      constructor(handler2) {
+        if (typeof handler2 !== "object" || handler2 === null) {
           throw new TypeError("handler must be an object");
         }
-        this.#handler = handler;
+        this.#handler = handler2;
       }
       onConnect(...args) {
         return this.#handler.onConnect?.(...args);
@@ -120091,16 +120091,16 @@ var require_redirect = __commonJS({
     module.exports = (opts) => {
       const globalMaxRedirections = opts?.maxRedirections;
       return (dispatch) => {
-        return function redirectInterceptor(opts2, handler) {
+        return function redirectInterceptor(opts2, handler2) {
           const { maxRedirections = globalMaxRedirections, ...baseOpts } = opts2;
           if (!maxRedirections) {
-            return dispatch(opts2, handler);
+            return dispatch(opts2, handler2);
           }
           const redirectHandler = new RedirectHandler(
             dispatch,
             maxRedirections,
             opts2,
-            handler
+            handler2
           );
           return dispatch(baseOpts, redirectHandler);
         };
@@ -120116,13 +120116,13 @@ var require_retry4 = __commonJS({
     var RetryHandler = require_retry_handler();
     module.exports = (globalOpts) => {
       return (dispatch) => {
-        return function retryInterceptor(opts, handler) {
+        return function retryInterceptor(opts, handler2) {
           return dispatch(
             opts,
             new RetryHandler(
               { ...opts, retryOptions: { ...globalOpts, ...opts.retryOptions } },
               {
-                handler,
+                handler: handler2,
                 dispatch
               }
             )
@@ -120148,13 +120148,13 @@ var require_dump = __commonJS({
       #size = 0;
       #reason = null;
       #handler = null;
-      constructor({ maxSize }, handler) {
-        super(handler);
+      constructor({ maxSize }, handler2) {
+        super(handler2);
         if (maxSize != null && (!Number.isFinite(maxSize) || maxSize < 1)) {
           throw new InvalidArgumentError("maxSize must be a number greater than 0");
         }
         this.#maxSize = maxSize ?? this.#maxSize;
-        this.#handler = handler;
+        this.#handler = handler2;
       }
       onConnect(abort) {
         this.#abort = abort;
@@ -120217,11 +120217,11 @@ var require_dump = __commonJS({
       maxSize: 1024 * 1024
     }) {
       return (dispatch) => {
-        return function Intercept(opts, handler) {
+        return function Intercept(opts, handler2) {
           const { dumpMaxSize = defaultMaxSize } = opts;
           const dumpHandler = new DumpHandler(
             { maxSize: dumpMaxSize },
-            handler
+            handler2
           );
           return dispatch(opts, dumpHandler);
         };
@@ -120412,10 +120412,10 @@ var require_dns = __commonJS({
       #dispatch = null;
       #handler = null;
       #origin = null;
-      constructor(state2, { origin, handler, dispatch }, opts) {
-        super(handler);
+      constructor(state2, { origin, handler: handler2, dispatch }, opts) {
+        super(handler2);
         this.#origin = origin;
-        this.#handler = handler;
+        this.#handler = handler2;
         this.#opts = { ...opts };
         this.#state = state2;
         this.#dispatch = dispatch;
@@ -120488,14 +120488,14 @@ var require_dns = __commonJS({
       };
       const instance = new DNSInstance(opts);
       return (dispatch) => {
-        return function dnsInterceptor(origDispatchOpts, handler) {
+        return function dnsInterceptor(origDispatchOpts, handler2) {
           const origin = origDispatchOpts.origin.constructor === URL ? origDispatchOpts.origin : new URL(origDispatchOpts.origin);
           if (isIP2(origin.hostname) !== 0) {
-            return dispatch(origDispatchOpts, handler);
+            return dispatch(origDispatchOpts, handler2);
           }
           instance.runLookup(origin, origDispatchOpts, (err, newOrigin) => {
             if (err) {
-              return handler.onError(err);
+              return handler2.onError(err);
             }
             let dispatchOpts = null;
             dispatchOpts = {
@@ -120510,7 +120510,7 @@ var require_dns = __commonJS({
             };
             dispatch(
               dispatchOpts,
-              instance.getHandler({ origin, dispatch, handler }, origDispatchOpts)
+              instance.getHandler({ origin, dispatch, handler: handler2 }, origDispatchOpts)
             );
           });
           return true;
@@ -120995,7 +120995,7 @@ var require_response = __commonJS({
     var assert2 = __require("node:assert");
     var { types: types3 } = __require("node:util");
     var textEncoder = new TextEncoder("utf-8");
-    var Response3 = class _Response {
+    var Response4 = class _Response2 {
       // Creates network error Response.
       static error() {
         const responseObject = fromInnerResponse(makeNetworkError(), "immutable");
@@ -121058,12 +121058,12 @@ var require_response = __commonJS({
       }
       // Returns response’s type, e.g., "cors".
       get type() {
-        webidl.brandCheck(this, _Response);
+        webidl.brandCheck(this, _Response2);
         return this[kState].type;
       }
       // Returns response’s URL, if it has one; otherwise the empty string.
       get url() {
-        webidl.brandCheck(this, _Response);
+        webidl.brandCheck(this, _Response2);
         const urlList = this[kState].urlList;
         const url2 = urlList[urlList.length - 1] ?? null;
         if (url2 === null) {
@@ -121073,40 +121073,40 @@ var require_response = __commonJS({
       }
       // Returns whether response was obtained through a redirect.
       get redirected() {
-        webidl.brandCheck(this, _Response);
+        webidl.brandCheck(this, _Response2);
         return this[kState].urlList.length > 1;
       }
       // Returns response’s status.
       get status() {
-        webidl.brandCheck(this, _Response);
+        webidl.brandCheck(this, _Response2);
         return this[kState].status;
       }
       // Returns whether response’s status is an ok status.
       get ok() {
-        webidl.brandCheck(this, _Response);
+        webidl.brandCheck(this, _Response2);
         return this[kState].status >= 200 && this[kState].status <= 299;
       }
       // Returns response’s status message.
       get statusText() {
-        webidl.brandCheck(this, _Response);
+        webidl.brandCheck(this, _Response2);
         return this[kState].statusText;
       }
       // Returns response’s headers as Headers.
       get headers() {
-        webidl.brandCheck(this, _Response);
+        webidl.brandCheck(this, _Response2);
         return this[kHeaders];
       }
       get body() {
-        webidl.brandCheck(this, _Response);
+        webidl.brandCheck(this, _Response2);
         return this[kState].body ? this[kState].body.stream : null;
       }
       get bodyUsed() {
-        webidl.brandCheck(this, _Response);
+        webidl.brandCheck(this, _Response2);
         return !!this[kState].body && util3.isDisturbed(this[kState].body.stream);
       }
       // Returns a clone of response.
       clone() {
-        webidl.brandCheck(this, _Response);
+        webidl.brandCheck(this, _Response2);
         if (bodyUnusable(this)) {
           throw webidl.errors.exception({
             header: "Response.clone",
@@ -121138,8 +121138,8 @@ var require_response = __commonJS({
         return `Response ${nodeUtil.formatWithOptions(options, properties)}`;
       }
     };
-    mixinBody(Response3);
-    Object.defineProperties(Response3.prototype, {
+    mixinBody(Response4);
+    Object.defineProperties(Response4.prototype, {
       type: kEnumerableProperty,
       url: kEnumerableProperty,
       status: kEnumerableProperty,
@@ -121155,7 +121155,7 @@ var require_response = __commonJS({
         configurable: true
       }
     });
-    Object.defineProperties(Response3, {
+    Object.defineProperties(Response4, {
       json: kEnumerableProperty,
       redirect: kEnumerableProperty,
       error: kEnumerableProperty
@@ -121288,7 +121288,7 @@ var require_response = __commonJS({
       }
     }
     function fromInnerResponse(innerResponse, guard) {
-      const response = new Response3(kConstruct);
+      const response = new Response4(kConstruct);
       response[kState] = innerResponse;
       response[kHeaders] = new Headers3(kConstruct);
       setHeadersList(response[kHeaders], innerResponse.headersList);
@@ -121356,7 +121356,7 @@ var require_response = __commonJS({
       makeResponse,
       makeAppropriateNetworkError,
       filterResponse,
-      Response: Response3,
+      Response: Response4,
       cloneResponse,
       fromInnerResponse
     };
@@ -121426,7 +121426,7 @@ var require_request3 = __commonJS({
       requestRedirect,
       requestMode,
       requestCredentials,
-      requestCache,
+      requestCache: requestCache2,
       requestDuplex
     } = require_constants5();
     var { kEnumerableProperty, normalizedMethodRecordsBase, normalizedMethodRecords } = util3;
@@ -121466,7 +121466,7 @@ var require_request3 = __commonJS({
       }
     }
     var patchMethodWarning = false;
-    var Request3 = class _Request {
+    var Request4 = class _Request {
       // https://fetch.spec.whatwg.org/#dom-request
       constructor(input2, init = {}) {
         webidl.util.markAsUncloneable(this);
@@ -121913,7 +121913,7 @@ var require_request3 = __commonJS({
         return `Request ${nodeUtil.formatWithOptions(options, properties)}`;
       }
     };
-    mixinBody(Request3);
+    mixinBody(Request4);
     function makeRequest(init) {
       return {
         method: init.method ?? "GET",
@@ -121957,14 +121957,14 @@ var require_request3 = __commonJS({
       };
     }
     function cloneRequest(request) {
-      const newRequest = makeRequest({ ...request, body: null });
+      const newRequest2 = makeRequest({ ...request, body: null });
       if (request.body != null) {
-        newRequest.body = cloneBody(newRequest, request.body);
+        newRequest2.body = cloneBody(newRequest2, request.body);
       }
-      return newRequest;
+      return newRequest2;
     }
     function fromInnerRequest(innerRequest, signal, guard) {
-      const request = new Request3(kConstruct);
+      const request = new Request4(kConstruct);
       request[kState] = innerRequest;
       request[kSignal] = signal;
       request[kHeaders] = new Headers3(kConstruct);
@@ -121972,7 +121972,7 @@ var require_request3 = __commonJS({
       setHeadersGuard(request[kHeaders], guard);
       return request;
     }
-    Object.defineProperties(Request3.prototype, {
+    Object.defineProperties(Request4.prototype, {
       method: kEnumerableProperty,
       url: kEnumerableProperty,
       headers: kEnumerableProperty,
@@ -121999,13 +121999,13 @@ var require_request3 = __commonJS({
       }
     });
     webidl.converters.Request = webidl.interfaceConverter(
-      Request3
+      Request4
     );
     webidl.converters.RequestInfo = function(V2, prefix, argument) {
       if (typeof V2 === "string") {
         return webidl.converters.USVString(V2, prefix, argument);
       }
-      if (V2 instanceof Request3) {
+      if (V2 instanceof Request4) {
         return webidl.converters.Request(V2, prefix, argument);
       }
       return webidl.converters.USVString(V2, prefix, argument);
@@ -122054,7 +122054,7 @@ var require_request3 = __commonJS({
         key: "cache",
         converter: webidl.converters.DOMString,
         // https://fetch.spec.whatwg.org/#requestcache
-        allowedValues: requestCache
+        allowedValues: requestCache2
       },
       {
         key: "redirect",
@@ -122096,7 +122096,7 @@ var require_request3 = __commonJS({
         converter: webidl.converters.any
       }
     ]);
-    module.exports = { Request: Request3, makeRequest, fromInnerRequest, cloneRequest };
+    module.exports = { Request: Request4, makeRequest, fromInnerRequest, cloneRequest };
   }
 });
 
@@ -122112,7 +122112,7 @@ var require_fetch = __commonJS({
       fromInnerResponse
     } = require_response();
     var { HeadersList } = require_headers();
-    var { Request: Request3, cloneRequest } = require_request3();
+    var { Request: Request4, cloneRequest } = require_request3();
     var zlib4 = __require("node:zlib");
     var {
       bytesMatch,
@@ -122160,7 +122160,7 @@ var require_fetch = __commonJS({
       subresourceSet
     } = require_constants5();
     var EE = __require("node:events");
-    var { Readable: Readable9, pipeline: pipeline4, finished: finished3 } = __require("node:stream");
+    var { Readable: Readable10, pipeline: pipeline4, finished: finished3 } = __require("node:stream");
     var { addAbortListener, isErrored, isReadable, bufferToLowerCasedHeaderName } = require_util3();
     var { dataURLProcessor, serializeAMimeType, minimizeSupportedMimeType } = require_data_url();
     var { getGlobalDispatcher } = require_global2();
@@ -122207,7 +122207,7 @@ var require_fetch = __commonJS({
       let p4 = createDeferredPromise();
       let requestObject;
       try {
-        requestObject = new Request3(input2, init);
+        requestObject = new Request4(input2, init);
       } catch (e6) {
         p4.reject(e6);
         return p4.promise;
@@ -123099,7 +123099,7 @@ var require_fetch = __commonJS({
                   }
                 }
               }
-              this.body = new Readable9({ read: resume });
+              this.body = new Readable10({ read: resume });
               const onError = this.onError.bind(this);
               resolve3({
                 status,
@@ -124026,8 +124026,8 @@ var require_cache2 = __commonJS({
     var { urlEquals, getFieldValues } = require_util7();
     var { kEnumerableProperty, isDisturbed } = require_util3();
     var { webidl } = require_webidl();
-    var { Response: Response3, cloneResponse, fromInnerResponse } = require_response();
-    var { Request: Request3, fromInnerRequest } = require_request3();
+    var { Response: Response4, cloneResponse, fromInnerResponse } = require_response();
+    var { Request: Request4, fromInnerRequest } = require_request3();
     var { kState } = require_symbols2();
     var { fetching } = require_fetch();
     var { urlIsHttpHttpsScheme, createDeferredPromise, readAllBytes } = require_util4();
@@ -124101,7 +124101,7 @@ var require_cache2 = __commonJS({
         }
         const fetchControllers = [];
         for (const request of requests) {
-          const r6 = new Request3(request)[kState];
+          const r6 = new Request4(request)[kState];
           if (!urlIsHttpHttpsScheme(r6.url)) {
             throw webidl.errors.exception({
               header: prefix,
@@ -124185,10 +124185,10 @@ var require_cache2 = __commonJS({
         request = webidl.converters.RequestInfo(request, prefix, "request");
         response = webidl.converters.Response(response, prefix, "response");
         let innerRequest = null;
-        if (request instanceof Request3) {
+        if (request instanceof Request4) {
           innerRequest = request[kState];
         } else {
-          innerRequest = new Request3(request)[kState];
+          innerRequest = new Request4(request)[kState];
         }
         if (!urlIsHttpHttpsScheme(innerRequest.url) || innerRequest.method !== "GET") {
           throw webidl.errors.exception({
@@ -124266,14 +124266,14 @@ var require_cache2 = __commonJS({
         request = webidl.converters.RequestInfo(request, prefix, "request");
         options = webidl.converters.CacheQueryOptions(options, prefix, "options");
         let r6 = null;
-        if (request instanceof Request3) {
+        if (request instanceof Request4) {
           r6 = request[kState];
           if (r6.method !== "GET" && !options.ignoreMethod) {
             return false;
           }
         } else {
           assert2(typeof request === "string");
-          r6 = new Request3(request)[kState];
+          r6 = new Request4(request)[kState];
         }
         const operations = [];
         const operation2 = {
@@ -124312,13 +124312,13 @@ var require_cache2 = __commonJS({
         options = webidl.converters.CacheQueryOptions(options, prefix, "options");
         let r6 = null;
         if (request !== void 0) {
-          if (request instanceof Request3) {
+          if (request instanceof Request4) {
             r6 = request[kState];
             if (r6.method !== "GET" && !options.ignoreMethod) {
               return [];
             }
           } else if (typeof request === "string") {
-            r6 = new Request3(request)[kState];
+            r6 = new Request4(request)[kState];
           }
         }
         const promise2 = createDeferredPromise();
@@ -124484,13 +124484,13 @@ var require_cache2 = __commonJS({
       #internalMatchAll(request, options, maxResponses = Infinity) {
         let r6 = null;
         if (request !== void 0) {
-          if (request instanceof Request3) {
+          if (request instanceof Request4) {
             r6 = request[kState];
             if (r6.method !== "GET" && !options.ignoreMethod) {
               return [];
             }
           } else if (typeof request === "string") {
-            r6 = new Request3(request)[kState];
+            r6 = new Request4(request)[kState];
           }
         }
         const responses = [];
@@ -124553,7 +124553,7 @@ var require_cache2 = __commonJS({
         converter: webidl.converters.DOMString
       }
     ]);
-    webidl.converters.Response = webidl.interfaceConverter(Response3);
+    webidl.converters.Response = webidl.interfaceConverter(Response4);
     webidl.converters["sequence<RequestInfo>"] = webidl.sequenceConverter(
       webidl.converters.RequestInfo
     );
@@ -125678,13 +125678,13 @@ var require_frame = __commonJS({
     "use strict";
     var { maxUnsigned16Bit } = require_constants7();
     var BUFFER_SIZE = 16386;
-    var crypto9;
+    var crypto10;
     var buffer = null;
     var bufIdx = BUFFER_SIZE;
     try {
-      crypto9 = __require("node:crypto");
+      crypto10 = __require("node:crypto");
     } catch {
-      crypto9 = {
+      crypto10 = {
         // not full compatibility, but minimum.
         randomFillSync: function randomFillSync(buffer2, _offset, _size2) {
           for (let i6 = 0; i6 < buffer2.length; ++i6) {
@@ -125697,7 +125697,7 @@ var require_frame = __commonJS({
     function generateMask() {
       if (bufIdx === BUFFER_SIZE) {
         bufIdx = 0;
-        crypto9.randomFillSync(buffer ??= Buffer.allocUnsafe(BUFFER_SIZE), 0, BUFFER_SIZE);
+        crypto10.randomFillSync(buffer ??= Buffer.allocUnsafe(BUFFER_SIZE), 0, BUFFER_SIZE);
       }
       return [buffer[bufIdx++], buffer[bufIdx++], buffer[bufIdx++], buffer[bufIdx++]];
     }
@@ -125769,9 +125769,9 @@ var require_connection = __commonJS({
     var { Headers: Headers3, getHeadersList } = require_headers();
     var { getDecodeSplit } = require_util4();
     var { WebsocketFrameSend } = require_frame();
-    var crypto9;
+    var crypto10;
     try {
-      crypto9 = __require("node:crypto");
+      crypto10 = __require("node:crypto");
     } catch {
     }
     function establishWebSocketConnection(url2, protocols, client, ws, onEstablish, options) {
@@ -125791,7 +125791,7 @@ var require_connection = __commonJS({
         const headersList = getHeadersList(new Headers3(options.headers));
         request.headersList = headersList;
       }
-      const keyValue = crypto9.randomBytes(16).toString("base64");
+      const keyValue = crypto10.randomBytes(16).toString("base64");
       request.headersList.append("sec-websocket-key", keyValue);
       request.headersList.append("sec-websocket-version", "13");
       for (const protocol of protocols) {
@@ -125821,7 +125821,7 @@ var require_connection = __commonJS({
             return;
           }
           const secWSAccept = response.headersList.get("Sec-WebSocket-Accept");
-          const digest4 = crypto9.createHash("sha1").update(keyValue + uid).digest("base64");
+          const digest4 = crypto10.createHash("sha1").update(keyValue + uid).digest("base64");
           if (secWSAccept !== digest4) {
             failWebsocketConnection(ws, "Incorrect hash received in Sec-WebSocket-Accept header.");
             return;
@@ -127654,9 +127654,9 @@ var require_undici = __commonJS({
       headerNameToString: util3.headerNameToString
     };
     function makeDispatcher(fn) {
-      return (url2, opts, handler) => {
+      return (url2, opts, handler2) => {
         if (typeof opts === "function") {
-          handler = opts;
+          handler2 = opts;
           opts = null;
         }
         if (!url2 || typeof url2 !== "string" && typeof url2 !== "object" && !(url2 instanceof URL)) {
@@ -127689,7 +127689,7 @@ var require_undici = __commonJS({
           origin: url2.origin,
           path: url2.search ? `${url2.pathname}${url2.search}` : url2.pathname,
           method: opts.method || (opts.body ? "PUT" : "GET")
-        }, handler);
+        }, handler2);
       };
     }
     module.exports.setGlobalDispatcher = setGlobalDispatcher;
@@ -127772,6 +127772,538 @@ var require_throttleit = __commonJS({
     module.exports = throttle3;
   }
 });
+
+// ../../node_modules/@hono/node-server/dist/index.mjs
+import { Http2ServerRequest as Http2ServerRequest2 } from "http2";
+import { Http2ServerRequest } from "http2";
+import { Readable } from "stream";
+import crypto2 from "crypto";
+var RequestError = class extends Error {
+  constructor(message2, options) {
+    super(message2, options);
+    this.name = "RequestError";
+  }
+};
+var toRequestError = (e6) => {
+  if (e6 instanceof RequestError) {
+    return e6;
+  }
+  return new RequestError(e6.message, { cause: e6 });
+};
+var GlobalRequest = global.Request;
+var Request2 = class extends GlobalRequest {
+  constructor(input2, options) {
+    if (typeof input2 === "object" && getRequestCache in input2) {
+      input2 = input2[getRequestCache]();
+    }
+    if (typeof options?.body?.getReader !== "undefined") {
+      ;
+      options.duplex ??= "half";
+    }
+    super(input2, options);
+  }
+};
+var newHeadersFromIncoming = (incoming) => {
+  const headerRecord = [];
+  const rawHeaders = incoming.rawHeaders;
+  for (let i6 = 0; i6 < rawHeaders.length; i6 += 2) {
+    const { [i6]: key, [i6 + 1]: value } = rawHeaders;
+    if (key.charCodeAt(0) !== /*:*/
+    58) {
+      headerRecord.push([key, value]);
+    }
+  }
+  return new Headers(headerRecord);
+};
+var wrapBodyStream = /* @__PURE__ */ Symbol("wrapBodyStream");
+var newRequestFromIncoming = (method, url2, headers, incoming, abortController) => {
+  const init = {
+    method,
+    headers,
+    signal: abortController.signal
+  };
+  if (method === "TRACE") {
+    init.method = "GET";
+    const req = new Request2(url2, init);
+    Object.defineProperty(req, "method", {
+      get() {
+        return "TRACE";
+      }
+    });
+    return req;
+  }
+  if (!(method === "GET" || method === "HEAD")) {
+    if ("rawBody" in incoming && incoming.rawBody instanceof Buffer) {
+      init.body = new ReadableStream({
+        start(controller) {
+          controller.enqueue(incoming.rawBody);
+          controller.close();
+        }
+      });
+    } else if (incoming[wrapBodyStream]) {
+      let reader;
+      init.body = new ReadableStream({
+        async pull(controller) {
+          try {
+            reader ||= Readable.toWeb(incoming).getReader();
+            const { done, value } = await reader.read();
+            if (done) {
+              controller.close();
+            } else {
+              controller.enqueue(value);
+            }
+          } catch (error64) {
+            controller.error(error64);
+          }
+        }
+      });
+    } else {
+      init.body = Readable.toWeb(incoming);
+    }
+  }
+  return new Request2(url2, init);
+};
+var getRequestCache = /* @__PURE__ */ Symbol("getRequestCache");
+var requestCache = /* @__PURE__ */ Symbol("requestCache");
+var incomingKey = /* @__PURE__ */ Symbol("incomingKey");
+var urlKey = /* @__PURE__ */ Symbol("urlKey");
+var headersKey = /* @__PURE__ */ Symbol("headersKey");
+var abortControllerKey = /* @__PURE__ */ Symbol("abortControllerKey");
+var getAbortController = /* @__PURE__ */ Symbol("getAbortController");
+var requestPrototype = {
+  get method() {
+    return this[incomingKey].method || "GET";
+  },
+  get url() {
+    return this[urlKey];
+  },
+  get headers() {
+    return this[headersKey] ||= newHeadersFromIncoming(this[incomingKey]);
+  },
+  [getAbortController]() {
+    this[getRequestCache]();
+    return this[abortControllerKey];
+  },
+  [getRequestCache]() {
+    this[abortControllerKey] ||= new AbortController();
+    return this[requestCache] ||= newRequestFromIncoming(
+      this.method,
+      this[urlKey],
+      this.headers,
+      this[incomingKey],
+      this[abortControllerKey]
+    );
+  }
+};
+[
+  "body",
+  "bodyUsed",
+  "cache",
+  "credentials",
+  "destination",
+  "integrity",
+  "mode",
+  "redirect",
+  "referrer",
+  "referrerPolicy",
+  "signal",
+  "keepalive"
+].forEach((k5) => {
+  Object.defineProperty(requestPrototype, k5, {
+    get() {
+      return this[getRequestCache]()[k5];
+    }
+  });
+});
+["arrayBuffer", "blob", "clone", "formData", "json", "text"].forEach((k5) => {
+  Object.defineProperty(requestPrototype, k5, {
+    value: function() {
+      return this[getRequestCache]()[k5]();
+    }
+  });
+});
+Object.setPrototypeOf(requestPrototype, Request2.prototype);
+var newRequest = (incoming, defaultHostname) => {
+  const req = Object.create(requestPrototype);
+  req[incomingKey] = incoming;
+  const incomingUrl = incoming.url || "";
+  if (incomingUrl[0] !== "/" && // short-circuit for performance. most requests are relative URL.
+  (incomingUrl.startsWith("http://") || incomingUrl.startsWith("https://"))) {
+    if (incoming instanceof Http2ServerRequest) {
+      throw new RequestError("Absolute URL for :path is not allowed in HTTP/2");
+    }
+    try {
+      const url22 = new URL(incomingUrl);
+      req[urlKey] = url22.href;
+    } catch (e6) {
+      throw new RequestError("Invalid absolute URL", { cause: e6 });
+    }
+    return req;
+  }
+  const host = (incoming instanceof Http2ServerRequest ? incoming.authority : incoming.headers.host) || defaultHostname;
+  if (!host) {
+    throw new RequestError("Missing host header");
+  }
+  let scheme;
+  if (incoming instanceof Http2ServerRequest) {
+    scheme = incoming.scheme;
+    if (!(scheme === "http" || scheme === "https")) {
+      throw new RequestError("Unsupported scheme");
+    }
+  } else {
+    scheme = incoming.socket && incoming.socket.encrypted ? "https" : "http";
+  }
+  const url2 = new URL(`${scheme}://${host}${incomingUrl}`);
+  if (url2.hostname.length !== host.length && url2.hostname !== host.replace(/:\d+$/, "")) {
+    throw new RequestError("Invalid host header");
+  }
+  req[urlKey] = url2.href;
+  return req;
+};
+var responseCache = /* @__PURE__ */ Symbol("responseCache");
+var getResponseCache = /* @__PURE__ */ Symbol("getResponseCache");
+var cacheKey = /* @__PURE__ */ Symbol("cache");
+var GlobalResponse = global.Response;
+var Response2 = class _Response {
+  #body;
+  #init;
+  [getResponseCache]() {
+    delete this[cacheKey];
+    return this[responseCache] ||= new GlobalResponse(this.#body, this.#init);
+  }
+  constructor(body, init) {
+    let headers;
+    this.#body = body;
+    if (init instanceof _Response) {
+      const cachedGlobalResponse = init[responseCache];
+      if (cachedGlobalResponse) {
+        this.#init = cachedGlobalResponse;
+        this[getResponseCache]();
+        return;
+      } else {
+        this.#init = init.#init;
+        headers = new Headers(init.#init.headers);
+      }
+    } else {
+      this.#init = init;
+    }
+    if (typeof body === "string" || typeof body?.getReader !== "undefined" || body instanceof Blob || body instanceof Uint8Array) {
+      headers ||= init?.headers || { "content-type": "text/plain; charset=UTF-8" };
+      this[cacheKey] = [init?.status || 200, body, headers];
+    }
+  }
+  get headers() {
+    const cache6 = this[cacheKey];
+    if (cache6) {
+      if (!(cache6[2] instanceof Headers)) {
+        cache6[2] = new Headers(cache6[2]);
+      }
+      return cache6[2];
+    }
+    return this[getResponseCache]().headers;
+  }
+  get status() {
+    return this[cacheKey]?.[0] ?? this[getResponseCache]().status;
+  }
+  get ok() {
+    const status = this.status;
+    return status >= 200 && status < 300;
+  }
+};
+["body", "bodyUsed", "redirected", "statusText", "trailers", "type", "url"].forEach((k5) => {
+  Object.defineProperty(Response2.prototype, k5, {
+    get() {
+      return this[getResponseCache]()[k5];
+    }
+  });
+});
+["arrayBuffer", "blob", "clone", "formData", "json", "text"].forEach((k5) => {
+  Object.defineProperty(Response2.prototype, k5, {
+    value: function() {
+      return this[getResponseCache]()[k5]();
+    }
+  });
+});
+Object.setPrototypeOf(Response2, GlobalResponse);
+Object.setPrototypeOf(Response2.prototype, GlobalResponse.prototype);
+async function readWithoutBlocking(readPromise) {
+  return Promise.race([readPromise, Promise.resolve().then(() => Promise.resolve(void 0))]);
+}
+function writeFromReadableStreamDefaultReader(reader, writable, currentReadPromise) {
+  const cancel = (error64) => {
+    reader.cancel(error64).catch(() => {
+    });
+  };
+  writable.on("close", cancel);
+  writable.on("error", cancel);
+  (currentReadPromise ?? reader.read()).then(flow, handleStreamError);
+  return reader.closed.finally(() => {
+    writable.off("close", cancel);
+    writable.off("error", cancel);
+  });
+  function handleStreamError(error64) {
+    if (error64) {
+      writable.destroy(error64);
+    }
+  }
+  function onDrain() {
+    reader.read().then(flow, handleStreamError);
+  }
+  function flow({ done, value }) {
+    try {
+      if (done) {
+        writable.end();
+      } else if (!writable.write(value)) {
+        writable.once("drain", onDrain);
+      } else {
+        return reader.read().then(flow, handleStreamError);
+      }
+    } catch (e6) {
+      handleStreamError(e6);
+    }
+  }
+}
+function writeFromReadableStream(stream, writable) {
+  if (stream.locked) {
+    throw new TypeError("ReadableStream is locked.");
+  } else if (writable.destroyed) {
+    return;
+  }
+  return writeFromReadableStreamDefaultReader(stream.getReader(), writable);
+}
+var buildOutgoingHttpHeaders = (headers) => {
+  const res = {};
+  if (!(headers instanceof Headers)) {
+    headers = new Headers(headers ?? void 0);
+  }
+  const cookies = [];
+  for (const [k5, v2] of headers) {
+    if (k5 === "set-cookie") {
+      cookies.push(v2);
+    } else {
+      res[k5] = v2;
+    }
+  }
+  if (cookies.length > 0) {
+    res["set-cookie"] = cookies;
+  }
+  res["content-type"] ??= "text/plain; charset=UTF-8";
+  return res;
+};
+var X_ALREADY_SENT = "x-hono-already-sent";
+if (typeof global.crypto === "undefined") {
+  global.crypto = crypto2;
+}
+var outgoingEnded = /* @__PURE__ */ Symbol("outgoingEnded");
+var handleRequestError = () => new Response(null, {
+  status: 400
+});
+var handleFetchError = (e6) => new Response(null, {
+  status: e6 instanceof Error && (e6.name === "TimeoutError" || e6.constructor.name === "TimeoutError") ? 504 : 500
+});
+var handleResponseError = (e6, outgoing) => {
+  const err = e6 instanceof Error ? e6 : new Error("unknown error", { cause: e6 });
+  if (err.code === "ERR_STREAM_PREMATURE_CLOSE") {
+    console.info("The user aborted a request.");
+  } else {
+    console.error(e6);
+    if (!outgoing.headersSent) {
+      outgoing.writeHead(500, { "Content-Type": "text/plain" });
+    }
+    outgoing.end(`Error: ${err.message}`);
+    outgoing.destroy(err);
+  }
+};
+var flushHeaders = (outgoing) => {
+  if ("flushHeaders" in outgoing && outgoing.writable) {
+    outgoing.flushHeaders();
+  }
+};
+var responseViaCache = async (res, outgoing) => {
+  let [status, body, header] = res[cacheKey];
+  if (header instanceof Headers) {
+    header = buildOutgoingHttpHeaders(header);
+  }
+  if (typeof body === "string") {
+    header["Content-Length"] = Buffer.byteLength(body);
+  } else if (body instanceof Uint8Array) {
+    header["Content-Length"] = body.byteLength;
+  } else if (body instanceof Blob) {
+    header["Content-Length"] = body.size;
+  }
+  outgoing.writeHead(status, header);
+  if (typeof body === "string" || body instanceof Uint8Array) {
+    outgoing.end(body);
+  } else if (body instanceof Blob) {
+    outgoing.end(new Uint8Array(await body.arrayBuffer()));
+  } else {
+    flushHeaders(outgoing);
+    await writeFromReadableStream(body, outgoing)?.catch(
+      (e6) => handleResponseError(e6, outgoing)
+    );
+  }
+  ;
+  outgoing[outgoingEnded]?.();
+};
+var isPromise = (res) => typeof res.then === "function";
+var responseViaResponseObject = async (res, outgoing, options = {}) => {
+  if (isPromise(res)) {
+    if (options.errorHandler) {
+      try {
+        res = await res;
+      } catch (err) {
+        const errRes = await options.errorHandler(err);
+        if (!errRes) {
+          return;
+        }
+        res = errRes;
+      }
+    } else {
+      res = await res.catch(handleFetchError);
+    }
+  }
+  if (cacheKey in res) {
+    return responseViaCache(res, outgoing);
+  }
+  const resHeaderRecord = buildOutgoingHttpHeaders(res.headers);
+  if (res.body) {
+    const reader = res.body.getReader();
+    const values = [];
+    let done = false;
+    let currentReadPromise = void 0;
+    if (resHeaderRecord["transfer-encoding"] !== "chunked") {
+      let maxReadCount = 2;
+      for (let i6 = 0; i6 < maxReadCount; i6++) {
+        currentReadPromise ||= reader.read();
+        const chunk = await readWithoutBlocking(currentReadPromise).catch((e6) => {
+          console.error(e6);
+          done = true;
+        });
+        if (!chunk) {
+          if (i6 === 1) {
+            await new Promise((resolve3) => setTimeout(resolve3));
+            maxReadCount = 3;
+            continue;
+          }
+          break;
+        }
+        currentReadPromise = void 0;
+        if (chunk.value) {
+          values.push(chunk.value);
+        }
+        if (chunk.done) {
+          done = true;
+          break;
+        }
+      }
+      if (done && !("content-length" in resHeaderRecord)) {
+        resHeaderRecord["content-length"] = values.reduce((acc, value) => acc + value.length, 0);
+      }
+    }
+    outgoing.writeHead(res.status, resHeaderRecord);
+    values.forEach((value) => {
+      ;
+      outgoing.write(value);
+    });
+    if (done) {
+      outgoing.end();
+    } else {
+      if (values.length === 0) {
+        flushHeaders(outgoing);
+      }
+      await writeFromReadableStreamDefaultReader(reader, outgoing, currentReadPromise);
+    }
+  } else if (resHeaderRecord[X_ALREADY_SENT]) {
+  } else {
+    outgoing.writeHead(res.status, resHeaderRecord);
+    outgoing.end();
+  }
+  ;
+  outgoing[outgoingEnded]?.();
+};
+var getRequestListener = (fetchCallback, options = {}) => {
+  const autoCleanupIncoming = options.autoCleanupIncoming ?? true;
+  if (options.overrideGlobalObjects !== false && global.Request !== Request2) {
+    Object.defineProperty(global, "Request", {
+      value: Request2
+    });
+    Object.defineProperty(global, "Response", {
+      value: Response2
+    });
+  }
+  return async (incoming, outgoing) => {
+    let res, req;
+    try {
+      req = newRequest(incoming, options.hostname);
+      let incomingEnded = !autoCleanupIncoming || incoming.method === "GET" || incoming.method === "HEAD";
+      if (!incomingEnded) {
+        ;
+        incoming[wrapBodyStream] = true;
+        incoming.on("end", () => {
+          incomingEnded = true;
+        });
+        if (incoming instanceof Http2ServerRequest2) {
+          ;
+          outgoing[outgoingEnded] = () => {
+            if (!incomingEnded) {
+              setTimeout(() => {
+                if (!incomingEnded) {
+                  setTimeout(() => {
+                    incoming.destroy();
+                    outgoing.destroy();
+                  });
+                }
+              });
+            }
+          };
+        }
+      }
+      outgoing.on("close", () => {
+        const abortController = req[abortControllerKey];
+        if (abortController) {
+          if (incoming.errored) {
+            req[abortControllerKey].abort(incoming.errored.toString());
+          } else if (!outgoing.writableFinished) {
+            req[abortControllerKey].abort("Client connection prematurely closed.");
+          }
+        }
+        if (!incomingEnded) {
+          setTimeout(() => {
+            if (!incomingEnded) {
+              setTimeout(() => {
+                incoming.destroy();
+              });
+            }
+          });
+        }
+      });
+      res = fetchCallback(req, { incoming, outgoing });
+      if (cacheKey in res) {
+        return responseViaCache(res, outgoing);
+      }
+    } catch (e6) {
+      if (!res) {
+        if (options.errorHandler) {
+          res = await options.errorHandler(req ? e6 : toRequestError(e6));
+          if (!res) {
+            return;
+          }
+        } else if (!req) {
+          res = handleRequestError();
+        } else {
+          res = handleFetchError(e6);
+        }
+      } else {
+        return handleResponseError(e6, outgoing);
+      }
+    }
+    try {
+      return await responseViaResponseObject(res, outgoing, options);
+    } catch (e6) {
+      return handleResponseError(e6, outgoing);
+    }
+  };
+};
 
 // ../../node_modules/hono/dist/http-exception.js
 var HTTPException = class extends Error {
@@ -127911,10 +128443,10 @@ var getPattern = (label, next) => {
   if (label === "*") return "*";
   const match2 = label.match(/^\:([^\{\}]+)(?:\{(.+)\})?$/);
   if (match2) {
-    const cacheKey = `${label}#${next}`;
-    if (!patternCache[cacheKey]) {
-      if (match2[2]) patternCache[cacheKey] = next && next[0] !== ":" && next[0] !== "*" ? [
-        cacheKey,
+    const cacheKey2 = `${label}#${next}`;
+    if (!patternCache[cacheKey2]) {
+      if (match2[2]) patternCache[cacheKey2] = next && next[0] !== ":" && next[0] !== "*" ? [
+        cacheKey2,
         match2[1],
         new RegExp(`^${match2[2]}(?=/${next})`)
       ] : [
@@ -127922,13 +128454,13 @@ var getPattern = (label, next) => {
         match2[1],
         new RegExp(`^${match2[2]}$`)
       ];
-      else patternCache[cacheKey] = [
+      else patternCache[cacheKey2] = [
         label,
         match2[1],
         true
       ];
     }
-    return patternCache[cacheKey];
+    return patternCache[cacheKey2];
   }
   return null;
 };
@@ -128737,13 +129269,13 @@ var compose = (middleware, onError, onNotFound) => {
       index = i6;
       let res;
       let isError2 = false;
-      let handler;
+      let handler2;
       if (middleware[i6]) {
-        handler = middleware[i6][0][0];
+        handler2 = middleware[i6][0][0];
         context.req.routeIndex = i6;
-      } else handler = i6 === middleware.length && next || void 0;
-      if (handler) try {
-        res = await handler(context, () => dispatch(i6 + 1));
+      } else handler2 = i6 === middleware.length && next || void 0;
+      if (handler2) try {
+        res = await handler2(context, () => dispatch(i6 + 1));
       } catch (err) {
         if (err instanceof Error && onError) {
           context.error = err;
@@ -128809,8 +129341,8 @@ var Hono = class Hono2 {
         const methodName = method.toUpperCase();
         if (typeof args1 === "string") this.#path = args1;
         else this.#addRoute(methodName, this.#path, args1);
-        args.forEach((handler) => {
-          this.#addRoute(methodName, this.#path, handler);
+        args.forEach((handler2) => {
+          this.#addRoute(methodName, this.#path, handler2);
         });
         return this;
       };
@@ -128820,7 +129352,7 @@ var Hono = class Hono2 {
         this.#path = p4;
         for (const m4 of [method].flat()) {
           const methodName = m4.toUpperCase();
-          for (const handler of handlers) this.#addRoute(methodName, this.#path, handler);
+          for (const handler2 of handlers) this.#addRoute(methodName, this.#path, handler2);
         }
       }
       return this;
@@ -128831,8 +129363,8 @@ var Hono = class Hono2 {
         this.#path = "*";
         handlers.unshift(arg1);
       }
-      handlers.forEach((handler) => {
-        this.#addRoute("ALL", this.#path, handler);
+      handlers.forEach((handler2) => {
+        this.#addRoute("ALL", this.#path, handler2);
       });
       return this;
     };
@@ -128873,13 +129405,13 @@ var Hono = class Hono2 {
   route(path7, app2) {
     const subApp = this.basePath(path7);
     app2.routes.map((r6) => {
-      let handler;
-      if (app2.errorHandler === errorHandler) handler = r6.handler;
+      let handler2;
+      if (app2.errorHandler === errorHandler) handler2 = r6.handler;
       else {
-        handler = async (c5, next) => (await compose([], app2.errorHandler)(c5, () => r6.handler(c5, next))).res;
-        handler[COMPOSED_HANDLER] = r6.handler;
+        handler2 = async (c5, next) => (await compose([], app2.errorHandler)(c5, () => r6.handler(c5, next))).res;
+        handler2[COMPOSED_HANDLER] = r6.handler;
       }
-      subApp.#addRoute(r6.method, r6.path, handler, r6.basePath);
+      subApp.#addRoute(r6.method, r6.path, handler2, r6.basePath);
     });
     return this;
   }
@@ -128917,8 +129449,8 @@ var Hono = class Hono2 {
   * })
   * ```
   */
-  onError = (handler) => {
-    this.errorHandler = handler;
+  onError = (handler2) => {
+    this.errorHandler = handler2;
     return this;
   };
   /**
@@ -128936,8 +129468,8 @@ var Hono = class Hono2 {
   * })
   * ```
   */
-  notFound = (handler) => {
-    this.#notFoundHandler = handler;
+  notFound = (handler2) => {
+    this.#notFoundHandler = handler2;
     return this;
   };
   /**
@@ -129005,23 +129537,23 @@ var Hono = class Hono2 {
         return new Request(url2, request);
       };
     })();
-    const handler = async (c5, next) => {
+    const handler2 = async (c5, next) => {
       const res = await applicationHandler(replaceRequest(c5.req.raw), ...getOptions(c5));
       if (res) return res;
       await next();
     };
-    this.#addRoute("ALL", mergePath(path7, "*"), handler);
+    this.#addRoute("ALL", mergePath(path7, "*"), handler2);
     return this;
   }
-  #addRoute(method, path7, handler, baseRoutePath) {
+  #addRoute(method, path7, handler2, baseRoutePath) {
     path7 = mergePath(this._basePath, path7);
     const r6 = {
       basePath: baseRoutePath !== void 0 ? mergePath(this._basePath, baseRoutePath) : this._basePath,
       path: path7,
       method,
-      handler
+      handler: handler2
     };
-    this.router.add(method, path7, [handler, r6]);
+    this.router.add(method, path7, [handler2, r6]);
     this.routes.push(r6);
   }
   #handleError(err, c5) {
@@ -129307,7 +129839,7 @@ var RegExpRouter = class {
       throw e6 === PATH_ERROR ? new UnsupportedPathError(path7) : e6;
     }
   }
-  add(method, path7, handler) {
+  add(method, path7, handler2) {
     const middleware = this.#middleware;
     const routes = this.#routes;
     if (!middleware) throw new Error(MESSAGE_MATCHER_IS_ALREADY_BUILT);
@@ -129329,7 +129861,7 @@ var RegExpRouter = class {
         this.#insertPath(m4, path7);
         middleware[m4][path7] = findMiddleware(middleware[m4], path7) || findMiddleware(middleware["ALL"], path7) || [];
       }
-      for (const handlerMap of [middleware, routes]) for (const m4 of methods) for (const p4 in handlerMap[m4]) re.test(p4) && handlerMap[m4][p4].push([handler, path7]);
+      for (const handlerMap of [middleware, routes]) for (const m4 of methods) for (const p4 in handlerMap[m4]) re.test(p4) && handlerMap[m4][p4].push([handler2, path7]);
       return;
     }
     const paths = checkOptionalParameter(path7) || [path7];
@@ -129338,7 +129870,7 @@ var RegExpRouter = class {
         this.#insertPath(m4, path8);
         routes[m4][path8] = findMiddleware(middleware[m4], path8) || findMiddleware(middleware["ALL"], path8) || [];
       }
-      routes[m4][path8].push([handler, path8]);
+      routes[m4][path8].push([handler2, path8]);
     }
   }
   match = match;
@@ -129384,12 +129916,12 @@ var SmartRouter = class {
   constructor(init) {
     this.#routers = init.routers;
   }
-  add(method, path7, handler) {
+  add(method, path7, handler2) {
     if (!this.#routes) throw new Error(MESSAGE_MATCHER_IS_ALREADY_BUILT);
     this.#routes.push([
       method,
       path7,
-      handler
+      handler2
     ]);
   }
   match(method, path7) {
@@ -129432,7 +129964,7 @@ var Node3 = class Node4 {
   #patterns = [];
   #pattern;
   #params = emptyParams;
-  insert(method, path7, handler) {
+  insert(method, path7, handler2) {
     let curNode = this;
     const parts = splitRoutingPath(path7);
     const possibleKeys = /* @__PURE__ */ new Set();
@@ -129451,7 +129983,7 @@ var Node3 = class Node4 {
       if (isParam) possibleKeys.add(pattern[1]);
     }
     curNode.#methods.push({ [method]: {
-      handler,
+      handler: handler2,
       possibleKeys: [...possibleKeys],
       score: ++order
     } });
@@ -129549,7 +130081,7 @@ var Node3 = class Node4 {
     if (handlerSets[1]) handlerSets.sort((a6, b6) => {
       return a6.score - b6.score;
     });
-    return [handlerSets.map(({ handler, params }) => [handler, params])];
+    return [handlerSets.map(({ handler: handler2, params }) => [handler2, params])];
   }
 };
 
@@ -129557,8 +130089,8 @@ var Node3 = class Node4 {
 var TrieRouter = class {
   name = "TrieRouter";
   #node = new Node3();
-  add(method, path7, handler) {
-    for (const result of checkOptionalParameter(path7) || [path7]) this.#node.insert(method, result, handler);
+  add(method, path7, handler2) {
+    for (const result of checkOptionalParameter(path7) || [path7]) this.#node.insert(method, result, handler2);
   }
   match(method, path7) {
     return this.#node.search(method, path7);
@@ -155687,7 +156219,7 @@ function nmfetch(url2, options) {
   let finished3 = false;
   let cookies;
   let body;
-  const handler = parsed.protocol === "https:" ? https2 : http3;
+  const handler2 = parsed.protocol === "https:" ? https2 : http3;
   const headers = {
     "accept-encoding": "gzip,deflate",
     "user-agent": "nodemailer/" + version2
@@ -155771,7 +156303,7 @@ function nmfetch(url2, options) {
     reqOptions.servername = parsed.hostname;
   }
   try {
-    req = handler.request(reqOptions);
+    req = handler2.request(reqOptions);
   } catch (E2) {
     finished3 = true;
     setImmediate(() => {
@@ -158572,7 +159104,7 @@ function detectExtension(mimeType) {
 }
 
 // ../../node_modules/nodemailer/dist/esm/mime-node/index.js
-import crypto2 from "node:crypto";
+import crypto3 from "node:crypto";
 import fs4 from "node:fs";
 import { PassThrough as PassThrough4, finished as finished2, pipeline as pipeline2 } from "node:stream";
 import urlModule from "node:url";
@@ -160305,7 +160837,7 @@ var MimeNode = class _MimeNode {
   constructor(contentType, options) {
     this.nodeCounter = 0;
     options = options || {};
-    this.baseBoundary = _stripBoundaryControls(options.baseBoundary || crypto2.randomBytes(8).toString("hex"));
+    this.baseBoundary = _stripBoundaryControls(options.baseBoundary || crypto3.randomBytes(8).toString("hex"));
     this.boundaryPrefix = _stripBoundaryControls(options.boundaryPrefix || "--_NmP");
     this.disableFileAccess = !!options.disableFileAccess;
     this.disableUrlAccess = !!options.disableUrlAccess;
@@ -161477,8 +162009,8 @@ var MimeNode = class _MimeNode {
   _generateMessageId() {
     return "<" + [2, 2, 2, 6].reduce(
       // crux to generate UUID-like random strings
-      (prev, len) => prev + "-" + crypto2.randomBytes(len).toString("hex"),
-      crypto2.randomBytes(4).toString("hex")
+      (prev, len) => prev + "-" + crypto3.randomBytes(len).toString("hex"),
+      crypto3.randomBytes(4).toString("hex")
     ) + "@" + // try to use the domain of the FROM address or fallback to server hostname
     (this.getEnvelope().from || this.hostname || "localhost").split("@").pop() + ">";
   }
@@ -162137,7 +162669,7 @@ var message_parser_default = MessageParser;
 
 // ../../node_modules/nodemailer/dist/esm/dkim/relaxed-body.js
 import { Transform as Transform7 } from "node:stream";
-import crypto3 from "node:crypto";
+import crypto4 from "node:crypto";
 var CHAR_CR = 13;
 var CHAR_LF = 10;
 var CHAR_SPACE = 32;
@@ -162148,7 +162680,7 @@ var RelaxedBody = class extends Transform7 {
   constructor(options) {
     super();
     options = options || {};
-    this.bodyHash = crypto3.createHash(options.hashAlgo || "sha256");
+    this.bodyHash = crypto4.createHash(options.hashAlgo || "sha256");
     this.byteLength = 0;
     this.debug = options.debug;
     this._debugBody = options.debug ? [] : false;
@@ -162258,7 +162790,7 @@ var RelaxedBody = class extends Transform7 {
 var relaxed_body_default = RelaxedBody;
 
 // ../../node_modules/nodemailer/dist/esm/dkim/sign.js
-import crypto4 from "node:crypto";
+import crypto5 from "node:crypto";
 function unsupportedHashAlgoError(hashAlgo) {
   const err = new Error('Unsupported DKIM hash algorithm "' + hashAlgo + '"');
   err.code = ECONFIG;
@@ -162273,7 +162805,7 @@ function sign(headers, hashAlgo, bodyHash, options) {
   canonicalizedHeaderData.headers += "dkim-signature:" + relaxedHeaderLine(dkimHeader);
   let signer;
   try {
-    signer = crypto4.createSign(("rsa-" + hashAlgo).toUpperCase());
+    signer = crypto5.createSign(("rsa-" + hashAlgo).toUpperCase());
   } catch (_E3) {
     throw unsupportedHashAlgoError(hashAlgo);
   }
@@ -162340,7 +162872,7 @@ function relaxedHeaderLine(line) {
 import { PassThrough as PassThrough5 } from "node:stream";
 import fs5 from "node:fs";
 import path2 from "node:path";
-import crypto5 from "node:crypto";
+import crypto6 from "node:crypto";
 var DKIM_ALGO = "sha256";
 var MAX_MESSAGE_SIZE = 10 * 1024 * 1024;
 var DKIMSigner = class {
@@ -162353,7 +162885,7 @@ var DKIMSigner = class {
     this.chunks = [];
     this.chunklen = 0;
     this.readPos = 0;
-    this.cachePath = this.cacheDir ? path2.join(this.cacheDir, "message." + Date.now() + "-" + crypto5.randomBytes(14).toString("hex")) : false;
+    this.cachePath = this.cacheDir ? path2.join(this.cacheDir, "message." + Date.now() + "-" + crypto6.randomBytes(14).toString("hex")) : false;
     this.cache = false;
     this.headers = false;
     this.bodyHash = false;
@@ -162963,7 +163495,7 @@ var MailMessage = class {
 // ../../node_modules/nodemailer/dist/esm/mailer/index.js
 import net6 from "node:net";
 import dns2 from "node:dns";
-import crypto6 from "node:crypto";
+import crypto7 from "node:crypto";
 var DEFAULT_MAX_RECIPIENTS = 1e5;
 var Mail = class extends EventEmitter {
   constructor(transporter, options, defaults) {
@@ -163281,7 +163813,7 @@ var Mail = class extends EventEmitter {
       }
       let cidCounter = 0;
       html = (html || "").toString().replace(/(<img\b[^<>]{0,1024} src\s{0,20}=[\s"']{0,20})(data:([^;"'<>\s]{1,255});[^"'>\s]+)/gi, (match2, prefix, dataUri, mimeType) => {
-        const cid = crypto6.randomBytes(10).toString("hex") + "@localhost";
+        const cid = crypto7.randomBytes(10).toString("hex") + "@localhost";
         if (!mail.data.attachments) {
           mail.data.attachments = [];
         }
@@ -163316,7 +163848,7 @@ import { EventEmitter as EventEmitter2 } from "node:events";
 import net7 from "node:net";
 import tls2 from "node:tls";
 import os3 from "node:os";
-import crypto7 from "node:crypto";
+import crypto8 from "node:crypto";
 
 // ../../node_modules/nodemailer/dist/esm/smtp-connection/data-stream.js
 import { Transform as Transform8 } from "node:stream";
@@ -163481,7 +164013,7 @@ function maskAuthCommand(cmd) {
 var SMTPConnection = class extends EventEmitter2 {
   constructor(options) {
     super(options);
-    this.id = crypto7.randomBytes(8).toString("base64").replace(/\W/g, "");
+    this.id = crypto8.randomBytes(8).toString("base64").replace(/\W/g, "");
     this.stage = "init";
     this.options = options || {};
     if (this.options.requireTLS && (this.options.ignoreTLS || this.options.opportunisticTLS)) {
@@ -163827,7 +164359,7 @@ var SMTPConnection = class extends EventEmitter2 {
       }
     }
     if (this.customAuth.has(this._authMethod)) {
-      const handler = this.customAuth.get(this._authMethod);
+      const handler2 = this.customAuth.get(this._authMethod);
       let lastResponse;
       let returned = false;
       const resolve3 = () => {
@@ -163880,7 +164412,7 @@ var SMTPConnection = class extends EventEmitter2 {
         setImmediate(() => this._sendCommand(cmd, maskAuthCommand(cmd)));
         return promise2;
       };
-      const handlerResponse = handler({
+      const handlerResponse = handler2({
         auth: this._auth,
         method: this._authMethod,
         extensions: [].concat(this._supportedExtensions),
@@ -164829,7 +165361,7 @@ var SMTPConnection = class extends EventEmitter2 {
       return callback(this._formatError("Invalid login sequence while waiting for server challenge string", "EAUTH", str, "AUTH CRAM-MD5"));
     }
     const base64decoded = Buffer.from(challengeMatch[1], "base64").toString("ascii");
-    const hmacMD5 = crypto7.createHmac("md5", this._auth.credentials.pass);
+    const hmacMD5 = crypto8.createHmac("md5", this._auth.credentials.pass);
     hmacMD5.update(base64decoded);
     const prepended = this._auth.credentials.user + " " + hmacMD5.digest("hex");
     this._responseActions.push((str2) => {
@@ -165163,7 +165695,7 @@ var smtp_connection_default = SMTPConnection;
 
 // ../../node_modules/nodemailer/dist/esm/xoauth2/index.js
 import { Stream as Stream3 } from "node:stream";
-import crypto8 from "node:crypto";
+import crypto9 from "node:crypto";
 var XOAuth2 = class extends Stream3 {
   constructor(options, logger2) {
     super();
@@ -165486,7 +166018,7 @@ var XOAuth2 = class extends Stream3 {
    */
   jwtSignRS256(payload) {
     const signedPayload = ['{"alg":"RS256","typ":"JWT"}', JSON.stringify(payload)].map((val) => this.toBase64URL(val)).join(".");
-    const signature = crypto8.createSign("RSA-SHA256").update(signedPayload).sign(this.options.privateKey);
+    const signature = crypto9.createSign("RSA-SHA256").update(signedPayload).sign(this.options.privateKey);
     return signedPayload + "." + this.toBase64URL(signature);
   }
 };
@@ -170090,7 +170622,7 @@ var import_async_retry = __toESM(require_lib2(), 1);
 var import_undici = __toESM(require_undici(), 1);
 var import_throttleit = __toESM(require_throttleit(), 1);
 var import_throttleit2 = __toESM(require_throttleit(), 1);
-import { Readable as Readable8 } from "stream";
+import { Readable as Readable9 } from "stream";
 var supportsNewBlobFromArrayBuffer = new Promise((resolve3) => {
   try {
     const helloAsArrayBuffer = new Uint8Array([104, 101, 108, 108, 111]);
@@ -170112,7 +170644,7 @@ async function toReadableStream(value) {
     return value.stream();
   }
   if (isNodeJsReadableStream(value)) {
-    return Readable8.toWeb(value);
+    return Readable9.toWeb(value);
   }
   let streamValue;
   if (value instanceof ArrayBuffer) {
@@ -172285,8 +172817,19 @@ app.onError((error64, c5) => {
 var app_default = app;
 
 // src/index.ts
-var index_default = app_default;
+var nodeListener = getRequestListener(app_default.fetch);
+function handler(req, res) {
+  if (res && typeof res.writeHead === "function") {
+    return nodeListener(req, res);
+  }
+  return app_default.fetch(req);
+}
+Object.assign(handler, app_default);
+handler.fetch = app_default.fetch.bind(app_default);
+handler.request = app_default.request.bind(app_default);
+var index_default = handler;
 export {
+  app_default as app,
   index_default as default
 };
 /*! Bundled license information:
