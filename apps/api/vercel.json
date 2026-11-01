@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "index.ts": {
-      "maxDuration": 30
-    }
-  },
   "crons": [
     {
       "path": "/v1/internal/cleanup",
