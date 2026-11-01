@@ -19,7 +19,7 @@ export function AuthScreen({navigation}:Props){
   setError('');setInfo('');
   const emailValue=email.trim().toLowerCase();
   if(isRegister){
-    const normalizedDob=dateOfBirth.trim().replace(/[\/\.\s]/g, '-');
+    const normalizedDob=dateOfBirth.trim().replace(/[/.\s]/g, '-');
     const input={email:emailValue,password,username:username.trim().toLowerCase(),displayName:displayName.trim(),dateOfBirth:normalizedDob};
     const parsed=registerSchema.safeParse(input);
     if(!parsed.success){setError(mapErrorToUserFriendly(parsed.error.issues[0]?.message).message);return;}
