@@ -891,6 +891,9 @@
       .app-shell.chat-open .chat-pane {
         display: flex;
       }
+      .app-shell.chat-open #mobileBackBtn {
+        display: inline-flex !important;
+      }
     }
   </style>
 </head>
@@ -1169,10 +1172,26 @@
   <!-- LOGIC SCRIPT -->
   <script>
     // State
+    const rawToken = localStorage.getItem('haiku_token');
+    const validToken = (rawToken && rawToken !== 'undefined' && rawToken !== 'null') ? rawToken : '';
+    if (rawToken && !validToken) localStorage.removeItem('haiku_token');
+
+    let validUser = null;
+    try {
+      const rawUser = localStorage.getItem('haiku_user');
+      if (rawUser && rawUser !== 'undefined' && rawUser !== 'null') {
+        validUser = JSON.parse(rawUser);
+      } else if (rawUser) {
+        localStorage.removeItem('haiku_user');
+      }
+    } catch {
+      localStorage.removeItem('haiku_user');
+    }
+
     const STATE = {
       apiUrl: localStorage.getItem('haiku_api_url') || (window.location.port === '3002' ? 'http://localhost:3001/v1' : (window.location.origin + '/v1')),
-      token: localStorage.getItem('haiku_token') || '',
-      currentUser: JSON.parse(localStorage.getItem('haiku_user') || 'null'),
+      token: validToken,
+      currentUser: validUser,
       conversations: [],
       activeConvId: null,
       messages: [],
@@ -1212,33 +1231,73 @@
       }
     }
 
-    // Auth
-    function checkAuth() {
-      if (!STATE.token || !STATE.currentUser) {
-        el('authModal').hidden = false;
-      } else {
-        el('authModal').hidden = true;
-        el('myAvatarBtn').textContent = (STATE.currentUser.displayName || STATE.currentUser.username || 'U')[0].toUpperCase();
-        loadConversations();
-        startPolling();
-      }
-    }
-
-    el('authLoginTab').addEventListener('click', () => {
+    // Auth & Navigation
+    function switchToLoginTab() {
       el('authLoginTab').classList.add('active');
       el('authRegisterTab').classList.remove('active');
       el('loginForm').style.display = 'flex';
       el('registerForm').style.display = 'none';
       el('authTitle').textContent = 'Sign in to Haiku';
-    });
+    }
 
-    el('authRegisterTab').addEventListener('click', () => {
+    function switchToRegisterTab() {
       el('authRegisterTab').classList.add('active');
       el('authLoginTab').classList.remove('active');
       el('registerForm').style.display = 'flex';
       el('loginForm').style.display = 'none';
       el('authTitle').textContent = 'Create Haiku Account';
-    });
+    }
+
+    el('authLoginTab').addEventListener('click', switchToLoginTab);
+    el('authRegisterTab').addEventListener('click', switchToRegisterTab);
+
+    async function handlePostAuth() {
+      el('authModal').hidden = true;
+      if (STATE.currentUser) {
+        el('myAvatarBtn').textContent = (STATE.currentUser.displayName || STATE.currentUser.username || 'U')[0].toUpperCase();
+      }
+      await loadConversations();
+      startPolling();
+
+      const isMobile = window.innerWidth <= 860 || window.matchMedia('(max-width: 860px)').matches;
+      if (isMobile) {
+        el('appShell').classList.add('chat-open');
+      }
+
+      if (STATE.conversations && STATE.conversations.length > 0) {
+        await selectConversation(STATE.conversations[0].id);
+      } else {
+        el('noChatSelected').style.display = 'grid';
+        el('activeChatContent').style.display = 'none';
+      }
+    }
+
+    function checkAuth() {
+      if (!STATE.token || STATE.token === 'undefined' || STATE.token === 'null' || !STATE.currentUser) {
+        el('authModal').hidden = false;
+      } else {
+        handlePostAuth();
+      }
+    }
+
+    function saveAuth(token, user) {
+      const authToken = (token && typeof token === 'object' ? (token.accessToken || token.token) : token) || '';
+      if (!authToken || authToken === 'undefined' || authToken === 'null') {
+        STATE.token = '';
+        localStorage.removeItem('haiku_token');
+      } else {
+        STATE.token = authToken;
+        localStorage.setItem('haiku_token', authToken);
+      }
+
+      if (!user || user === 'undefined' || user === 'null') {
+        STATE.currentUser = null;
+        localStorage.removeItem('haiku_user');
+      } else {
+        STATE.currentUser = user;
+        localStorage.setItem('haiku_user', JSON.stringify(user));
+      }
+    }
 
     el('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -1250,8 +1309,12 @@
             password: el('loginPassword').value
           })
         });
-        saveAuth(res.token, res.user);
+        if (!res || !res.accessToken) {
+          throw new Error('Sign-in failed: No access token received.');
+        }
+        saveAuth(res.accessToken, res.user);
         showToast('Signed in successfully!');
+        await handlePostAuth();
       } catch (err) {
         showToast(err.message);
       }
@@ -1260,18 +1323,20 @@
     el('registerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       try {
-        const res = await apiRequest('/auth/register', {
+        const email = el('regEmail').value.trim().toLowerCase();
+        await apiRequest('/auth/register', {
           method: 'POST',
           body: JSON.stringify({
             displayName: el('regDisplayName').value.trim(),
             username: el('regUsername').value.trim().toLowerCase(),
-            email: el('regEmail').value.trim().toLowerCase(),
+            email,
             dateOfBirth: el('regDob').value,
             password: el('regPassword').value
           })
         });
-        saveAuth(res.token, res.user);
-        showToast('Account created successfully!');
+        showToast('Account created! Please check your email to verify before signing in.');
+        switchToLoginTab();
+        if (el('loginIdentifier')) el('loginIdentifier').value = email;
       } catch (err) {
         showToast(err.message);
       }
@@ -1279,38 +1344,36 @@
 
     el('quickDemoBtn').addEventListener('click', async () => {
       const rand = Math.floor(1000 + Math.random() * 9000);
+      const email = `demo_${rand}@haiku.internal`;
       try {
-        const res = await apiRequest('/auth/register', {
+        await apiRequest('/auth/register', {
           method: 'POST',
           body: JSON.stringify({
             displayName: `Demo User ${rand}`,
             username: `demo_${rand}`,
-            email: `demo_${rand}@haiku.internal`,
+            email,
             dateOfBirth: '2000-01-01',
             password: 'Password123!'
           })
         });
-        saveAuth(res.token, res.user);
-        showToast(`Signed in as demo_${rand}!`);
+        showToast('Demo account created! Please check your email to verify.');
+        switchToLoginTab();
+        if (el('loginIdentifier')) el('loginIdentifier').value = email;
+        if (el('loginPassword')) el('loginPassword').value = 'Password123!';
       } catch (err) {
         showToast(err.message);
       }
     });
 
-    function saveAuth(token, user) {
-      STATE.token = token;
-      STATE.currentUser = user;
-      localStorage.setItem('haiku_token', token);
-      localStorage.setItem('haiku_user', JSON.stringify(user));
-      checkAuth();
-    }
-
     el('logoutBtn').addEventListener('click', async () => {
       try { await apiRequest('/auth/logout', { method: 'POST' }); } catch {}
+      if (STATE.pollTimer) clearInterval(STATE.pollTimer);
+      STATE.pollTimer = null;
       STATE.token = '';
       STATE.currentUser = null;
       localStorage.removeItem('haiku_token');
       localStorage.removeItem('haiku_user');
+      el('appShell').classList.remove('chat-open');
       el('settingsModal').hidden = true;
       checkAuth();
     });
@@ -1321,8 +1384,10 @@
         const data = await apiRequest('/conversations');
         STATE.conversations = data.conversations || [];
         renderConversations();
+        return STATE.conversations;
       } catch (err) {
         console.error('Failed to load conversations', err);
+        return [];
       }
     }
 
@@ -1381,7 +1446,10 @@
       
       el('noChatSelected').style.display = 'none';
       el('activeChatContent').style.display = 'flex';
-      el('appShell').classList.add('chat-open');
+      const isMobile = window.innerWidth <= 860 || window.matchMedia('(max-width: 860px)').matches;
+      if (isMobile) {
+        el('appShell').classList.add('chat-open');
+      }
 
       if (conv) {
         el('chatHeaderName').textContent = conv.title || 'Chat';
