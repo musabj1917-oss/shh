@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "src/index.ts",
+  "main": "index.js",
   "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node22 --outfile=index.js --packages=external",
     "dev": "node --env-file-if-exists=../../.env --import tsx --watch src/dev.ts",
     "start": "node --import tsx src/dev.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
@@ -19,6 +20,7 @@
     "@neondatabase/serverless": "1.2.0",
     "@vercel/blob": "^2.8.2",
     "ably": "2.30.0",
+    "esbuild": "0.28.2",
     "firebase-admin": "^14.5.0",
     "google-auth-library": "11.3.1",
     "hono": "4.13.14",
