@@ -1049,8 +1049,8 @@
         <!-- Login Form -->
         <form id="loginForm" style="display:flex; flex-direction:column; gap:12px;">
           <div class="form-group">
-            <label class="form-label">Email or Username</label>
-            <input type="text" class="form-input" id="loginIdentifier" placeholder="e.g. musab or user@haiku.app" required />
+            <label class="form-label">Email</label>
+            <input type="text" class="form-input" id="loginIdentifier" placeholder="e.g. user@haiku.app" required />
           </div>
           <div class="form-group">
             <label class="form-label">Password</label>
@@ -1349,7 +1349,7 @@
         const res = await apiRequest('/auth/login', {
           method: 'POST',
           body: JSON.stringify({
-            login: el('loginIdentifier').value.trim(),
+            email: el('loginIdentifier').value.trim().toLowerCase(),
             password: el('loginPassword').value
           })
         });
