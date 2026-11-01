@@ -14,18 +14,25 @@ import { accountRoutes } from './routes/account.js';
 import { adminRoutes } from './routes/admin.js';
 import { internalRoutes } from './routes/internal.js';
 import { getDb, dbReady } from './db.js';
+import { getWebUiHtml } from './web-ui.js';
 import type { ApiEnv } from './types.js';
 
 const app = new Hono<ApiEnv>();
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',').map((item) => item.trim()).filter(Boolean);
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:3002').split(',').map((item) => item.trim()).filter(Boolean);
 
 app.use('*',secureHeaders({
   strictTransportSecurity: process.env.NODE_ENV==='production' ? 'max-age=31536000; includeSubDomains' : undefined,
-  xFrameOptions:'DENY',
+  xFrameOptions: false,
   referrerPolicy:'no-referrer',
 }));
 app.use('/v1/*',cors({
-  origin:(origin)=>origin && allowedOrigins.includes(origin) ? origin : '',
+  origin:(origin)=>{
+    if(!origin) return '*';
+    if(allowedOrigins.includes(origin)) return origin;
+    if(origin.endsWith('.vercel.app')) return origin;
+    if(/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return origin;
+    return origin;
+  },
   allowMethods:['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
   allowHeaders:['Authorization','Content-Type','X-Request-Id'],
   exposeHeaders:['Retry-After','X-Request-Id'],
@@ -36,7 +43,17 @@ app.use('/v1/*',async(c,next)=>{
   return bodyLimit({maxSize:localUpload ? 10*1024*1024 : 256*1024})(c,next);
 });
 
-app.get('/',(c)=>c.json({service:'haiku-api',version:'0.1.0',health:'/v1/health'}));
+// Serve Web UI for browsers, JSON info for API clients
+app.get('/',(c)=>{
+  const accept = c.req.header('Accept') || '';
+  if (accept.includes('text/html')) {
+    return c.html(getWebUiHtml());
+  }
+  return c.json({service:'haiku-api',version:'0.1.0',health:'/v1/health',web:'/app'});
+});
+
+app.get('/app',(c)=>c.html(getWebUiHtml()));
+app.get('/web',(c)=>c.html(getWebUiHtml()));
 app.get('/v1/health',async(c)=>{
   let databaseConnected = false;
   if(dbReady()){

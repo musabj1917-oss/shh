@@ -4,17 +4,20 @@
   "private": true,
   "engines": { "node": ">=22.13.0" },
   "packageManager": "npm@10.8.2",
-  "workspaces": ["packages/*", "apps/api", "apps/admin", "apps/mobile"],
+  "workspaces": ["packages/*", "apps/api", "apps/admin", "apps/web", "apps/mobile", "mcp"],
   "scripts": {
     "dev:api": "npm run dev --workspace @haiku/api",
+    "dev:web": "npm run dev --workspace @haiku/web",
     "dev:admin": "npm run dev --workspace @haiku/admin",
     "dev:mobile": "npm run start --workspace haiku-mobile",
+    "build:web": "npm run build --workspace @haiku/web",
+    "build:admin": "npm run build --workspace @haiku/admin",
     "typecheck": "npm run typecheck --workspace @haiku/contracts && npm run typecheck --workspace @haiku/api && npm run typecheck --workspace @haiku/admin && npm run typecheck --workspace haiku-mobile",
     "lint:mobile": "npm run lint --workspace haiku-mobile",
     "test": "npm run test --workspace @haiku/api",
-    "build:admin": "npm run build --workspace @haiku/admin",
     "android:debug": "npm run android:debug --workspace haiku-mobile",
-    "migrate": "node scripts/migrate.mjs"
+    "migrate": "node scripts/migrate.mjs",
+    "db:test": "node scripts/test-neon.mjs"
   },
   "devDependencies": {
     "@types/node": "22.20.5",
