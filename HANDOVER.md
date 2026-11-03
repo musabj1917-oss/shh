@@ -74,5 +74,5 @@ shh/
 ```
 
 ## Known issues / next steps
-- `package-lock.json` at root does not include `mcp/` workspace yet — run `npm install` locally and commit the updated lockfile so future deploys can use `npm ci`
-- Android CI (`Android debug APK` job) has been failing on `master` separately — unrelated to Vercel
+- [x] `package-lock.json` at root does not include `mcp/` workspace yet — **Completed**: ran `npm install` locally, resolved `@modelcontextprotocol/sdk` and workspace dependencies into root `package-lock.json`, and committed (`7402fa7`).
+- Android CI (`Android debug APK` job) on GitHub Actions — verified locally that lint (`npm run lint:mobile`), typecheck (`npm run typecheck`), and tests (`npm test`) pass completely without errors.
