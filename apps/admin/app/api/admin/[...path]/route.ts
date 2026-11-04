@@ -4,7 +4,12 @@ export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const COOKIE='haiku_admin_session';
 const MAX_AGE=60*60*12;
-const apiBase=()=>((process.env.HAIKU_API_URL||'http://localhost:3001/v1').replace(/\/+$/,''));
+const apiBase=()=>{
+  if (process.env.HAIKU_API_URL) return process.env.HAIKU_API_URL.replace(/\/+$/,'');
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}/v1`;
+  const port = process.env.PORT || 3000;
+  return `http://localhost:${port}/v1`;
+};
 type RouteContext={params:Promise<{path:string[]}>};
 
 function safeJson(status:number,code:string,message:string){return NextResponse.json({error:{code,message}},{status,headers:{'Cache-Control':'no-store'}});}
@@ -27,7 +32,6 @@ async function handler(request:NextRequest,context:RouteContext){
  const method=request.method.toUpperCase();
  if(['POST','PUT','PATCH','DELETE'].includes(method)&&!sameOrigin(request))return safeJson(403,'CSRF_REJECTED','This request could not be verified. Reload the admin panel and try again.');
  const base=apiBase();
- if(!process.env.HAIKU_API_URL&&process.env.NODE_ENV==='production')return safeJson(503,'ADMIN_API_NOT_CONFIGURED','Set the server-only HAIKU_API_URL environment variable.');
 
  if(route==='session'){
   if(method!=='POST')return safeJson(405,'METHOD_NOT_ALLOWED','Use POST to start an admin session.');

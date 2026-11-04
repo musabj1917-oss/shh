@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node22 --outfile=index.js",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node22 --banner:js=\"import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);\" --outfile=index.js",
     "dev": "node --env-file-if-exists=../../.env --import tsx --watch src/dev.ts",
     "start": "node --import tsx src/dev.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",

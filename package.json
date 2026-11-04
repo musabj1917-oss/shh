@@ -15,6 +15,9 @@
     "mcp"
   ],
   "scripts": {
+    "dev": "npm run dev --workspace @haiku/admin",
+    "build": "npm run build --workspace @haiku/admin",
+    "start": "npm run start --workspace @haiku/admin",
     "dev:api": "npm run dev --workspace @haiku/api",
     "dev:web": "npm run dev --workspace @haiku/web",
     "dev:admin": "npm run dev --workspace @haiku/admin",
