@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto';
 import { Hono } from 'hono';
-import { OAuth2Client } from 'google-auth-library';
 import { z } from 'zod';
 import { emailSchema, googleRegisterSchema, loginSchema, meetsMinimumAge, passwordSchema, registerSchema } from '../contracts.js';
 import { getDb } from '../db.js';
@@ -14,9 +13,12 @@ import { enforceRateLimit } from '../middleware/rate-limit.js';
 import type { ApiEnv } from '../types.js';
 
 export const authRoutes = new Hono<ApiEnv>();
-let _googleClient: OAuth2Client | null = null;
-function getGoogleClient() {
-  if (!_googleClient) _googleClient = new OAuth2Client();
+let _googleClient: any = null;
+async function getGoogleClient() {
+  if (!_googleClient) {
+    const { OAuth2Client } = await import('google-auth-library');
+    _googleClient = new OAuth2Client();
+  }
   return _googleClient;
 }
 const safeName = (error: unknown) => error instanceof Error ? error.name : 'UnknownError';
@@ -92,7 +94,8 @@ authRoutes.post('/google',async(c)=>{
   const clientId=process.env.GOOGLE_CLIENT_ID;
   if(!clientId)return jsonError(c,503,'CONFIG_GOOGLE_MISSING','Google sign-in is not configured.');
   try{
-    const ticket=await getGoogleClient().verifyIdToken({idToken:parsed.data.idToken,audience:clientId});
+    const google = await getGoogleClient();
+    const ticket = await google.verifyIdToken({ idToken: parsed.data.idToken, audience: clientId });
     const identity=ticket.getPayload();
     if(!identity?.sub||!identity.email||identity.email_verified!==true)return jsonError(c,401,'GOOGLE_IDENTITY_INVALID','Google could not verify this identity.');
     const email=identity.email.toLowerCase();
