@@ -14,7 +14,11 @@ import { enforceRateLimit } from '../middleware/rate-limit.js';
 import type { ApiEnv } from '../types.js';
 
 export const authRoutes = new Hono<ApiEnv>();
-const googleClient = new OAuth2Client();
+let _googleClient: OAuth2Client | null = null;
+function getGoogleClient() {
+  if (!_googleClient) _googleClient = new OAuth2Client();
+  return _googleClient;
+}
 const safeName = (error: unknown) => error instanceof Error ? error.name : 'UnknownError';
 
 async function createVerification(userId: string, email: string) {
@@ -88,7 +92,7 @@ authRoutes.post('/google',async(c)=>{
   const clientId=process.env.GOOGLE_CLIENT_ID;
   if(!clientId)return jsonError(c,503,'CONFIG_GOOGLE_MISSING','Google sign-in is not configured.');
   try{
-    const ticket=await googleClient.verifyIdToken({idToken:parsed.data.idToken,audience:clientId});
+    const ticket=await getGoogleClient().verifyIdToken({idToken:parsed.data.idToken,audience:clientId});
     const identity=ticket.getPayload();
     if(!identity?.sub||!identity.email||identity.email_verified!==true)return jsonError(c,401,'GOOGLE_IDENTITY_INVALID','Google could not verify this identity.');
     const email=identity.email.toLowerCase();

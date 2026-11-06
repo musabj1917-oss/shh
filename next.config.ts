@@ -5,6 +5,7 @@ const config: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   transpilePackages: ['@haiku/contracts'],
+  serverExternalPackages: ['firebase-admin', 'jose', 'jwks-rsa', 'google-auth-library'],
   turbopack: { root: process.cwd() },
   async rewrites() {
     return [
