@@ -10,10 +10,10 @@
 
 | Service | Live URL | Deployment Project | Status |
 |---|---|---|---|
-| **Web Client** | [web-gray-psi-ofbju794yf.vercel.app](https://web-gray-psi-ofbju794yf.vercel.app) | `apps/web` | **Active & Verified** (Stitch UI, Favicon & SVG Logo working) |
-| **Admin Dashboard** | [admin-theta-six-75.vercel.app](https://admin-theta-six-75.vercel.app) | `apps/admin` | **Active & Configured** (`HAIKU_API_URL` envvar wired) |
-| **API Backend** | [shh-jet-five.vercel.app](https://shh-jet-five.vercel.app) | `apps/api` (`prj_aiSZeEP0iFNQPOOzSZ01OZrit2nB`) | Deployed (Promoted; see Section 5 for runtime note) |
-| **Mobile App** | `apps/mobile` | React Native (Expo) | Firebase client configured |
+| **Web Client & App** | [haikumessenger.vercel.app](https://haikumessenger.vercel.app) | Unified Next.js (`musabj1917-oss/shh`) | **Active & Live** (Redesigned Stitch & Obsidian Velvet UI) |
+| **Admin Dashboard** | [haikumessenger.vercel.app/admin](https://haikumessenger.vercel.app/admin) | `app/admin` | **Active & Configured** (`HAIKU_API_URL` wired) |
+| **API Backend** | [haikumessenger.vercel.app/v1](https://haikumessenger.vercel.app/v1) | Next.js API Routes (`app/v1`) | Deployed on Vercel |
+| **Mobile App** | `apps/mobile` | React Native (Expo) | Configured with `https://haikumessenger.vercel.app/v1` |
 
 ---
 

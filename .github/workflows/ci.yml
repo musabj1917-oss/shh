@@ -46,7 +46,7 @@ jobs:
         env:
           NEXT_TELEMETRY_DISABLED: "1"
           NODE_ENV: production
-          HAIKU_API_URL: ${{ secrets.HAIKU_API_URL || vars.HAIKU_API_URL || secrets.HAIKU_API_BASE_URL || vars.HAIKU_API_BASE_URL || 'https://shh-jet-five.vercel.app/v1' }}
+          HAIKU_API_URL: ${{ secrets.HAIKU_API_URL || vars.HAIKU_API_URL || secrets.HAIKU_API_BASE_URL || vars.HAIKU_API_BASE_URL || 'https://haikumessenger.vercel.app/v1' }}
 
   android:
     name: Android debug APK
@@ -75,8 +75,8 @@ jobs:
       - name: Write mobile config
         run: npm run configure --workspace haiku-mobile
         env:
-          HAIKU_API_BASE_URL: ${{ secrets.HAIKU_API_BASE_URL || vars.HAIKU_API_BASE_URL || secrets.HAIKU_API_URL || vars.HAIKU_API_URL || secrets.API_BASE_URL || vars.API_BASE_URL || 'https://shh-jet-five.vercel.app/v1' }}
-          HAIKU_API_URL: ${{ secrets.HAIKU_API_URL || vars.HAIKU_API_URL || secrets.HAIKU_API_BASE_URL || vars.HAIKU_API_BASE_URL || secrets.API_BASE_URL || vars.API_BASE_URL || 'https://shh-jet-five.vercel.app/v1' }}
+          HAIKU_API_BASE_URL: ${{ secrets.HAIKU_API_BASE_URL || vars.HAIKU_API_BASE_URL || secrets.HAIKU_API_URL || vars.HAIKU_API_URL || secrets.API_BASE_URL || vars.API_BASE_URL || 'https://haikumessenger.vercel.app/v1' }}
+          HAIKU_API_URL: ${{ secrets.HAIKU_API_URL || vars.HAIKU_API_URL || secrets.HAIKU_API_BASE_URL || vars.HAIKU_API_BASE_URL || secrets.API_BASE_URL || vars.API_BASE_URL || 'https://haikumessenger.vercel.app/v1' }}
 
       - name: Make gradlew executable
         run: chmod +x apps/mobile/android/gradlew

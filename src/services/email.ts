@@ -37,7 +37,7 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   // points at the API server (which has no /reset-password page).
   const base =
     process.env.ADMIN_WEB_URL?.replace(/\/$/, '') ||
-    'https://admin-musab12.vercel.app';
+    'https://haikumessenger.vercel.app/admin';
   const link = `${base}/reset-password?token=${encodeURIComponent(token)}`;
   const host = process.env.SMTP_HOST;
   if (!host) {

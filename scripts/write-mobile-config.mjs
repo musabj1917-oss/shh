@@ -10,7 +10,7 @@ let base = (
   process.env.HAIKU_API_URL ||
   process.env.API_BASE_URL ||
   process.env.API_PUBLIC_URL ||
-  'https://shh-jet-five.vercel.app/v1'
+  'https://haikumessenger.vercel.app/v1'
 ).trim().replace(/\/+$/, '');
 
 // Ensure /v1 endpoint prefix is present for mobile API client routes
