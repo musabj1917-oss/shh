@@ -1,14 +1,17 @@
-import app from '@/src/app';
-
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 async function handler(req: Request) {
   try {
+    const { default: app } = await import('@/src/app');
     return await app.fetch(req);
   } catch (err: any) {
     console.error('[API Error in /v1]:', err);
-    return new Response(JSON.stringify({ error: err?.message || String(err), stack: err?.stack }), {
+    return new Response(JSON.stringify({
+      error: err?.message || String(err),
+      name: err?.name,
+      stack: err?.stack,
+    }, null, 2), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
