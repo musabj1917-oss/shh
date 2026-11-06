@@ -4,6 +4,5 @@
       "path": "/v1/internal/cleanup",
       "schedule": "0 3 * * *"
     }
-  ],
-  "installCommand": "npm ci --prefix=../.."
+  ]
 }

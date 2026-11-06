@@ -1,4 +1,5 @@
 import { put } from '@vercel/blob';
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -12,7 +13,9 @@ export interface ApkRelease {
   uploadedAt: string;
 }
 
-const localReleasesDir = path.resolve(process.cwd(), '../../.haiku-releases');
+const localReleasesDir = existsSync(path.resolve(process.cwd(), '.haiku-releases'))
+  ? path.resolve(process.cwd(), '.haiku-releases')
+  : path.resolve(process.cwd(), '../../.haiku-releases');
 const latestConfigPath = path.join(localReleasesDir, 'latest.json');
 
 // Default initial release configuration

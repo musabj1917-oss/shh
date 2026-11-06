@@ -5,11 +5,12 @@ const config: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   transpilePackages: ['@haiku/contracts'],
-  turbopack: { root: path.resolve(process.cwd(), '../..') },
+  turbopack: { root: process.cwd() },
   async rewrites() {
     return [
       { source: '/app', destination: '/' },
       { source: '/web', destination: '/' },
+      { source: '/mcp', destination: '/api/mcp' },
     ];
   },
   webpack: (cfg) => {

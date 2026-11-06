@@ -1,4 +1,4 @@
-import app from '../../../../api/src/app';
+import app from '@/src/app';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

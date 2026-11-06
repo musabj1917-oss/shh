@@ -1,31 +1,32 @@
 /**
- * SHH MCP Server — Vercel Serverless Function
+ * SHH MCP Server — Next.js Serverless API Route
  *
- * Deployed at: https://<your-vercel-url>/mcp
- * Add this URL to Claude → Settings → Connectors → Add custom connector
- *
- * Set these env vars in your Vercel project:
- *   SHH_API_URL   — e.g. https://shh-r3j8.vercel.app
- *   MCP_SECRET    — a random string; pass as Bearer token from Claude to authenticate
+ * Accessible at: /mcp (rewritten to /api/mcp)
+ * Add this URL to Claude -> Settings -> Connectors -> Add custom connector
  */
 
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { z } from "zod";
 
-const BASE_URL = (process.env.SHH_API_URL ?? "").replace(/\/$/, "");
-const SECRET   = process.env.MCP_SECRET ?? "";
+const getBaseUrl = () => {
+  if (process.env.SHH_API_URL) return process.env.SHH_API_URL.replace(/\/+$/, "");
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return `http://localhost:${process.env.PORT || 3000}`;
+};
 
-// ── HTTP helper ──────────────────────────────────────────────────────────────
+const SECRET = process.env.MCP_SECRET ?? "";
 
 type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 async function api(method: Method, path: string, body?: unknown, token?: string) {
+  const baseUrl = getBaseUrl();
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method, headers,
+  const res = await fetch(`${baseUrl}${path}`, {
+    method,
+    headers,
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   const text = await res.text();
@@ -37,8 +38,6 @@ async function api(method: Method, path: string, body?: unknown, token?: string)
 function ok(data: unknown) {
   return { content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }] };
 }
-
-// ── Build MCP server ─────────────────────────────────────────────────────────
 
 function buildServer(userToken?: string) {
   const t = userToken ?? "";
@@ -149,29 +148,30 @@ function buildServer(userToken?: string) {
   return s;
 }
 
-// ── Vercel handler ───────────────────────────────────────────────────────────
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader("Access-Control-Allow-Origin",  "*");
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Mcp-Session-Id, Authorization");
 
-  if (req.method === "OPTIONS") { res.status(204).end(); return; }
+  if (req.method === "OPTIONS") {
+    res.status(204).end();
+    return;
+  }
 
-  // Extract user's SHH token from Authorization header (Bearer <shh-session-token>)
-  // If MCP_SECRET is set, the first segment is the gateway secret, second is the SHH token:
-  //   Authorization: Bearer <MCP_SECRET>:<SHH_TOKEN>
   const authHeader = req.headers["authorization"] ?? "";
-  const bearer = authHeader.replace(/^Bearer\s+/i, "");
+  const bearer = typeof authHeader === "string" ? authHeader.replace(/^Bearer\s+/i, "") : "";
   let userToken = bearer;
   if (SECRET) {
     const [secret, ...rest] = bearer.split(":");
-    if (secret !== SECRET) { res.status(401).json({ error: "Unauthorized" }); return; }
+    if (secret !== SECRET) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
     userToken = rest.join(":");
   }
 
   const transport = new StreamableHTTPServerTransport({
-    sessionIdGenerator: undefined, // stateless — no session persistence on serverless
+    sessionIdGenerator: undefined,
   });
 
   const mcpServer = buildServer(userToken);

@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { getLatestApkRelease, setLatestApkRelease, uploadApkToVercelBlob } from '../services/vercel-blob.js';
@@ -21,7 +22,9 @@ releaseRoutes.get('/download/:fileName', async (c) => {
   if (!/^[a-zA-Z0-9._-]+$/.test(fileName)) {
     return jsonError(c, 400, 'INVALID_FILENAME', 'Invalid file name.');
   }
-  const localReleasesDir = path.resolve(process.cwd(), '../../.haiku-releases');
+  const localReleasesDir = existsSync(path.resolve(process.cwd(), '.haiku-releases'))
+    ? path.resolve(process.cwd(), '.haiku-releases')
+    : path.resolve(process.cwd(), '../../.haiku-releases');
   const filePath = path.join(localReleasesDir, fileName);
   try {
     const bytes = await readFile(filePath);

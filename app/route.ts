@@ -5,9 +5,9 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const possiblePaths = [
-    path.resolve(process.cwd(), '../web/index.html'),
-    path.resolve(process.cwd(), '../../apps/web/index.html'),
     path.resolve(process.cwd(), 'public/index.html'),
+    path.resolve(process.cwd(), 'apps/web/index.html'),
+    path.resolve(process.cwd(), '../web/index.html'),
   ];
   let html = '';
   for (const p of possiblePaths) {

@@ -1,7 +1,0 @@
-{
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/v1/:path*", "destination": "https://shh-jet-five.vercel.app/v1/:path*" },
-    { "source": "/((?!.*\\.(?:ico|png|svg|jpg|jpeg|gif|webp|apk|css|js|json|webmanifest|map)).*)", "destination": "/index.html" }
-  ]
-}

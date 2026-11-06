@@ -1,5 +1,5 @@
 {
-  "name": "haiku-messenger",
+  "name": "shh",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -8,32 +8,46 @@
   "packageManager": "npm@10.8.2",
   "workspaces": [
     "packages/*",
-    "apps/api",
-    "apps/admin",
-    "apps/web",
-    "apps/mobile",
-    "mcp"
+    "apps/mobile"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace @haiku/admin",
-    "build": "npm run build --workspace @haiku/admin",
-    "start": "npm run start --workspace @haiku/admin",
-    "dev:api": "npm run dev --workspace @haiku/api",
-    "dev:web": "npm run dev --workspace @haiku/web",
-    "dev:admin": "npm run dev --workspace @haiku/admin",
+    "dev": "next dev --hostname 0.0.0.0",
+    "build": "next build --webpack",
+    "start": "next start --hostname 0.0.0.0",
+    "dev:api": "node --env-file-if-exists=.env --import tsx --watch src/dev.ts",
     "dev:mobile": "npm run start --workspace haiku-mobile",
-    "build:web": "npm run build --workspace @haiku/web",
-    "build:admin": "npm run build --workspace @haiku/admin",
-    "typecheck": "npm run typecheck --workspace @haiku/contracts && npm run typecheck --workspace @haiku/api && npm run typecheck --workspace @haiku/admin && npm run typecheck --workspace haiku-mobile",
+    "typecheck": "tsc --noEmit",
     "lint:mobile": "npm run lint --workspace haiku-mobile",
-    "test": "npm run test --workspace @haiku/api",
+    "test": "node --import tsx --test tests/*.test.ts",
     "android:debug": "npm run android:debug --workspace haiku-mobile",
     "migrate": "node scripts/migrate.mjs",
     "db:test": "node scripts/test-neon.mjs"
   },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1156.0",
+    "@aws-sdk/s3-request-presigner": "3.1156.0",
+    "@haiku/contracts": "file:packages/contracts",
+    "@hono/node-server": "1.19.10",
+    "@modelcontextprotocol/sdk": "^1.15.0",
+    "@neondatabase/serverless": "1.2.0",
+    "@vercel/blob": "^2.8.2",
+    "@vercel/node": "^5.0.0",
+    "ably": "2.30.0",
+    "firebase-admin": "^14.5.0",
+    "google-auth-library": "11.3.1",
+    "hono": "4.13.14",
+    "next": "16.4.3",
+    "nodemailer": "10.2.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "4.6.7"
+  },
   "devDependencies": {
     "@resvg/resvg-wasm": "^2.6.2",
     "@types/node": "22.20.5",
+    "@types/nodemailer": "8.0.2",
+    "@types/react": "19.2.0",
+    "@types/react-dom": "19.2.0",
     "tsx": "4.23.15",
     "typescript": "6.0.3"
   }

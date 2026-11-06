@@ -6,6 +6,7 @@
  *   application releases configured via the Admin Console.
  */
 import { randomUUID } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
@@ -23,7 +24,9 @@ export type StorageAdapter = {
   deleteObject(objectKey: string): Promise<void>;
 };
 
-const localRoot = path.resolve(process.cwd(), '../../.haiku-media');
+const localRoot = existsSync(path.resolve(process.cwd(), '.haiku-media'))
+  ? path.resolve(process.cwd(), '.haiku-media')
+  : path.resolve(process.cwd(), '../../.haiku-media');
 function safePath(objectKey: string) {
   if (!/^[a-f0-9-]{36}$/.test(objectKey)) throw new Error('MEDIA_KEY_INVALID');
   const result = path.join(localRoot, objectKey);

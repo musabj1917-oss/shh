@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createOpaqueToken,hashPassword,sha256,verifyPassword} from '../apps/api/src/security.ts';
-import {verifyMediaSignature} from '../apps/api/src/services/storage.ts';
+import {createOpaqueToken,hashPassword,sha256,verifyPassword} from '../src/security.ts';
+import {verifyMediaSignature} from '../src/services/storage.ts';
 
 test('opaque tokens are unguessable-looking and SHA-256 hashes are deterministic',()=>{
  const first=createOpaqueToken(),second=createOpaqueToken();

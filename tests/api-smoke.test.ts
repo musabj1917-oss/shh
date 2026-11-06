@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import app from '../apps/api/src/app.ts';
+import app from '../src/app.ts';
 
 test('liveness check exposes only non-secret configuration flags',async()=>{
  const response=await app.request('/v1/health');
