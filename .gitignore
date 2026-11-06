@@ -1,13 +1,9 @@
 node_modules/
 .env
 .env.local
+.env.*.local
 *.env.local
-.env
-.env.local
-*.env.local.*.local
-!.env
-.env.local
-*.env.local.example
+apps/mobile/.env
 .next/
 coverage/
 *.log
@@ -23,9 +19,6 @@ apps/mobile/.bundle/
 .haiku-media/
 apps/api/.vercel/
 apps/admin/.vercel/
-apps/mobile/.env
-.env.local
-*.env.local
 apps/mobile/android/local.properties
 apps/mobile/ios/GoogleService-Info.plist
 apps/mobile/android/app/google-services.json
