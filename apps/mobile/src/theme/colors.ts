@@ -1,38 +1,60 @@
+/**
+ * Haiku Messenger Mobile Design Tokens
+ * Conforming to Appllama App Design & Baseline UI specifications.
+ */
 export const colors = {
-  // Brand & Lime Velvet Accents
-  mint: '#A3E635',             // Lime Velvet primary
-  mintDark: '#65A30D',         // Lime Velvet dark shade
-  mintAccent: '#BEF264',       // Vibrant lime glow accent
-  mintContrast: '#07120A',     // High-contrast text on primary
+  // Brand & Radiant Lime Velvet
+  mint: '#A3E635',             // Primary Lime Accent
+  mintDark: '#65A30D',         // Deep Olive/Lime
+  mintAccent: '#BEF264',       // Luminous Focus / Highlight
+  mintContrast: '#07120A',     // Obsidian ink on Lime surfaces (AAA Contrast)
   mintGlow: 'rgba(163, 230, 53, 0.28)',
   mintPale: 'rgba(20, 34, 25, 0.85)',
   mintWash: 'rgba(14, 24, 18, 0.65)',
 
-  // Deep Obsidian Canvas & Surfaces
-  canvas: '#070D0A',           // Deep obsidian space
-  panel: 'rgba(14, 22, 17, 0.88)',
-  card: 'rgba(20, 32, 25, 0.78)',
-  cardHover: 'rgba(28, 44, 34, 0.9)',
-  white: '#121F17',            // Elevated dark glass card (replaces legacy white)
-  inputBg: 'rgba(10, 16, 12, 0.88)',
+  // Deep Velvet Obsidian Surfaces (Level 0 - Level 3)
+  canvas: '#070D0A',           // Level 0: Deep Obsidian Canvas
+  panel: 'rgba(14, 22, 17, 0.92)', // Level 1: Sheet & Nav Rails
+  card: 'rgba(20, 32, 25, 0.82)',  // Level 2: Interactive Container Card
+  cardHover: 'rgba(28, 44, 34, 0.92)',
+  white: '#132119',            // Elevated glass card replacement
+  inputBg: 'rgba(10, 16, 12, 0.90)',
 
-  // Typography
-  ink: '#F4FBF7',              // Primary white/greenish text
-  body: '#9AB3A6',             // Secondary muted text
-  muted: '#61796D',            // Subdued captions & placeholders
+  // High-Legibility Accessible Typography
+  ink: '#F4FBF7',              // Primary White Ink (High contrast)
+  body: '#A8C2B5',             // Secondary Muted Body Text
+  muted: '#6E8B7E',            // Tertiary Caption & Timestamp
 
-  // Stitch Lines & Glows
+  // Tactile Seams & Stitches (1px structural frames)
   line: 'rgba(163, 230, 53, 0.16)',
-  stitch: 'rgba(163, 230, 53, 0.16)',
-  stitchGlow: 'rgba(163, 230, 53, 0.32)',
-  borderLight: 'rgba(255, 255, 255, 0.08)',
+  stitch: 'rgba(163, 230, 53, 0.18)',
+  stitchGlow: 'rgba(163, 230, 53, 0.35)',
+  borderLight: 'rgba(255, 255, 255, 0.09)',
   borderFocus: '#A3E635',
 
-  // Status & Badges
+  // Semantic Status & Wellbeing Indicators
   online: '#A3E635',
-  offline: '#61796D',
+  offline: '#6E8B7E',
   amber: '#FACC15',
   red: '#F87171',
-  redWash: 'rgba(248, 113, 113, 0.15)',
+  redWash: 'rgba(248, 113, 113, 0.16)',
   blue: '#38BDF8',
+  quietMode: '#2F6F5E',        // School Hours Campus Bell Mode
+};
+
+export const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 44, // Minimum accessible touch target per Appllama & HIG
+};
+
+export const radius = {
+  pill: 9999,
+  sm: 10,
+  md: 16,
+  lg: 24,
+  xl: 32,
 };

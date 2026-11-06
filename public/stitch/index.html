@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#070D0A] text-[#F4FBF7]">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Haiku Messenger • Google Stitch UI Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            canvas: '#070D0A',
+            panel: 'rgba(14, 22, 17, 0.88)',
+            card: 'rgba(20, 32, 25, 0.78)',
+            stitch: 'rgba(163, 230, 53, 0.16)',
+            lime: '#A3E635',
+            forest: '#105647',
+            pine: '#2f6f5e',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    .seam-border {
+      border: 1px solid rgba(163, 230, 53, 0.16);
+    }
+    .seam-glow:hover {
+      box-shadow: 0 0 20px rgba(163, 230, 53, 0.2);
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans bg-[#070D0A] text-[#F4FBF7] antialiased overflow-hidden">
+  <!-- Top Bar -->
+  <header class="h-16 border-b border-[rgba(163,230,53,0.14)] bg-[rgba(10,16,12,0.92)] backdrop-blur-md flex items-center justify-between px-6 z-20 flex-shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-[#2f6f5e] flex items-center justify-center text-[#A3E635] shadow-lg shadow-[#2f6f5e]/30">
+        <span class="material-symbols-outlined text-xl">spa</span>
+      </div>
+      <div>
+        <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-2">
+          Haiku Messenger
+          <span class="text-xs px-2 py-0.5 rounded-full bg-[#105647] text-[#A3E635] font-semibold border border-[rgba(163,230,53,0.2)]">Stitch UI</span>
+        </h1>
+        <p class="text-xs text-[#7E968B]">Project 15622036370423966108 • Quiet Canopy Design System</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <a id="openTabBtn" href="/stitch/inbox-chats.html" target="_blank" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#2f6f5e]/40 hover:bg-[#2f6f5e]/70 text-[#A3E635] seam-border transition-all flex items-center gap-1.5">
+        <span>Open Standalone</span>
+        <span class="material-symbols-outlined text-sm">open_in_new</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Viewer Body -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- Left Navigation Rail / Screen List -->
+    <aside class="w-80 border-r border-[rgba(163,230,53,0.12)] bg-[rgba(12,18,14,0.95)] flex flex-col p-4 overflow-y-auto flex-shrink-0">
+      <div class="text-xs font-bold uppercase tracking-wider text-[#7E968B] px-3 mb-3">
+        Generated Screens (9)
+      </div>
+
+      <div class="space-y-1.5" id="screensList">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="mt-auto pt-6 px-3">
+        <div class="p-3.5 rounded-2xl bg-[rgba(20,32,25,0.7)] seam-border text-xs text-[#C2D6CC] space-y-1">
+          <div class="font-semibold text-[#A3E635] flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-base">verified</span>
+            Mindful School Architecture
+          </div>
+          <p class="text-[#7E968B] leading-relaxed">
+            All screens generated with tactile seams, non-addictive palettes, and poetic haiku interactions.
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center Phone Canvas Preview -->
+    <main class="flex-1 bg-[#050806] flex items-center justify-center p-6 relative overflow-hidden">
+      <!-- Device Wrapper -->
+      <div class="relative w-[410px] h-[840px] max-h-[92vh] bg-[#0c120e] rounded-[48px] p-3 shadow-2xl shadow-black/80 seam-border flex flex-col">
+        <!-- Phone Camera Notch / Dynamic Island -->
+        <div class="w-32 h-4.5 bg-black rounded-full mx-auto mb-2 flex items-center justify-center">
+          <div class="w-2.5 h-2.5 rounded-full bg-[#18261e] mr-2"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-[#101b15]"></div>
+        </div>
+
+        <!-- Frame Iframe -->
+        <div class="flex-1 rounded-[38px] overflow-hidden bg-[#FAF9F5] relative shadow-inner">
+          <iframe id="previewFrame" src="/stitch/inbox-chats.html" class="w-full h-full border-none"></iframe>
+        </div>
+
+        <!-- Bottom Home Bar -->
+        <div class="w-32 h-1 bg-[rgba(163,230,53,0.3)] rounded-full mx-auto mt-2.5"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const screens = [
+      { id: 'inbox-chats', name: 'Inbox & Chats', icon: 'chat', file: 'inbox-chats.html', desc: 'Oakridge High quiet feed & study groups' },
+      { id: 'chat-thread', name: 'Chat Thread • Maya Lin', icon: 'forum', file: 'chat-thread.html', desc: '3-line poetic haiku bubbles & quiet receipts' },
+      { id: 'moments-stories', name: 'Stories & Moments Viewer', icon: 'auto_stories', file: 'moments-stories.html', desc: '24h ephemeral photos with haiku overlays' },
+      { id: 'cohorts-directory', name: 'School Cohorts & Directory', icon: 'groups', file: 'cohorts-directory.html', desc: 'Grade cohorts (9-12th) & student clubs' },
+      { id: 'profile-wellbeing', name: 'Profile & Wellbeing Settings', icon: 'account_circle', file: 'profile-wellbeing.html', desc: 'Quiet hours, screen limits & reflection score' },
+      { id: 'welcome-sign-in', name: 'Welcome & School Sign-In', icon: 'school', file: 'welcome-sign-in.html', desc: 'District email verification & grade selector' },
+      { id: 'first-run-safety-notice', name: 'First-Run Safety Notice', icon: 'shield', file: 'first-run-safety-notice.html', desc: 'Protected student garden & digital wellbeing' },
+      { id: 'camera-viewfinder', name: 'Camera Viewfinder', icon: 'photo_camera', file: 'camera-viewfinder.html', desc: 'Mindful moment snap viewfinder' },
+      { id: 'send-to-expiration', name: 'Send To & Expiration', icon: 'send', file: 'send-to-expiration.html', desc: 'Ephemeral 1x view or timer expiration controls' },
+    ];
+
+    let currentScreen = screens[0];
+    const listEl = document.getElementById('screensList');
+    const iframeEl = document.getElementById('previewFrame');
+    const openTabBtn = document.getElementById('openTabBtn');
+
+    function renderList() {
+      listEl.innerHTML = '';
+      screens.forEach(s => {
+        const isActive = s.id === currentScreen.id;
+        const btn = document.createElement('button');
+        btn.className = `w-full text-left px-3.5 py-3 rounded-2xl transition-all flex items-start gap-3 ${
+          isActive 
+            ? 'bg-[#105647] text-white border border-[#A3E635]/40 shadow-lg shadow-[#105647]/20' 
+            : 'hover:bg-[rgba(20,32,25,0.7)] text-[#C2D6CC] border border-transparent'
+        }`;
+        btn.innerHTML = `
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
+            isActive ? 'bg-[#A3E635] text-[#07120A]' : 'bg-[rgba(20,32,25,0.9)] text-[#A3E635]'
+          }">
+            <span class="material-symbols-outlined text-lg">${s.icon}</span>
+          </div>
+          <div class="overflow-hidden">
+            <div class="font-semibold text-xs truncate ${isActive ? 'text-white' : 'text-[#F4FBF7]'}">${s.name}</div>
+            <div class="text-[11px] truncate ${isActive ? 'text-[#A3E635]' : 'text-[#7E968B]'} mt-0.5">${s.desc}</div>
+          </div>
+        `;
+        btn.onclick = () => selectScreen(s);
+        listEl.appendChild(btn);
+      });
+    }
+
+    function selectScreen(s) {
+      currentScreen = s;
+      iframeEl.src = `/stitch/${s.file}`;
+      openTabBtn.href = `/stitch/${s.file}`;
+      renderList();
+    }
+
+    renderList();
+  </script>
+</body>
+</html>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Haiku Messenger - Inbox &amp; Chats</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Plus Jakarta Sans Font -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-dim": "#dbdad6",
+            "on-primary-fixed": "#002019",
+            "on-surface-variant": "#3f4945",
+            "on-error": "#ffffff",
+            "surface-container-low": "#f5f4f0",
+            "primary": "#105647",
+            "on-tertiary-fixed": "#00201c",
+            "inverse-on-surface": "#f2f1ed",
+            "inverse-surface": "#30312e",
+            "error-container": "#ffdad6",
+            "on-tertiary-fixed-variant": "#005048",
+            "surface-container-lowest": "#ffffff",
+            "outline-variant": "#bfc9c4",
+            "surface-variant": "#e3e2df",
+            "surface-container": "#efeeea",
+            "tertiary-fixed": "#8cf5e4",
+            "secondary-container": "#fc9174",
+            "tertiary-fixed-dim": "#6fd8c8",
+            "on-tertiary": "#ffffff",
+            "on-secondary": "#ffffff",
+            "on-error-container": "#93000a",
+            "error": "#ba1a1a",
+            "on-secondary-container": "#742814",
+            "surface-container-highest": "#e3e2df",
+            "primary-fixed": "#aef0da",
+            "on-surface": "#1b1c1a",
+            "on-background": "#1b1c1a",
+            "on-primary": "#ffffff",
+            "background": "#faf9f5",
+            "tertiary-container": "#007166",
+            "on-secondary-fixed-variant": "#7c2e19",
+            "primary-fixed-dim": "#93d3bf",
+            "primary-container": "#2f6f5e",
+            "tertiary": "#00564e",
+            "outline": "#707975",
+            "secondary-fixed": "#ffdbd2",
+            "secondary-fixed-dim": "#ffb4a1",
+            "surface-container-high": "#e9e8e4",
+            "on-tertiary-container": "#8bf4e4",
+            "surface": "#faf9f5",
+            "on-primary-container": "#aeefda",
+            "surface-tint": "#286958",
+            "secondary": "#9a442d",
+            "inverse-primary": "#93d3bf",
+            "surface-bright": "#faf9f5",
+            "on-secondary-fixed": "#3c0800",
+            "on-primary-fixed-variant": "#055141"
+          },
+          "borderRadius": {
+            "DEFAULT": "1rem",
+            "lg": "2rem",
+            "xl": "3rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-lg": "1.5rem",
+            "space-xl": "2rem",
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "gutter-mobile": "0.75rem",
+            "margin-mobile": "1rem",
+            "space-xs": "0.25rem",
+            "margin": "1.5rem",
+            "gutter": "1rem"
+          },
+          "fontFamily": {
+            "headline-md": ["Plus Jakarta Sans"],
+            "label-lg": ["Plus Jakarta Sans"],
+            "display-lg": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"],
+            "haiku-empty": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "display-lg-mobile": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "label-lg": ["15px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-md": ["15px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "haiku-empty": ["14px", { "lineHeight": "24px", "letterSpacing": "0.03em", "fontWeight": "400" }],
+            "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "body-lg": ["17px", { "lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "label-md": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "display-lg-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "headline-sm": ["18px", { "lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "700" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "400" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      background-color: #faf9f5;
+      color: #1b1c1a;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-fill {
+      font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    }
+    /* Soft ambient elevation for refined organic tactility */
+    .shadow-ambient {
+      box-shadow: 0 4px 16px -2px rgba(24, 45, 38, 0.05), 0 1px 4px -1px rgba(24, 45, 38, 0.03);
+    }
+    .shadow-float {
+      box-shadow: 0 10px 28px -4px rgba(24, 45, 38, 0.12);
+    }
+    /* Smooth scroll behavior */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased flex justify-center min-h-screen">
+<!-- Mobile Container Constraint -->
+<div class="w-full max-w-md bg-background min-h-screen flex flex-col relative pb-28">
+<!-- TopAppBar (from Shared Components JSON: small, headline: Oakridge High) -->
+<header class="fixed top-0 left-0 w-full z-40 flex items-center justify-between px-margin-mobile h-16 max-w-md mx-auto bg-surface/95 backdrop-blur-md transition-colors duration-150">
+<!-- Leading: Student Profile Avatar & High School Anchor -->
+<div class="flex items-center gap-space-sm">
+<div class="relative cursor-pointer active:scale-[0.96] transition-transform">
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden p-0.5 border border-primary/20 shadow-sm flex items-center justify-center">
+<img alt="Student Profile Avatar" class="w-full h-full object-cover rounded-full" data-alt="Close-up portrait of a thoughtful high school student wearing a forest green knit sweater, warm golden indoor library light reflecting gently on glasses, serene academic mood with soft focus books in background, natural aesthetic tone." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDs97TUQ-rHe6X6G5c7lUbDyqRYxcVQnB6xqEuFHPi8T5QisoU7SaAsigfaEN8zV8jBGy1q_ajfvP4S8xcgD5OsY4G4VbAiqugCYGGcEgRM84VM44Zk-0qxZctkwFsrWjl90PbS9mMzitgTJ18VHCtyIJzOEHKIfdaQVJxHm1I2NZx_3xVm4tT6JTgQXsne4f1lKZ6keIR47w8mQoBdLTlWsl78wi4W24MJFINoZj9M_Hh50Fv5vqI9c-p0Lmj58wIaABXmZ3ZZkU2I"/>
+</div>
+<!-- Leaf Snap Score Badge -->
+<div class="absolute -bottom-1 -right-1 bg-primary text-on-primary rounded-full px-1.5 py-0.2 flex items-center gap-0.5 border-2 border-background shadow-xs">
+<span class="material-symbols-outlined text-[10px]" style="font-variation-settings: 'FILL' 1;">eco</span>
+<span class="text-label-sm font-label-sm text-[9px] leading-tight">4.8k</span>
+</div>
+</div>
+<div class="flex flex-col ml-1">
+<div class="flex items-center gap-1">
+<span class="text-headline-sm font-headline-sm text-primary tracking-tight font-bold">Oakridge High</span>
+<span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant font-medium">Grade 11 • Cohort 2026</span>
+</div>
+</div>
+<!-- Trailing: Search & Status / Settings Icon -->
+<div class="flex items-center gap-1">
+<button aria-label="Search" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-[0.98] transition-colors duration-150">
+<span class="material-symbols-outlined text-[22px]">search</span>
+</button>
+<button aria-label="Notifications &amp; Presence" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-[0.98] transition-colors duration-150">
+<span class="material-symbols-outlined text-[22px]">spa</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas (Scrollable) -->
+<main class="flex-1 px-margin-mobile pt-20 space-y-4">
+<!-- Header Screen Title & Quiet Counter -->
+<div class="flex items-baseline justify-between pt-1">
+<h1 class="text-display-lg-mobile font-display-lg-mobile text-on-surface tracking-tight">Chats</h1>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-primary">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-label-sm font-label-sm text-primary tracking-wider">3 STUDY ROOMS</span>
+</div>
+</div>
+<!-- Mindful Campus Bell & Quiet Hours Haiku Banner -->
+<div class="bg-surface-container-low rounded-DEFAULT p-space-md border border-primary/10 relative overflow-hidden transition-all shadow-ambient">
+<div class="flex items-start gap-3">
+<div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">notifications_paused</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<span class="text-label-md font-label-md text-primary font-semibold">Campus Bell • 4th Period</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full">Quiet Mode</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">
+              Notifications softened until 3:30 PM dismissal
+            </p>
+<!-- Contemplative Haiku Moment Snippet -->
+<div class="mt-2.5 pt-2 border-t border-primary/10">
+<p class="text-haiku-empty font-haiku-empty text-primary/80 italic leading-relaxed text-xs">
+                Quiet halls remain, • Words await the bell's clear chime, • Peace in present thought.
+              </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Search Input Field -->
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="w-full h-12 pl-10 pr-10 bg-surface-container-lowest rounded-2xl text-body-md font-body-md text-on-surface placeholder:text-on-surface-variant/70 border border-primary/15 focus:outline-none focus:border-primary transition-all duration-150 shadow-xs" placeholder="Search friends, cohort groups, or campus topics..." type="text"/>
+<button class="absolute inset-y-0 right-0 pr-3 flex items-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+</button>
+</div>
+<!-- Filter Tabs / Segmented Pill Control -->
+<div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+<button class="px-4 py-2 rounded-full bg-primary text-on-primary text-label-md font-label-md shrink-0 shadow-xs transition-transform active:scale-95">
+          All
+        </button>
+<button class="px-4 py-2 rounded-full bg-surface-container text-on-surface-variant hover:bg-surface-container-high text-label-md font-label-md shrink-0 transition-transform active:scale-95">
+          Direct
+        </button>
+<button class="px-4 py-2 rounded-full bg-surface-container text-on-surface-variant hover:bg-surface-container-high text-label-md font-label-md shrink-0 transition-transform active:scale-95 flex items-center gap-1.5">
+<span>Study Cohorts</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+</button>
+<button class="px-4 py-2 rounded-full bg-surface-container text-on-surface-variant hover:bg-surface-container-high text-label-md font-label-md shrink-0 transition-transform active:scale-95 flex items-center gap-1">
+<span>Unread</span>
+<span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded-full px-1.5 py-0.2">2</span>
+</button>
+</div>
+<!-- Bento-Inspired Active Cohort Study Space (Highlighted Feature) -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-md border border-primary/15 shadow-ambient relative hover:border-primary/30 transition-all cursor-pointer">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">biotech</span>
+</div>
+<span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-primary rounded-full border-2 border-surface-container-lowest flex items-center justify-center"></span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="text-headline-sm font-headline-sm text-on-surface font-semibold text-base">AP Biology 2026 Cohort</h3>
+<span class="material-symbols-outlined text-on-surface-variant/60 text-[16px]">volume_off</span>
+</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-label-sm font-label-sm font-semibold">Class Study Room</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">12m ago</span>
+</div>
+</div>
+</div>
+<button class="text-on-surface-variant/70 hover:text-primary p-1">
+<span class="material-symbols-outlined text-[20px]">push_pin</span>
+</button>
+</div>
+<div class="mt-3 pl-1 bg-surface-container-low/60 rounded-xl p-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2 min-w-0">
+<span class="text-body-sm font-body-sm font-medium text-primary shrink-0">Maya:</span>
+<p class="text-body-sm font-body-sm text-on-surface-variant truncate">
+              Review session in library at 4pm today!
+            </p>
+</div>
+<!-- Stacked Member Avatars -->
+<div class="flex -space-x-2 shrink-0 ml-2">
+<div class="w-6 h-6 rounded-full border border-surface-container-lowest overflow-hidden">
+<img alt="Maya" class="w-full h-full object-cover" data-alt="High school student Maya Lin in outdoor campus courtyard with warm afternoon sun, subtle smile, wearing casual collegiate olive jacket, clear focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_Ewg3T_x6sSFMfa4dxVb9RuJqFO3eaN9PO9QtUEX3y8fz_s8N3mtZsI4Nz8OpilMg7Fvuni_lDtYv3TpR92_gJi6sP2njdPh4e_xU6RhupBaYaY6pmxGM15dC7fgab4FTjVCociYwmtLQ70QqgiMPOasY5sRhBPcDzVUZzdvQWnc2fAwHpoSt2XDFraqlluFecmKgTFpXNcprUyZTsPz079MX-wNdSou9eJ7TvU43emvk0WVgnkt-32xeY6BVOPE7MKVmGuUIco0V"/>
+</div>
+<div class="w-6 h-6 rounded-full border border-surface-container-lowest overflow-hidden">
+<img alt="Devon" class="w-full h-full object-cover" data-alt="High school teen student Devon Vance working attentively on laptop in library setting, natural calm daylight, dark casual hoodie, authentic student expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuANp978QFv_TUX6X_4ZNosrXrU9uJ_Fpz-h_O7Lbvzk2q0GuhMqP8TtqdYaFJihtfNqFA1XYBMEx8E7F_BXmc--cdjz-NAACLpwALjFilRu94foV63auX16ZuatHjlYweG4XCqxvWgFvI358jERci_BAQ0mj-IxBpFe5mpJigOsq_Yq8BVDni5w5WZDK_Z3mObX7lZyZ3RWr9ySus_PYVUGlTYb8WnAw4fNIq-x8ogirmb0-TLEnm9VH6YP24t8XHi3oHx7RvK1Kun9"/>
+</div>
+<div class="w-6 h-6 rounded-full bg-surface-container-high text-primary text-[10px] font-bold flex items-center justify-center border border-surface-container-lowest">
+              +14
+            </div>
+</div>
+</div>
+</div>
+<!-- Direct Messages Stream List -->
+<div class="space-y-2.5">
+<!-- DM 1: Maya Lin (Streak + Soft Unread Dot) -->
+<div class="bg-surface-container-lowest rounded-2xl p-3.5 border border-primary/10 shadow-xs flex items-center justify-between hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-3 min-w-0">
+<div class="relative shrink-0">
+<div class="w-12 h-12 rounded-full overflow-hidden border border-primary/20 bg-surface-container">
+<img alt="Maya Lin" class="w-full h-full object-cover" data-alt="Young high school student portrait of Maya Lin wearing a calm sage green hoodie in school commons, friendly demeanor, daylight soft illumination, authentic teen aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdZ2fMIJc-T8eB6Z7AcMG9LTeYEyJ7TV5jag_rD1oxxerd5lbK6cfXTOEjPFzIRoOjVNUUoHefD8b74d2E2uoKuMge9W9Mc6CRryXdXGMAjBpNQ5NZR3z4X-mT8J3RjXSDx6Vg8l5nrt7QZ6rQAvKMGaMf3HR7uM3vO0C3IFsDr4Od_lFXAI7-djpnLKd-K0sfbo70M8NOBRp-Ck7FK1aqcD60bJ4mIbJWHtt9uHFpkTCB55EnL3PUgSt0jAreVLC897tlVXVoDvHm"/>
+</div>
+<!-- Streak Badge -->
+<div class="absolute -bottom-1 -right-1 bg-surface-container-lowest shadow-xs rounded-full px-1.5 py-0.2 border border-secondary/20 flex items-center gap-0.5">
+<span class="text-[10px]">🔥</span>
+<span class="text-label-sm font-label-sm text-secondary font-bold text-[10px]">142</span>
+</div>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<h4 class="text-headline-sm font-headline-sm text-on-surface font-semibold text-base truncate">Maya Lin</h4>
+<span class="text-label-sm font-label-sm text-on-surface-variant shrink-0">2h ago</span>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant font-normal">@mayalin</p>
+<div class="flex items-center gap-1.5 mt-0.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[15px] text-primary" style="font-variation-settings: 'FILL' 1;">visibility</span>
+<span class="text-body-sm font-body-sm truncate">Delivered 2h ago • Snap viewed</span>
+</div>
+</div>
+</div>
+<!-- Non-aggressive Soft Sage Indicator Dot -->
+<div class="ml-2 pl-1 shrink-0 flex items-center">
+<div class="w-2.5 h-2.5 rounded-full bg-primary/80 ring-4 ring-primary/10" title="Quiet unread"></div>
+</div>
+</div>
+<!-- DM 2: Devon Vance (Haiku Snap with Tap-to-Open Badge) -->
+<div class="bg-surface-container-lowest rounded-2xl p-3.5 border border-primary/10 shadow-xs flex items-center justify-between hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-3 min-w-0">
+<div class="relative shrink-0">
+<div class="w-12 h-12 rounded-full overflow-hidden border border-primary/20 bg-surface-container">
+<img alt="Devon Vance" class="w-full h-full object-cover" data-alt="Profile portrait of high school student Devon Vance with dark curly hair and navy school fleece jacket, standing in quiet sunlit classroom, calm expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZWFhnX4-4wo70Zx8Fr5bGtWa36pACRdosl50DyUCYLI9i-qGKyqeT1wbbPhASj4Y5Xz5uuOWlr6d95n4xnsCET2vKcrT7NUo0GIZInOHm_uLRgcn8aRXshSe7nV15BHIV8EUrXAXryiTA6ym75i3OGiwIE3c4DudxcWkt_47kZ0GJm08CcROS1dlgVxQHQB5J6K5wSGmSLLkhVW-T5AuNrHuAjBgivI06ibd4QuzloIbETiYY-fhpml0pvMmVGollwQRkHraM94u4"/>
+</div>
+<div class="absolute -bottom-1 -right-1 bg-primary text-on-primary rounded-full p-0.5 border border-surface-container-lowest">
+<span class="material-symbols-outlined text-[10px]">photo_camera</span>
+</div>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<h4 class="text-headline-sm font-headline-sm text-on-surface font-semibold text-base truncate">Devon Vance</h4>
+<span class="text-label-sm font-label-sm text-on-surface-variant shrink-0">18m ago</span>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant font-normal">@dev_vance</p>
+<div class="flex items-center gap-2 mt-1">
+<!-- Ephemeral Tap-to-open pill -->
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed text-label-sm font-label-sm font-semibold">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+                  Tap to view (1x)
+                </span>
+<span class="text-body-sm font-body-sm text-on-surface-variant truncate">Devon sent a Haiku Snap</span>
+</div>
+</div>
+</div>
+<div class="ml-2 shrink-0">
+<span class="material-symbols-outlined text-primary text-[20px]">chevron_right</span>
+</div>
+</div>
+<!-- DM 3: Chloe Chen (Pinned Notes & Read Receipts) -->
+<div class="bg-surface-container-lowest rounded-2xl p-3.5 border border-primary/10 shadow-xs flex items-center justify-between hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-12 h-12 rounded-full overflow-hidden border border-primary/20 bg-surface-container shrink-0">
+<img alt="Chloe Chen" class="w-full h-full object-cover" data-alt="Young teen high school student Chloe Chen with neat ponytail wearing cream cable knit sweater in school study hall, natural window light, focused relaxed atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnVWGjGjhi3inv8JQxrs72t8JpaVoMabzN_iebXfTqfNMYkzDk8JBFjv234IG-gFhnDWlRTen2yS-QT09pBLM3uoL2JqX02Euz2AeNYke_ru4vCRQPUPXbCZ_m5Gfywut9dVy5RbL7gZQ4ZgKbc_BYl85nwAWpL3McNkWpDS0Kdp6Z8sGc6aPiq-Yu9gZl41DxggLFWJFfiy3mCwsys2plhgiS3JKuL4KggYaCjb6FRwa1jPE-22awGcXlhK7mibUYCpxWRDrvv7tz"/>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 truncate">
+<h4 class="text-headline-sm font-headline-sm text-on-surface font-semibold text-base truncate">Chloe Chen</h4>
+<span class="material-symbols-outlined text-primary text-[15px]">push_pin</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant shrink-0">1h ago</span>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant font-normal">@chlo_c</p>
+<div class="flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">done_all</span>
+<p class="text-body-sm font-body-sm text-on-surface-variant truncate">Notes from AP Lit are pinned!</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Group 2: Robotics Club Team 402 -->
+<div class="bg-surface-container-lowest rounded-2xl p-3.5 border border-primary/10 shadow-xs flex items-center justify-between hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-12 h-12 rounded-2xl bg-surface-container-high flex items-center justify-center text-primary shrink-0 border border-primary/10">
+<span class="material-symbols-outlined text-[24px]">precision_manufacturing</span>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 truncate">
+<h4 class="text-headline-sm font-headline-sm text-on-surface font-semibold text-base truncate">Robotics Club • Team 402</h4>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant shrink-0">3h ago</span>
+</div>
+<p class="text-label-sm font-label-sm text-primary font-medium">STEM Workshop Cohort</p>
+<p class="text-body-sm font-body-sm text-on-surface-variant truncate mt-0.5">
+<span class="font-medium text-on-surface">Devon:</span> CAD models uploaded to drive
+              </p>
+</div>
+</div>
+</div>
+<!-- DM 4: Samira K. -->
+<div class="bg-surface-container-lowest rounded-2xl p-3.5 border border-primary/10 shadow-xs flex items-center justify-between hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-12 h-12 rounded-full overflow-hidden border border-primary/20 bg-surface-container shrink-0">
+<img alt="Samira K." class="w-full h-full object-cover" data-alt="Portrait of high school athlete student Samira wearing sports jacket on school track bleachers during autumn afternoon, authentic relaxed grin, soft natural background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuADBK8ivhHX4TnWbtPETsvq5mBL9oFmJnhIp2catoDVOkA5rsoslYL8iROAl1f70MTg_7dQ2x2QhV_cHx0Ljue1EHzQfSoI63w-SeqC9B0zOghDu6zsVOmiTlmfrgb1Xyttq_p1RgAz2pF61TLugJKP-Fbxr8VFapcekwi6miO8Kn_Mzp_KsRqWl-DxBbWUXk6CPPCa1a7CeK8PtXGT8bGa1bS9LyLre7Jx6Rh3IiA5FZGL_BHvpAehcfeJOE6-6KAzK_4L8zqEe7ZV"/>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<h4 class="text-headline-sm font-headline-sm text-on-surface font-semibold text-base truncate">Samira K.</h4>
+<span class="text-label-sm font-label-sm text-on-surface-variant shrink-0">4h ago</span>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant font-normal">@sam_k</p>
+<p class="text-body-sm font-body-sm text-on-surface-variant truncate mt-0.5">
+                See you at track practice! 🏃‍♀️
+              </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Mindful Micro-Break Anchor Card -->
+<div class="bg-surface-container/60 rounded-2xl p-4 text-center border border-primary/5 my-2">
+<div class="flex justify-center mb-1">
+<span class="material-symbols-outlined text-primary/60 text-[22px]">self_improvement</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+          All caught up with your study groups.
+        </p>
+<span class="text-label-sm font-label-sm text-primary font-semibold mt-1 inline-block">Take a deep breath and rest your eyes.</span>
+</div>
+</main>
+<!-- Contextual Floating Action Button (FAB): "New Haiku" -->
+<div class="fixed bottom-20 right-4 z-40 max-w-md pointer-events-auto">
+<button aria-label="New Haiku Message" class="flex items-center gap-2 bg-primary text-on-primary hover:bg-primary/95 active:scale-[0.96] px-5 py-3.5 rounded-full shadow-float border border-white/20 transition-all duration-150">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+<span class="text-label-lg font-label-lg tracking-wide font-semibold">New Haiku</span>
+</button>
+</div>
+<!-- Persistent BottomNavBar (Shared Component JSON Blueprint) -->
+<!-- Destination count: 5 | Labels: ["Map", "Chats", "Camera", "Stories", "Friends"] | Icons: ["explore", "chat_bubble", "photo_camera", "auto_stories", "group"] -->
+<!-- Active State Logic: This is the Chats/Inbox screen, so 'Chats' tab is ACTIVE -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex items-center justify-around px-margin-mobile py-2 max-w-md mx-auto bg-surface/95 backdrop-blur-md shadow-md transition-colors duration-150">
+<!-- Tab 1: Map -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 rounded-full hover:bg-surface-container active:scale-[0.96] transition-transform duration-150" href="#map">
+<span class="material-symbols-outlined text-[24px]">explore</span>
+<span class="text-label-sm font-label-sm mt-0.5">Map</span>
+</a>
+<!-- Tab 2: Chats (ACTIVE - Using style_active_navigation from JSON) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-3.5 py-1.5 active:scale-[0.96] transition-transform duration-150 shadow-xs" href="#chats">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+<span class="text-label-sm font-label-sm font-bold mt-0.5">Chats</span>
+</a>
+<!-- Tab 3: Camera (Special center presence) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 rounded-full hover:bg-surface-container active:scale-[0.96] transition-transform duration-150" href="#camera">
+<div class="w-10 h-10 -mt-3 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-xs">
+<span class="material-symbols-outlined text-[24px]">photo_camera</span>
+</div>
+<span class="text-label-sm font-label-sm mt-0.5">Camera</span>
+</a>
+<!-- Tab 4: Stories -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 rounded-full hover:bg-surface-container active:scale-[0.96] transition-transform duration-150" href="#stories">
+<span class="material-symbols-outlined text-[24px]">auto_stories</span>
+<span class="text-label-sm font-label-sm mt-0.5">Stories</span>
+</a>
+<!-- Tab 5: Friends -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 rounded-full hover:bg-surface-container active:scale-[0.96] transition-transform duration-150" href="#friends">
+<span class="material-symbols-outlined text-[24px]">group</span>
+<span class="text-label-sm font-label-sm mt-0.5">Friends</span>
+</a>
+</nav>
+</div>
+</body></html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-tertiary-fixed-variant": "#005048", "primary-fixed-dim": "#93d3bf", "tertiary-fixed": "#8cf5e4", "background": "#faf9f5", "inverse-primary": "#93d3bf", "on-secondary-fixed-variant": "#7c2e19", "on-primary-fixed": "#002019", "on-surface": "#1b1c1a", "error": "#ba1a1a", "tertiary": "#00564e", "on-error": "#ffffff", "on-secondary-fixed": "#3c0800", "secondary-fixed": "#ffdbd2", "surface-container-low": "#f5f4f0", "secondary-container": "#fc9174", "error-container": "#ffdad6", "on-tertiary-container": "#8bf4e4", "tertiary-fixed-dim": "#6fd8c8", "surface-dim": "#dbdad6", "surface": "#faf9f5", "primary": "#105647", "primary-fixed": "#aef0da", "secondary": "#9a442d", "surface-container-high": "#e9e8e4", "secondary-fixed-dim": "#ffb4a1", "outline": "#707975", "on-tertiary": "#ffffff", "on-primary": "#ffffff", "on-error-container": "#93000a", "surface-tint": "#286958", "surface-bright": "#faf9f5", "primary-container": "#2f6f5e", "outline-variant": "#bfc9c4", "on-tertiary-fixed": "#00201c", "on-secondary-container": "#742814", "surface-container-highest": "#e3e2df", "on-primary-container": "#aeefda", "tertiary-container": "#007166", "inverse-on-surface": "#f2f1ed", "surface-container": "#efeeea", "on-surface-variant": "#3f4945", "inverse-surface": "#30312e", "on-primary-fixed-variant": "#055141", "surface-container-lowest": "#ffffff", "on-secondary": "#ffffff", "surface-variant": "#e3e2df", "on-background": "#1b1c1a" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "margin": "1.5rem", "space-xl": "2rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "gutter-mobile": "0.75rem", "space-md": "1rem", "gutter": "1rem", "space-lg": "1.5rem", "margin-mobile": "1rem" }, fontFamily: { "display-lg-mobile": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "haiku-empty": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "display-lg": ["Plus Jakarta Sans"] }, fontSize: { "display-lg-mobile": ["32px", { lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "700" }], "body-md": ["15px", { lineHeight: "22px", letterSpacing: "0em", fontWeight: "400" }], "label-lg": ["15px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" }], "headline-lg": ["28px", { lineHeight: "36px", letterSpacing: "-0.01em", fontWeight: "700" }], "haiku-empty": ["14px", { lineHeight: "24px", letterSpacing: "0.03em", fontWeight: "400" }], "headline-sm": ["18px", { lineHeight: "26px", letterSpacing: "0em", fontWeight: "600" }], "label-md": ["13px", { lineHeight: "18px", letterSpacing: "0.02em", fontWeight: "600" }], "label-sm": ["11px", { lineHeight: "14px", letterSpacing: "0.04em", fontWeight: "700" }], "headline-md": ["22px", { lineHeight: "30px", letterSpacing: "-0.01em", fontWeight: "600" }], "body-sm": ["13px", { lineHeight: "18px", letterSpacing: "0.01em", fontWeight: "400" }], "body-lg": ["17px", { lineHeight: "26px", letterSpacing: "0em", fontWeight: "400" }], "display-lg": ["40px", { lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "700" }] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;}body{overscroll-behavior-y:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased min-h-screen flex flex-col"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_12px_rgba(24,45,38,0.05)]"><div class="h-16 px-margin-mobile flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-xs shrink-0"><button aria-label="Go back" class="w-11 h-11 rounded-full flex items-center justify-center text-on-surface hover:text-primary transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><img alt="Haiku Messenger Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XCkuZiwEIC4G4dvIgYb9oRkLWkqQeTj4uyVBi072XJkbVb-Vc7uekpHNKSzCOGnm5dVoNh55VOjxbLuuRjZuUC-LS2iAa3RnZvOLYFk2P70CEcNvZ4GSUCtYR2ifTOo_Vpy3XLYPhZIAexfAzxfyPYpe5A9iJGE9nEezdqZKry2uyVL2bkUSmfjAeahe4YAuPSafxpyR6oswlLpcFsEso54WxfjJvuJKc7qB75NQm_nM2MqbDqBD0T8B4"/></div><div class="flex items-center justify-center flex-1 min-w-0 px-space-xs"><h1 class="font-headline-sm text-headline-sm text-on-surface truncate text-center font-bold">Snap Preview</h1></div><div class="flex items-center gap-space-xs shrink-0"><button aria-label="More options" class="w-11 h-11 rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[22px]">more_vert</span></button><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyFvUTqz2LANE5Fh97t0RVuMi9iTsq6ip19X0gSIg5ZHgvCYUvmkT7l3mZaoxbRBi85h3nXidmlorKs2wMvaSLhj3h6_XXaB13lv4DsHfNOyPpWbnYqUDfWvPsKBpuDFke97Ce8O_3rr-Ex2WzTlbXJX-e4_KJlvDy9mz4Uu5icusprdh8IuxtE7L47z3AIJ68-CBk5xbToy366p0MfeqNuEgfaQjCqBF_cC3QO3K70_EiiQgUuwus2A"/></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen"><div class="flex flex-col w-full pb-32">
+<!-- Ephemeral Mode & Quick Presets Segment -->
+<div class="px-margin-mobile pt-space-md flex flex-col gap-space-md">
+<!-- View Mode Pill Selector -->
+<div class="bg-surface-container-high p-space-xs rounded-full flex items-center justify-between shadow-sm">
+<button aria-pressed="true" class="flex-1 py-2 px-space-md rounded-full font-label-md text-label-md flex items-center justify-center gap-space-xs transition-all duration-200 bg-primary-container text-on-primary shadow-sm" id="toggle-view-once" onclick="setViewMode('once')" type="button">
+<span class="material-symbols-outlined text-[18px]">looks_one</span>
+<span>1x View Once</span>
+</button>
+<button aria-pressed="false" class="flex-1 py-2 px-space-md rounded-full font-label-md text-label-md flex items-center justify-center gap-space-xs transition-all duration-200 text-on-surface-variant hover:text-on-surface" id="toggle-story" onclick="setViewMode('story')" type="button">
+<span class="material-symbols-outlined text-[18px]">auto_stories</span>
+<span>24h Campus Story</span>
+</button>
+</div>
+<!-- Search Box -->
+<div class="relative w-full">
+<div class="absolute inset-y-0 left-0 pl-space-md flex items-center pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="w-full bg-surface-container-lowest text-on-surface font-body-md text-body-md pl-11 pr-space-md py-3 rounded-DEFAULT shadow-sm placeholder:text-on-surface-variant/60 focus:outline-none focus:bg-surface-container-low transition-colors" placeholder="Send to friends or groups..." type="text"/>
+</div>
+<!-- Poetic Mindful Haiku Card -->
+<div class="bg-surface-container-low rounded-DEFAULT p-space-md flex items-start gap-space-md relative overflow-hidden shadow-sm">
+<div class="w-9 h-9 rounded-full bg-primary-fixed flex items-center justify-center text-primary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">spa</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary font-bold">Mindful Ephemera</span>
+<p class="font-haiku-empty text-haiku-empty text-on-surface-variant italic mt-1 leading-relaxed">
+          Flown across the quad,<br/>
+          Gone after the bell has rung,<br/>
+          Shared between two minds.
+        </p>
+</div>
+<div class="absolute -right-4 -bottom-4 text-primary/5 pointer-events-none">
+<span class="material-symbols-outlined text-[80px]">energy_savings_leaf</span>
+</div>
+</div>
+</div>
+<!-- Friends Cohort Groupings -->
+<div class="flex flex-col mt-space-lg gap-space-lg">
+<!-- Group: Best Friends -->
+<section class="flex flex-col">
+<div class="px-margin-mobile flex items-center justify-between mb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[18px]">favorite</span>
+<h2 class="font-label-lg text-label-lg text-on-surface">Best Friends</h2>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Inner Circle</span>
+</div>
+<div class="flex flex-col bg-surface-container-lowest shadow-sm divide-y-0">
+<!-- Item 1: Checked -->
+<label class="px-margin-mobile py-3 flex items-center justify-between gap-space-md cursor-pointer hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-space-md min-w-0 flex-1">
+<div class="relative shrink-0">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="High school girl smiling naturally in warm autumn sunlight with soft green park trees in the background, candid portrait photography, film grain, gentle tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIHBLprooPFlFL8kLgKkUShJmcpyzxrEu7nWN6D3QZt-9gpZiWJr4iOTIrjwllpq6nksk_uIUpU5d1QJfD2cb9FhHYHmdFWrd8fg9u16HO_W3M3YiDIo_FnEV_XdQ0EojqoJEp87uBQPR-LqVuExQyvGbQ2wdEFsaYQqAUOnRk9xPXm6u7ggxJEeYryUxNdji7Zt-GY2hP6NNClDKvmKo02Gemx9wnSmkZ_ESqVeBNwCgKEatBbbWD6A"/>
+<div class="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary-container flex items-center justify-center text-[10px] text-on-primary">
+<span class="material-symbols-outlined text-[12px]">bolt</span>
+</div>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Maya Lin</span>
+<div class="flex items-center gap-space-xs">
+<span class="font-body-sm text-body-sm text-on-surface-variant">@mayalin</span>
+<span class="text-on-surface-variant/40 text-xs">•</span>
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-0.5 font-bold">
+<span class="material-symbols-outlined text-[13px]">local_fire_department</span> 142
+                </span>
+</div>
+</div>
+</div>
+<input checked="" class="recipient-checkbox sr-only peer" onchange="toggleRecipient('maya', 'Maya Lin', this.checked)" type="checkbox"/>
+<div class="w-7 h-7 rounded-full bg-surface-container-highest peer-checked:bg-primary-container flex items-center justify-center transition-all duration-150">
+<span class="material-symbols-outlined text-on-primary text-[18px] opacity-0 peer-checked:opacity-100 transition-opacity">check</span>
+</div>
+</label>
+<!-- Item 2: Checked -->
+<label class="px-margin-mobile py-3 flex items-center justify-between gap-space-md cursor-pointer hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-space-md min-w-0 flex-1">
+<div class="relative shrink-0">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="High school boy with curly dark hair wearing a collegiate dark green knit sweater outdoors near brick library steps, natural lighting, organic photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCM0V25CbEgNQ3tScS3s3D2vmC12ADOdZTJc0mWBa9ZfdNsXrKtXF1EJU1ifHRPL6OMQykq4xiaZN_83lCaLGSGFGSuMfUJlIuEZOsS-nq2QM7930XRSxPj1hjQj07ZZHhi_aVMO3hPUNFJUIJK1fU7WfRISU0EiTxPKZzoG0oE5ReJC0tEuz3SGrmf2klL2Clx_FEqxHAJct1r7l1c58ZGFMsKnwyMdI3z93yvEbVGdhD89THeNEM8Pg"/>
+<div class="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary-container flex items-center justify-center text-[10px] text-on-primary">
+<span class="material-symbols-outlined text-[12px]">bolt</span>
+</div>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Devon Vance</span>
+<div class="flex items-center gap-space-xs">
+<span class="font-body-sm text-body-sm text-on-surface-variant">@dev_vance</span>
+<span class="text-on-surface-variant/40 text-xs">•</span>
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-0.5 font-bold">
+<span class="material-symbols-outlined text-[13px]">local_fire_department</span> 89
+                </span>
+</div>
+</div>
+</div>
+<input checked="" class="recipient-checkbox sr-only peer" onchange="toggleRecipient('devon', 'Devon Vance', this.checked)" type="checkbox"/>
+<div class="w-7 h-7 rounded-full bg-surface-container-highest peer-checked:bg-primary-container flex items-center justify-center transition-all duration-150">
+<span class="material-symbols-outlined text-on-primary text-[18px] opacity-0 peer-checked:opacity-100 transition-opacity">check</span>
+</div>
+</label>
+</div>
+</section>
+<!-- Group: Recent -->
+<section class="flex flex-col">
+<div class="px-margin-mobile flex items-center justify-between mb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">history</span>
+<h2 class="font-label-lg text-label-lg text-on-surface">Recent</h2>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Today</span>
+</div>
+<div class="flex flex-col bg-surface-container-lowest shadow-sm divide-y-0">
+<!-- Item 3: Checked -->
+<label class="px-margin-mobile py-3 flex items-center justify-between gap-space-md cursor-pointer hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-space-md min-w-0 flex-1">
+<div class="relative shrink-0">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Teen girl with braided hair and gentle expression holding sketch notebook in studio light, calm aesthetic, soft earth-tone backdrop, high quality portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7Gg4vI7JkY9QmsFV8J_k2_Fi2Rtv3s25dj0CDdCavF83zJ3ZHP3l_ymKeJoeQPu2_zTL2Yfeo4vLy2I9e2Aiwgdf4vZ5weLYJrPqQXu5TKTTljC8uYKF1nxU5rRMz9TJXaih9tbQHGZ3PvbTZpgk16n2OGR40ECixoWzQdsheoxBstOOBF9sVKbzgzF9vHmrLgiCj1eoLB6_g_Ee2kxMa2oMtv7wtqHGnxU1jyLk1EGh4nqEchlvjAg"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Chloe Chen</span>
+<div class="flex items-center gap-space-xs">
+<span class="font-body-sm text-body-sm text-on-surface-variant">@chlo_c</span>
+<span class="text-on-surface-variant/40 text-xs">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">35 score</span>
+</div>
+</div>
+</div>
+<input checked="" class="recipient-checkbox sr-only peer" onchange="toggleRecipient('chloe', 'Chloe Chen', this.checked)" type="checkbox"/>
+<div class="w-7 h-7 rounded-full bg-surface-container-highest peer-checked:bg-primary-container flex items-center justify-center transition-all duration-150">
+<span class="material-symbols-outlined text-on-primary text-[18px] opacity-0 peer-checked:opacity-100 transition-opacity">check</span>
+</div>
+</label>
+<!-- Item 4: Unchecked -->
+<label class="px-margin-mobile py-3 flex items-center justify-between gap-space-md cursor-pointer hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-space-md min-w-0 flex-1">
+<div class="relative shrink-0">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Warm portrait of young student with vintage spectacles wearing a denim jacket outdoors with blurry school courtyard archway behind, natural daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_JNBOxMwOVlnWsHQDqO3G9lOrxbv0bKF5rP5UtHCV_8huD8FgmI5EGNw48ZjSFg7lvMNLNCBPkuPi77gXs0aDEwVfQD6rQ4JcSyma4N7U6etnvSZWr9HhijPeHv3JmN7xNSwsllxQNBWUdIRyb77WAstqrAor8NrPiNIyw95bjQC045UT-C2JZSgDe6Gh7A1pfOYor3ApCGkp_hvf3WH4jOt0PbHyAWRfixhpFO4JPmT2Mk5Sittfow"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Samira K.</span>
+<div class="flex items-center gap-space-xs">
+<span class="font-body-sm text-body-sm text-on-surface-variant">@sam_k</span>
+<span class="text-on-surface-variant/40 text-xs">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">54 score</span>
+</div>
+</div>
+</div>
+<input class="recipient-checkbox sr-only peer" onchange="toggleRecipient('samira', 'Samira K.', this.checked)" type="checkbox"/>
+<div class="w-7 h-7 rounded-full bg-surface-container-highest peer-checked:bg-primary-container flex items-center justify-center transition-all duration-150">
+<span class="material-symbols-outlined text-on-primary text-[18px] opacity-0 peer-checked:opacity-100 transition-opacity">check</span>
+</div>
+</label>
+</div>
+</section>
+<!-- Group: Class of 2026 -->
+<section class="flex flex-col">
+<div class="px-margin-mobile flex items-center justify-between mb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">school</span>
+<h2 class="font-label-lg text-label-lg text-on-surface">Class of 2026</h2>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Junior Cohort</span>
+</div>
+<div class="flex flex-col bg-surface-container-lowest shadow-sm divide-y-0">
+<!-- Item 5: Unchecked -->
+<label class="px-margin-mobile py-3 flex items-center justify-between gap-space-md cursor-pointer hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-space-md min-w-0 flex-1">
+<div class="relative shrink-0">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Teen male athlete smiling warmly with athletic jacket on, sunlit locker room hall in background, soft natural collegiate tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuABwxPDb0eixuwmac5VAyRzwA3ghORGT1gaDencB51REQ-88cW7_4-theyg_ORW0iyNaPhpZ_dgUXNzuo6zOQIoKQFtadTriWNLtZC5uY2YozxDKbsr6LDwBqhkN2GVVyfTN2dmxeRk-ltnsyHYEJbpuTXX_Mln9uPXbYRKdWTOzo3JQZ8FhMWFnOkTRqnVi0BINbB_PD5twXBN3hCAg3DhkjF8_dUZQX0Ywzpgqpfy0Xc9l9NhJuTCEA"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Mateo Alvarez</span>
+<div class="flex items-center gap-space-xs">
+<span class="font-body-sm text-body-sm text-on-surface-variant">@mateo_a26</span>
+<span class="text-on-surface-variant/40 text-xs">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">18 score</span>
+</div>
+</div>
+</div>
+<input class="recipient-checkbox sr-only peer" onchange="toggleRecipient('mateo', 'Mateo Alvarez', this.checked)" type="checkbox"/>
+<div class="w-7 h-7 rounded-full bg-surface-container-highest peer-checked:bg-primary-container flex items-center justify-center transition-all duration-150">
+<span class="material-symbols-outlined text-on-primary text-[18px] opacity-0 peer-checked:opacity-100 transition-opacity">check</span>
+</div>
+</label>
+<!-- Item 6: Unchecked -->
+<label class="px-margin-mobile py-3 flex items-center justify-between gap-space-md cursor-pointer hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-space-md min-w-0 flex-1">
+<div class="relative shrink-0">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of student wearing light olive linen shirt leaning against sunlit brick school pillar, candid peaceful expression, film quality" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9UUmRY9-P6SLPvWt4O1VOybLO7vm9lkWpogpXtxEODGo9fpqiGBcopB7hIqTQy_LnVG-1XCgYt77UdDzEz0qtfrMmwpIi6LoFm65zi6zIegVt_L8uXY8oNy_06PFSftPOilZQxsTeUHMx2mKtpCkqgQnbs7XCPLj7prMimsbs-HCQAxo0rJwjeD4MeDoCLsgmElWfTHWZE5jJ1brHCKIgOKnocniQXIJkHAhiToZKOyUB90VumVv8aQ"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Zoe Moreau</span>
+<div class="flex items-center gap-space-xs">
+<span class="font-body-sm text-body-sm text-on-surface-variant">@zoe_m</span>
+<span class="text-on-surface-variant/40 text-xs">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">72 score</span>
+</div>
+</div>
+</div>
+<input class="recipient-checkbox sr-only peer" onchange="toggleRecipient('zoe', 'Zoe Moreau', this.checked)" type="checkbox"/>
+<div class="w-7 h-7 rounded-full bg-surface-container-highest peer-checked:bg-primary-container flex items-center justify-center transition-all duration-150">
+<span class="material-symbols-outlined text-on-primary text-[18px] opacity-0 peer-checked:opacity-100 transition-opacity">check</span>
+</div>
+</label>
+</div>
+</section>
+</div>
+<!-- Persistent Docked Bottom Floating Send Shelf -->
+<div class="fixed bottom-0 left-0 right-0 z-40 px-margin-mobile pb-space-md pt-space-xs bg-gradient-to-t from-surface via-surface/95 to-transparent pointer-events-none">
+<div class="max-w-md mx-auto w-full bg-surface-container-lowest/95 backdrop-blur-xl p-space-sm rounded-DEFAULT shadow-xl flex flex-col gap-space-xs pointer-events-auto">
+<!-- Selected Pills Carousel & Clear Header -->
+<div class="flex items-center justify-between px-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Sending to</span>
+<span class="bg-secondary text-on-secondary px-2 py-0.5 rounded-full font-label-sm text-label-sm font-bold" id="badge-count">
+            3 selected
+          </span>
+</div>
+<button class="font-label-sm text-label-sm text-primary hover:text-primary-container transition-colors" onclick="clearAllSelections()" type="button">
+          Clear all
+        </button>
+</div>
+<!-- Recipient Token Pills -->
+<div class="flex items-center gap-1.5 overflow-x-auto py-1 no-scrollbar" id="pills-container">
+<div class="shrink-0 bg-primary-fixed text-on-primary-fixed px-3 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1" id="pill-maya">
+<span>Maya</span>
+<span class="material-symbols-outlined text-[14px] cursor-pointer" onclick="removeRecipient('maya')">close</span>
+</div>
+<div class="shrink-0 bg-primary-fixed text-on-primary-fixed px-3 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1" id="pill-devon">
+<span>Devon</span>
+<span class="material-symbols-outlined text-[14px] cursor-pointer" onclick="removeRecipient('devon')">close</span>
+</div>
+<div class="shrink-0 bg-primary-fixed text-on-primary-fixed px-3 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1" id="pill-chloe">
+<span>Chloe</span>
+<span class="material-symbols-outlined text-[14px] cursor-pointer" onclick="removeRecipient('chloe')">close</span>
+</div>
+</div>
+<!-- Big Primary Forest Send Button -->
+<button class="w-full h-12 bg-primary-container hover:bg-primary active:scale-[0.99] text-on-primary rounded-full font-label-lg text-label-lg flex items-center justify-center gap-space-sm shadow-md transition-all duration-150 mt-1" id="send-button" type="button">
+<span class="material-symbols-outlined text-[20px]">send</span>
+<span id="send-btn-label">Send (3)</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  const selectedState = new Map([
+    ['maya', 'Maya Lin'],
+    ['devon', 'Devon Vance'],
+    ['chloe', 'Chloe Chen']
+  ]);
+
+  function setViewMode(mode) {
+    const onceBtn = document.getElementById('toggle-view-once');
+    const storyBtn = document.getElementById('toggle-story');
+    if (mode === 'once') {
+      onceBtn.className = "flex-1 py-2 px-space-md rounded-full font-label-md text-label-md flex items-center justify-center gap-space-xs transition-all duration-200 bg-primary-container text-on-primary shadow-sm";
+      onceBtn.setAttribute('aria-pressed', 'true');
+      storyBtn.className = "flex-1 py-2 px-space-md rounded-full font-label-md text-label-md flex items-center justify-center gap-space-xs transition-all duration-200 text-on-surface-variant hover:text-on-surface";
+      storyBtn.setAttribute('aria-pressed', 'false');
+    } else {
+      storyBtn.className = "flex-1 py-2 px-space-md rounded-full font-label-md text-label-md flex items-center justify-center gap-space-xs transition-all duration-200 bg-primary-container text-on-primary shadow-sm";
+      storyBtn.setAttribute('aria-pressed', 'true');
+      onceBtn.className = "flex-1 py-2 px-space-md rounded-full font-label-md text-label-md flex items-center justify-center gap-space-xs transition-all duration-200 text-on-surface-variant hover:text-on-surface";
+      onceBtn.setAttribute('aria-pressed', 'false');
+    }
+  }
+
+  function updateShelfUI() {
+    const count = selectedState.size;
+    const badge = document.getElementById('badge-count');
+    const sendLabel = document.getElementById('send-btn-label');
+    const sendBtn = document.getElementById('send-button');
+    const container = document.getElementById('pills-container');
+
+    badge.textContent = `${count} selected`;
+    sendLabel.textContent = count > 0 ? `Send (${count})` : 'Send';
+
+    if (count === 0) {
+      sendBtn.classList.add('opacity-50', 'pointer-events-none');
+    } else {
+      sendBtn.classList.remove('opacity-50', 'pointer-events-none');
+    }
+
+    container.innerHTML = '';
+    selectedState.forEach((name, id) => {
+      const firstName = name.split(' ')[0];
+      const pill = document.createElement('div');
+      pill.id = `pill-${id}`;
+      pill.className = "shrink-0 bg-primary-fixed text-on-primary-fixed px-3 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1 animate-fade-in";
+      pill.innerHTML = `<span>${firstName}</span><span class="material-symbols-outlined text-[14px] cursor-pointer" onclick="removeRecipient('${id}')">close</span>`;
+      container.appendChild(pill);
+    });
+  }
+
+  function toggleRecipient(id, name, isChecked) {
+    if (isChecked) {
+      selectedState.set(id, name);
+    } else {
+      selectedState.delete(id);
+    }
+    updateShelfUI();
+  }
+
+  function removeRecipient(id) {
+    selectedState.delete(id);
+    const checkboxes = document.querySelectorAll('.recipient-checkbox');
+    checkboxes.forEach(cb => {
+      if (cb.getAttribute('onchange')?.includes(`'${id}'`)) {
+        cb.checked = false;
+      }
+    });
+    updateShelfUI();
+  }
+
+  function clearAllSelections() {
+    selectedState.clear();
+    const checkboxes = document.querySelectorAll('.recipient-checkbox');
+    checkboxes.forEach(cb => {
+      cb.checked = false;
+    });
+    updateShelfUI();
+  }
+</script></main></body></html>
