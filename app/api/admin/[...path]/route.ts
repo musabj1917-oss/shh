@@ -5,10 +5,18 @@ export const dynamic='force-dynamic';
 const COOKIE='haiku_admin_session';
 const MAX_AGE=60*60*12;
 const apiBase=()=>{
-  if (process.env.HAIKU_API_URL) return process.env.HAIKU_API_URL.replace(/\/+$/,'');
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}/v1`;
-  const port = process.env.PORT || 3000;
-  return `http://localhost:${port}/v1`;
+  let url = (
+    process.env.HAIKU_API_URL ||
+    process.env.HAIKU_API_BASE_URL ||
+    process.env.API_BASE_URL ||
+    process.env.API_PUBLIC_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '') ||
+    `http://localhost:${process.env.PORT || 3000}`
+  ).trim().replace(/\/+$/, '');
+  if (!url.endsWith('/v1')) {
+    url = `${url}/v1`;
+  }
+  return url;
 };
 type RouteContext={params:Promise<{path:string[]}>};
 

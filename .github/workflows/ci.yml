@@ -43,6 +43,10 @@ jobs:
 
       - name: Build admin
         run: npm run build:admin
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+          NODE_ENV: production
+          HAIKU_API_URL: ${{ secrets.HAIKU_API_URL || vars.HAIKU_API_URL || secrets.HAIKU_API_BASE_URL || vars.HAIKU_API_BASE_URL || 'https://shh-jet-five.vercel.app/v1' }}
 
   android:
     name: Android debug APK
@@ -71,7 +75,8 @@ jobs:
       - name: Write mobile config
         run: npm run configure --workspace haiku-mobile
         env:
-          HAIKU_API_BASE_URL: ${{ vars.HAIKU_API_BASE_URL || 'https://shh-jet-five.vercel.app/v1' }}
+          HAIKU_API_BASE_URL: ${{ secrets.HAIKU_API_BASE_URL || vars.HAIKU_API_BASE_URL || secrets.HAIKU_API_URL || vars.HAIKU_API_URL || secrets.API_BASE_URL || vars.API_BASE_URL || 'https://shh-jet-five.vercel.app/v1' }}
+          HAIKU_API_URL: ${{ secrets.HAIKU_API_URL || vars.HAIKU_API_URL || secrets.HAIKU_API_BASE_URL || vars.HAIKU_API_BASE_URL || secrets.API_BASE_URL || vars.API_BASE_URL || 'https://shh-jet-five.vercel.app/v1' }}
 
       - name: Make gradlew executable
         run: chmod +x apps/mobile/android/gradlew
@@ -103,7 +108,7 @@ jobs:
 
       # Direct-download APK (no zip) at the repo's Releases page.
       - name: Publish APK as a release
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -114,4 +119,4 @@ jobs:
             --prerelease \
             --target "$GITHUB_SHA" \
             --title "Debug APK (latest)" \
-            --notes "Built from $GITHUB_SHA. sha256: $SUM"
+            --notes "Built from $GITHUB_SHA. sha256: $SUM" || true

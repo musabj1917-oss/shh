@@ -21,7 +21,8 @@
     "test": "node --import tsx --test tests/*.test.ts",
     "android:debug": "npm run android:debug --workspace haiku-mobile",
     "migrate": "node scripts/migrate.mjs",
-    "db:test": "node scripts/test-neon.mjs"
+    "db:test": "node scripts/test-neon.mjs",
+    "build:admin": "next build --webpack"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1156.0",
