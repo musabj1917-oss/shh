@@ -347,6 +347,53 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .landing-showcase {
   width: 100%;
   margin-top: 24px;
+  perspective: 1200px;
+}
+
+/* ==========================================================================
+   ANTIGRAVITY DESIGN SYSTEM • SPATIAL DEPTH, LEVITATION & GLASSMORPHISM
+   ========================================================================== */
+
+@keyframes antigravityFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.3deg);
+  }
+}
+
+@keyframes antigravityFloatReverse {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(-0.3deg);
+  }
+}
+
+.antigravity-card {
+  position: relative;
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 45px -12px rgba(0, 0, 0, 0.55),
+              0 0 0 1px rgba(255, 255, 255, 0.06),
+              inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transform-style: preserve-3d;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s ease;
+  will-change: transform, box-shadow;
+}
+
+.antigravity-card:hover {
+  transform: translateY(-8px) scale(1.015);
+  border-color: rgba(78, 159, 134, 0.35);
+  box-shadow: 0 32px 64px -16px rgba(0, 0, 0, 0.65),
+              0 0 0 1px rgba(78, 159, 134, 0.4),
+              inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
 .mockup-grid {
@@ -354,11 +401,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   grid-template-columns: 280px 1fr;
   gap: 36px;
   align-items: center;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 36px;
-  box-shadow: var(--shadow-float);
+  animation: antigravityFloat 9s ease-in-out infinite;
+}
+
+.mockup-grid:hover {
+  animation-play-state: paused;
 }
 
 @media (max-width: 860px) {
@@ -368,6 +417,18 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   }
 }
 
+.mockup-phone {
+  background: rgba(14, 19, 26, 0.95);
+  border-radius: 36px;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.7),
+              inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
+}
+
 .feature-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -375,24 +436,36 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   max-width: 1100px;
   margin: 0 auto;
   padding: 40px 24px 80px;
+  perspective: 1000px;
 }
 
 .haiku-feature-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 28px 24px;
   text-align: left;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.haiku-feature-card:nth-child(1) {
+  animation: antigravityFloat 7s ease-in-out infinite 0s;
+}
+
+.haiku-feature-card:nth-child(2) {
+  animation: antigravityFloatReverse 8s ease-in-out infinite 1s;
+}
+
+.haiku-feature-card:nth-child(3) {
+  animation: antigravityFloat 7.5s ease-in-out infinite 2s;
+}
+
+.haiku-feature-card:nth-child(4) {
+  animation: antigravityFloatReverse 8.5s ease-in-out infinite 1.5s;
 }
 
 .haiku-feature-card:hover {
-  background: var(--bg-card-hover);
-  border-color: rgba(78, 159, 134, 0.25);
-  transform: translateY(-2px);
+  animation-play-state: paused;
 }
 
 .feature-icon-badge {
@@ -410,15 +483,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .download-section {
   max-width: 1100px;
   margin: 0 auto 80px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 40px;
-  box-shadow: var(--shadow-md);
 }
 
 @media (max-width: 860px) {
@@ -426,6 +496,17 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     flex-direction: column;
     padding: 28px;
     text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .antigravity-card,
+  .mockup-grid,
+  .mockup-phone,
+  .haiku-feature-card {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
   }
 }
 

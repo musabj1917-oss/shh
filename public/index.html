@@ -1799,10 +1799,12 @@
       </nav>
       <div style="display:flex; align-items:center; gap:12px;">
         <a id="navDownloadBtn" class="btn-download-apk" href="https://github.com/musabj1917-oss/shh/releases/latest" style="padding:10px 18px; font-size:13px;">
-          <span>🤖</span> Download APK
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Download APK
         </a>
         <button id="navOpenWebBtn" class="btn-launch-web" style="padding:10px 18px; font-size:13px;">
-          <span>🌐</span> Launch Web
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          Launch Web
         </button>
       </div>
     </header>
@@ -1810,7 +1812,7 @@
     <!-- Hero Section -->
     <section class="landing-hero">
       <div class="haiku-badge">
-        <span>✦</span> Mindful Communication · Ephemeral Sanctuary
+        <span class="badge-dot"></span> Mindful Communication · Ephemeral Sanctuary
       </div>
       <h1 class="landing-title">
         Calm, ephemeral conversations <em>in fleeting time</em>.
@@ -1820,45 +1822,54 @@
       </p>
       <div class="landing-cta-row">
         <a id="heroDownloadApkBtn" class="btn-download-apk" href="https://github.com/musabj1917-oss/shh/releases/latest">
-          <span style="font-size:18px;">⬇</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           <span>Download Android APK</span>
           <span id="heroApkBadge" style="font-size:11px; opacity:0.85; padding:2px 8px; border-radius:6px; background:rgba(255,255,255,0.06);">v1.0</span>
         </a>
         <button id="heroOpenWebBtn" class="btn-launch-web">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
           <span>Launch Web Client</span>
         </button>
       </div>
 
-      <!-- Live Mockup Showcase -->
+      <!-- Live Mockup Showcase (Antigravity Spatial Float) -->
       <div class="landing-showcase" id="features">
-        <div class="mockup-grid">
+        <div class="mockup-grid antigravity-card">
           <!-- Mobile Phone Mockup -->
-          <div style="background:#0c1015; border:1px solid var(--border); border-radius:28px; padding:16px 12px; box-shadow:var(--shadow-float); display:flex; flex-direction:column; height:420px; overflow:hidden;">
+          <div class="mockup-phone" style="background:#0c1015; border:1px solid var(--border); border-radius:28px; padding:16px 12px; box-shadow:var(--shadow-float); display:flex; flex-direction:column; height:420px; overflow:hidden;">
             <!-- Phone Status Bar -->
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--text-sub); padding:0 8px 10px;">
               <span>09:41</span>
-              <span>●●● 5G</span>
+              <span>5G</span>
             </div>
             <!-- Phone App Interior: Left Rail + Chat -->
             <div style="flex:1; display:flex; gap:8px; overflow:hidden;">
               <!-- Left Rail -->
               <div style="width:44px; background:rgba(18,24,32,0.96); border-right:1px solid var(--border); border-radius:12px; padding:10px 4px; display:flex; flex-direction:column; align-items:center; justify-content:space-between;">
                 <img src="/logo.svg" style="width:22px; height:22px; border-radius:6px;" alt="Logo"/>
-                <div style="display:flex; flex-direction:column; gap:12px; align-items:center;">
-                  <span style="font-size:15px; padding:6px; border-radius:6px; background:rgba(78,159,134,0.15); border:1px solid rgba(78,159,134,0.3);">💬</span>
-                  <span style="font-size:14px; opacity:0.6;">📍</span>
-                  <span style="font-size:14px; opacity:0.6;">👥</span>
-                  <span style="font-size:14px; opacity:0.6;">⚙</span>
+                <div style="display:flex; flex-direction:column; gap:12px; align-items:center; color:var(--text-muted);">
+                  <span style="padding:6px; border-radius:6px; background:rgba(78,159,134,0.15); border:1px solid rgba(78,159,134,0.3); color:var(--primary); display:grid; place-items:center;">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                  </span>
+                  <span style="opacity:0.6; display:grid; place-items:center;">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
+                  </span>
+                  <span style="opacity:0.6; display:grid; place-items:center;">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                  </span>
+                  <span style="opacity:0.6; display:grid; place-items:center;">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                  </span>
                 </div>
                 <div style="width:6px; height:6px; border-radius:3px; background:var(--primary);"></div>
               </div>
               <!-- Chat Stream -->
               <div style="flex:1; display:flex; flex-direction:column; justify-content:flex-end; gap:8px; padding:6px;">
                 <div style="align-self:flex-start; max-width:85%; background:var(--bubble-other); border:1px solid var(--bubble-other-border); padding:8px 12px; border-radius:12px 12px 12px 2px; font-size:11px; line-height:1.4;">
-                  The garden is peaceful today. 🌿
+                  The afternoon rain has cleared.
                 </div>
                 <div style="align-self:flex-end; max-width:85%; background:var(--bubble-me); color:var(--bubble-me-text); padding:8px 12px; border-radius:12px 12px 2px 12px; font-size:11px; font-weight:500; line-height:1.4;">
-                  Meeting you in five minutes. ✓✓
+                  Meeting you in five minutes.
                 </div>
               </div>
             </div>
@@ -1872,9 +1883,9 @@
               Haiku Messenger rethinks communication from the ground up. Both the web client and native Android app provide tactile navigation, thoughtful typography, and instant ephemeral delivery.
             </p>
             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;">
-              <span style="padding:6px 12px; border-radius:var(--radius-sm); background:var(--bg-panel); border:1px solid var(--border); font-size:12px; font-weight:500;">✦ Neon Lakebase Postgres</span>
-              <span style="padding:6px 12px; border-radius:var(--radius-sm); background:var(--bg-panel); border:1px solid var(--border); font-size:12px; font-weight:500;">✦ Firebase Cloud Messaging</span>
-              <span style="padding:6px 12px; border-radius:var(--radius-sm); background:var(--bg-panel); border:1px solid var(--border); font-size:12px; font-weight:500;">✦ Zero Telemetry</span>
+              <span style="padding:6px 12px; border-radius:var(--radius-sm); background:var(--bg-panel); border:1px solid var(--border); font-size:12px; font-weight:500;">Neon Lakebase Postgres</span>
+              <span style="padding:6px 12px; border-radius:var(--radius-sm); background:var(--bg-panel); border:1px solid var(--border); font-size:12px; font-weight:500;">Firebase Cloud Messaging</span>
+              <span style="padding:6px 12px; border-radius:var(--radius-sm); background:var(--bg-panel); border:1px solid var(--border); font-size:12px; font-weight:500;">Zero Telemetry</span>
             </div>
           </div>
         </div>
@@ -1883,32 +1894,40 @@
 
     <!-- Features Section -->
     <section class="feature-cards-grid" id="ephemeral">
-      <div class="haiku-feature-card">
-        <div class="feature-icon-badge">🌿</div>
-        <h3 style="font-size:17px; font-weight:600;">Sumi Spatial Design</h3>
+      <div class="haiku-feature-card antigravity-card">
+        <div class="feature-icon-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        </div>
+        <h3 style="font-size:17px; font-weight:600;">Spatial Architecture</h3>
         <p style="color:var(--text-muted); font-size:13px; line-height:1.6;">
           Deep sumi ink canvas layered with tranquil basalt containers and tactile micro-borders for distraction-free reading.
         </p>
       </div>
 
-      <div class="haiku-feature-card">
-        <div class="feature-icon-badge">⏱</div>
+      <div class="haiku-feature-card antigravity-card">
+        <div class="feature-icon-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 3"/></svg>
+        </div>
         <h3 style="font-size:17px; font-weight:600;">Ephemeral by Design</h3>
         <p style="color:var(--text-muted); font-size:13px; line-height:1.6;">
           Messages self-destruct gracefully on timers from 1 hour to 7 days. No persistent history, no permanent digital baggage.
         </p>
       </div>
 
-      <div class="haiku-feature-card">
-        <div class="feature-icon-badge">📍</div>
+      <div class="haiku-feature-card antigravity-card">
+        <div class="feature-icon-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3m0 12v3M3 12h3m12 0h3"/></svg>
+        </div>
         <h3 style="font-size:17px; font-weight:600;">Ambient Friend Radar</h3>
         <p style="color:var(--text-muted); font-size:13px; line-height:1.6;">
           Opt-in proximity map lets you share live location with mutual friends for a temporary 1-hour window.
         </p>
       </div>
 
-      <div class="haiku-feature-card">
-        <div class="feature-icon-badge">🔒</div>
+      <div class="haiku-feature-card antigravity-card">
+        <div class="feature-icon-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
         <h3 style="font-size:17px; font-weight:600;">Personal Sanctuary</h3>
         <p style="color:var(--text-muted); font-size:13px; line-height:1.6;">
           Zero surveillance algorithms, no third-party trackers, and no ad profiling. Thoughtful, peaceful conversations.
@@ -1918,7 +1937,7 @@
 
     <!-- Download Section -->
     <div style="padding:0 24px;">
-      <section class="download-section" id="download">
+      <section class="download-section antigravity-card" id="download">
         <div style="flex:1; min-width:280px;">
           <div class="haiku-badge" style="width:fit-content; margin-bottom:12px;">Get Started</div>
           <h2 style="font-family:var(--font-serif); font-size:28px; font-weight:400; letter-spacing:-0.01em; margin-bottom:10px;">Download for Android</h2>
@@ -1927,10 +1946,12 @@
           </p>
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
             <a id="cardDownloadApkBtn" class="btn-download-apk" href="https://github.com/musabj1917-oss/shh/releases/latest">
-              <span>⬇</span> Download APK
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Download APK
             </a>
             <button id="cardOpenWebBtn" class="btn-launch-web">
-              <span>Launch Web Client</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              Launch Web Client
             </button>
           </div>
         </div>
@@ -2016,7 +2037,9 @@
         <div class="search-box">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
           <input type="text" class="search-input" id="searchInput" placeholder="Search chats, people, or messages..." />
-          <button class="search-clear-btn" id="searchClearBtn">✕</button>
+          <button class="search-clear-btn" id="searchClearBtn">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
         </div>
       </div>
 
@@ -2107,7 +2130,9 @@
             </div>
           </div>
           <div class="chat-header-actions">
-            <button class="icon-action-btn" id="headerPushBtn" title="Enable Web Push Notifications" style="font-size:16px;">🔔</button>
+            <button class="icon-action-btn" id="headerPushBtn" title="Enable Web Push Notifications">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            </button>
             <button class="icon-action-btn" id="detailsToggleBtn" title="Details & Info">
               <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </button>
@@ -2126,33 +2151,35 @@
 
         <!-- Composer -->
         <div class="chat-composer-wrap">
-          <!-- Quick Emoji Picker Popover -->
+          <!-- Quick Phrases Popover (Zero Emojis) -->
           <div class="emoji-popover" id="emojiPopover" hidden>
-            <button class="emoji-pick-btn" data-emoji="🌿">🌿</button>
-            <button class="emoji-pick-btn" data-emoji="✨">✨</button>
-            <button class="emoji-pick-btn" data-emoji="❤️">❤️</button>
-            <button class="emoji-pick-btn" data-emoji="👍">👍</button>
-            <button class="emoji-pick-btn" data-emoji="😂">😂</button>
-            <button class="emoji-pick-btn" data-emoji="🔥">🔥</button>
-            <button class="emoji-pick-btn" data-emoji="🎉">🎉</button>
-            <button class="emoji-pick-btn" data-emoji="💯">💯</button>
-            <button class="emoji-pick-btn" data-emoji="🤝">🤝</button>
-            <button class="emoji-pick-btn" data-emoji="👀">👀</button>
-            <button class="emoji-pick-btn" data-emoji="🙌">🙌</button>
-            <button class="emoji-pick-btn" data-emoji="🚀">🚀</button>
+            <button class="emoji-pick-btn" data-emoji="Understood">Understood</button>
+            <button class="emoji-pick-btn" data-emoji="Noted">Noted</button>
+            <button class="emoji-pick-btn" data-emoji="Agreed">Agreed</button>
+            <button class="emoji-pick-btn" data-emoji="On it">On it</button>
+            <button class="emoji-pick-btn" data-emoji="Thank you">Thank you</button>
+            <button class="emoji-pick-btn" data-emoji="Sounds good">Sounds good</button>
+            <button class="emoji-pick-btn" data-emoji="On my way">On my way</button>
+            <button class="emoji-pick-btn" data-emoji="Will check">Will check</button>
           </div>
 
           <div class="reply-preview-bar" id="replyPreviewBar" style="display:none;">
             <div>
-              <span style="color:var(--primary); font-weight:800;" id="replyPreviewSender">Replying</span>: 
+              <span style="color:var(--primary); font-weight:700;" id="replyPreviewSender">Replying</span>: 
               <span id="replyPreviewText" style="color:var(--text-main);">...</span>
             </div>
-            <button style="background:transparent; color:var(--text-sub); font-size:16px;" id="cancelReplyBtn">✕</button>
+            <button style="background:transparent; color:var(--text-sub); display:grid; place-items:center;" id="cancelReplyBtn">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
           </div>
 
           <form class="composer-form" id="composerForm">
-            <button type="button" class="composer-btn" id="emojiBtn" title="Emoji">😊</button>
-            <button type="button" class="composer-btn" id="locationBtn" title="Share Location Pin">📍</button>
+            <button type="button" class="composer-btn" id="emojiBtn" title="Quick Responses">
+              <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            </button>
+            <button type="button" class="composer-btn" id="locationBtn" title="Share Location Pin">
+              <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><circle cx="12" cy="11" r="3"/></svg>
+            </button>
             <textarea class="composer-textarea" id="composerInput" placeholder="Write a calm message... (Enter to send, Shift+Enter for newline)" rows="1"></textarea>
             
             <div class="composer-actions">
@@ -2174,7 +2201,9 @@
       <aside class="details-drawer" id="detailsDrawer">
         <div class="details-header">
           <h3 style="font-size:16px; font-weight:800;">Conversation Details</h3>
-          <button class="icon-action-btn" id="closeDetailsBtn">✕</button>
+          <button class="icon-action-btn" id="closeDetailsBtn">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
         </div>
         <div class="details-content" id="detailsContent">
           <!-- Dynamic details content -->
@@ -2244,7 +2273,9 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3 class="modal-title">New Conversation</h3>
-        <button class="icon-action-btn" id="closeNewChatBtn">✕</button>
+        <button class="icon-action-btn" id="closeNewChatBtn">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
       </div>
       <div class="modal-body">
         <div class="search-box">
@@ -2263,7 +2294,9 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3 class="modal-title">Create New Group</h3>
-        <button class="icon-action-btn" id="closeGroupModalBtn">✕</button>
+        <button class="icon-action-btn" id="closeGroupModalBtn">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
       </div>
       <div class="modal-body">
         <form id="createGroupForm" style="display:flex; flex-direction:column; gap:14px;">
@@ -2286,7 +2319,9 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3 class="modal-title">Settings & Appearance</h3>
-        <button class="icon-action-btn" id="closeSettingsModalBtn">✕</button>
+        <button class="icon-action-btn" id="closeSettingsModalBtn">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -2799,7 +2834,7 @@
           })
         });
         saveAuth(res.accessToken || res.token, res.user);
-        showToast('Signed in successfully! 🌿');
+        showToast('Signed in successfully.');
         await handlePostAuth();
       } catch (err) {
         showErrorModal(err, () => el('loginForm').dispatchEvent(new Event('submit')));
@@ -2963,7 +2998,7 @@
       if (!STATE.messages.length) {
         container.innerHTML = `
           <div style="margin:auto; text-align:center; color:var(--text-sub); font-size:13px; line-height:1.6;">
-            No messages yet. Send a calm greeting! 🌿
+            No messages yet. Send a calm greeting to begin.
           </div>
         `;
         return;
@@ -2973,7 +3008,7 @@
         const isMe = m.sender_id === myId;
         const senderName = m.sender?.displayName || m.sender?.username || 'User';
         const time = formatTime(m.created_at);
-        const receipt = m.receipt_status === 'read' ? '✓✓' : (m.receipt_status === 'delivered' ? '✓✓' : '✓');
+        const receipt = m.receipt_status === 'read' ? 'Read' : (m.receipt_status === 'delivered' ? 'Delivered' : 'Sent');
         const receiptColor = m.receipt_status === 'read' ? 'var(--primary)' : 'inherit';
 
         let locationContent = '';
@@ -2987,13 +3022,15 @@
             locationContent = `
               <div class="msg-location-card" onclick="window.open('${mapsUrl}', '_blank')">
                 <div class="msg-location-header">
-                  <div class="msg-location-icon">📍</div>
+                  <div class="msg-location-icon">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><circle cx="12" cy="11" r="3"/></svg>
+                  </div>
                   <div>
                     <div class="msg-location-title">${esc(title)}</div>
                     <div class="msg-location-coords">${lat.toFixed(5)}, ${lng.toFixed(5)}</div>
                   </div>
                 </div>
-                <div class="msg-location-btn">Open in Google Maps ↗</div>
+                <div class="msg-location-btn">Open in Maps ↗</div>
               </div>
             `;
           } catch(e) {}
@@ -3016,14 +3053,22 @@
               <span>${esc(time)}</span>
               ${m.expires_at ? `<span class="msg-expiry-badge">Expiring</span>` : ''}
               ${m.edited_at ? '<span>(edited)</span>' : ''}
-              ${isMe ? `<span style="color:${esc(receiptColor)}; font-weight:700;">${esc(receipt)}</span>` : ''}
+              ${isMe ? `<span style="color:${esc(receiptColor)}; font-weight:600; font-size:9px;">${esc(receipt)}</span>` : ''}
             </div>
 
             <div class="msg-actions">
-              <button class="msg-action-btn" title="Reply" data-id="${esc(m.id)}" data-sender="${esc(senderName)}" data-body="${esc(m.body || '')}" onclick="startReply(this.dataset.id, this.dataset.sender, this.dataset.body)">↩</button>
-              <button class="msg-action-btn" title="Copy Text" data-body="${esc(m.body || '')}" onclick="copyMessageText(this.dataset.body)">📋</button>
-              ${isMe ? `<button class="msg-action-btn" title="Edit" data-id="${esc(m.id)}" data-body="${esc(m.body || '')}" onclick="editMessage(this.dataset.id, this.dataset.body)">✎</button>` : ''}
-              <button class="msg-action-btn" title="Delete" data-id="${esc(m.id)}" onclick="deleteMessage(this.dataset.id)">✕</button>
+              <button class="msg-action-btn" title="Reply" data-id="${esc(m.id)}" data-sender="${esc(senderName)}" data-body="${esc(m.body || '')}" onclick="startReply(this.dataset.id, this.dataset.sender, this.dataset.body)">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+              </button>
+              <button class="msg-action-btn" title="Copy Text" data-body="${esc(m.body || '')}" onclick="copyMessageText(this.dataset.body)">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              </button>
+              ${isMe ? `<button class="msg-action-btn" title="Edit" data-id="${esc(m.id)}" data-body="${esc(m.body || '')}" onclick="editMessage(this.dataset.id, this.dataset.body)">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              </button>` : ''}
+              <button class="msg-action-btn" title="Delete" data-id="${esc(m.id)}" onclick="deleteMessage(this.dataset.id)">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
             </div>
           </div>
         `;
@@ -3133,7 +3178,7 @@
     window.copyMessageText = (body) => {
       if (!body) return;
       navigator.clipboard?.writeText(body).then(() => {
-        showToast('Copied to clipboard! 📋');
+        showToast('Copied to clipboard.');
       }).catch(() => {
         showToast('Failed to copy');
       });
@@ -3149,7 +3194,7 @@
           body: JSON.stringify({ text: newText })
         });
         await loadMessages(STATE.activeConvId);
-        showToast('Message updated ✨');
+        showToast('Message updated.');
       } catch (err) {
         showToast(err.message);
       }
@@ -3252,7 +3297,7 @@
               </div>
               <div style="display:flex; gap:6px;">
                 <button class="btn-primary" style="height:32px; padding:0 12px; font-size:12px;" onclick="acceptFriendRequest('${esc(r.id)}')">Accept</button>
-                <button class="btn-secondary" style="height:32px; padding:0 10px; font-size:12px;" onclick="rejectFriendRequest('${esc(r.id)}')">✕</button>
+                <button class="btn-secondary" style="height:32px; padding:0 10px; font-size:12px;" onclick="rejectFriendRequest('${esc(r.id)}')">Dismiss</button>
               </div>
             </div>
           `).join('');
@@ -3284,7 +3329,7 @@
     window.acceptFriendRequest = async (requestId) => {
       try {
         await apiRequest(`/friends/requests/${requestId}/accept`, { method: 'POST' });
-        showToast('Friend request accepted! 🤝');
+        showToast('Friend request accepted.');
         loadFriends();
       } catch (err) { showToast(err.message); }
     };
@@ -3352,7 +3397,7 @@
         el('createGroupModal').hidden = true;
         el('groupNameInput').value = '';
         el('groupDescInput').value = '';
-        showToast('Group created! 🎉');
+        showToast('Group created.');
         await loadConversations();
         if (res.conversationId) selectConversation(res.conversationId);
       } catch (err) {
@@ -3505,13 +3550,13 @@
       try {
         const res = await fetch(`${STATE.apiUrl.replace(/\/$/, '')}/health`).then(r => r.json());
         statusEl.innerHTML = `
-          ✅ API Status: <strong>${esc(res.status)}</strong><br>
-          🐘 Neon DB: <strong style="color:${res.databaseConnected ? 'var(--primary)' : 'var(--danger)'}">
+          API Status: <strong>${esc(res.status)}</strong><br>
+          Neon DB: <strong style="color:${res.databaseConnected ? 'var(--primary)' : 'var(--danger)'}">
             ${res.databaseConnected ? 'Connected & Ready' : (res.databaseConfigured ? 'Configured (Idle)' : 'Not Configured')}
           </strong>
         `;
       } catch (err) {
-        statusEl.innerHTML = `<span style="color:var(--danger)">❌ API unreachable at this endpoint</span>`;
+        statusEl.innerHTML = `<span style="color:var(--danger)">API unreachable at this endpoint</span>`;
       }
     }
 
@@ -3605,13 +3650,13 @@
       if (!statusTitle || !toggleBtn) return;
 
       if (isSharing) {
-        statusTitle.innerHTML = '🟢 <span style="color:var(--primary);">Live Sharing Active</span>';
+        statusTitle.innerHTML = '<span class="status-dot online" style="display:inline-block; position:static; margin-right:6px; vertical-align:middle;"></span> <span style="color:var(--primary);">Live Sharing Active</span>';
         const minsLeft = Math.max(1, Math.round((new Date(STATE.selfLocation.expires_at).getTime() - Date.now()) / 60000));
         timerStatus.textContent = `${minsLeft}m remaining with mutual friends`;
         toggleBtn.textContent = 'Stop Sharing';
-        toggleBtn.style.background = 'rgba(239, 68, 68, 0.2)';
-        toggleBtn.style.color = '#ef4444';
-        toggleBtn.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+        toggleBtn.style.background = 'rgba(224, 108, 117, 0.2)';
+        toggleBtn.style.color = 'var(--danger)';
+        toggleBtn.style.borderColor = 'rgba(224, 108, 117, 0.4)';
       } else {
         statusTitle.textContent = 'Sharing: Off';
         timerStatus.textContent = 'Tap to share live with friends';
@@ -3642,7 +3687,9 @@
                   <div style="font-weight:700; font-size:13px; color:var(--text-main);">${esc(f.display_name || f.username)}</div>
                   <div style="font-size:10px; color:var(--text-sub); font-family:var(--font-mono);">${lat}, ${lng} · ${time}</div>
                 </div>
-                <span style="font-size:16px;">📍</span>
+                <span style="display:grid; place-items:center; color:var(--text-muted);">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><circle cx="12" cy="11" r="3"/></svg>
+                </span>
               </div>
             `;
           }).join('');
@@ -3707,7 +3754,7 @@
           await apiRequest('/location/live', { method: 'DELETE' });
           STATE.selfLocation = null;
           renderRadarUI();
-          showToast('Live location sharing stopped. 🔒');
+          showToast('Live location sharing stopped.');
         } catch (err) {
           showToast('Failed to stop location sharing');
         }
@@ -3735,7 +3782,7 @@
             });
             STATE.selfLocation = res.location;
             renderRadarUI();
-            showToast('Sharing live location with friends for 1 hour! 📍');
+            showToast('Sharing live location with friends for 1 hour.');
 
             // Periodic watch updates
             if (!STATE.liveLocationWatchId) {
@@ -3792,7 +3839,7 @@
           });
           await loadMessages(STATE.activeConvId);
           await loadConversations();
-          showToast('Location pin sent! 📍');
+          showToast('Location pin sent.');
         } catch (err) {
           showToast('Failed to send location pin.');
         }
@@ -3817,7 +3864,7 @@
       if (Notification.permission === 'granted') {
         if (el('headerPushBtn')) el('headerPushBtn').style.opacity = '0.35';
         if (el('settingsPushBtn')) {
-          el('settingsPushBtn').textContent = 'Enabled ✓';
+          el('settingsPushBtn').textContent = 'Enabled';
           el('settingsPushBtn').disabled = true;
         }
       }
@@ -3865,10 +3912,10 @@
             });
           }
         }
-        showToast('Push notifications enabled! 🔔', 'success');
+        showToast('Push notifications enabled.', 'success');
         if (el('headerPushBtn')) el('headerPushBtn').style.opacity = '0.35';
         if (el('settingsPushBtn')) {
-          el('settingsPushBtn').textContent = 'Enabled ✓';
+          el('settingsPushBtn').textContent = 'Enabled';
           el('settingsPushBtn').disabled = true;
         }
       } catch (err) {
@@ -3884,6 +3931,36 @@
     loadLatestApkInfo();
     initWebPush();
     checkAuth();
+  </script>
+  <script>
+    // Antigravity Spatial 3D Tilt Interaction
+    (function () {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+      }
+      var cards = document.querySelectorAll('.antigravity-card');
+      cards.forEach(function (card) {
+        var ticking = false;
+        card.addEventListener('mousemove', function (e) {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(function () {
+            var rect = card.getBoundingClientRect();
+            var x = e.clientX - rect.left;
+            var y = e.clientY - rect.top;
+            var centerX = rect.width / 2;
+            var centerY = rect.height / 2;
+            var rotateX = ((y - centerY) / centerY) * -5;
+            var rotateY = ((x - centerX) / centerX) * 5;
+            card.style.transform = 'perspective(1000px) rotateX(' + rotateX.toFixed(2) + 'deg) rotateY(' + rotateY.toFixed(2) + 'deg) translateY(-6px)';
+            ticking = false;
+          });
+        });
+        card.addEventListener('mouseleave', function () {
+          card.style.transform = '';
+        });
+      });
+    })();
   </script>
   <script>
     // Shows the Android download button once an APK has been published from the admin console.
