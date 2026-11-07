@@ -70,9 +70,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       // Attempt to change native launcher icon (dev/prod native builds only, skip in Expo Go)
       if (Platform.OS !== 'web' && newPref !== 'system') {
         const isExpoGo =
-          Constants.appOwnership === 'expo' ||
-          Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
-        if (!isExpoGo && typeof DynamicAppIcon.setAppIcon === 'function') {
+          Constants?.appOwnership === 'expo' ||
+          Constants?.executionEnvironment === ExecutionEnvironment?.StoreClient;
+        if (!isExpoGo && typeof DynamicAppIcon?.setAppIcon === 'function') {
           try {
             DynamicAppIcon.setAppIcon(newPref);
           } catch (iconErr) {
