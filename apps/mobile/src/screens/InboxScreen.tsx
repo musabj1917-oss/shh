@@ -14,6 +14,7 @@ type Conversation = {
   id: string;
   kind: 'direct' | 'group';
   title: string;
+  last_message_id?: string | null;
   last_message_text: string | null;
   last_message_type: string | null;
   last_message_at: string | null;

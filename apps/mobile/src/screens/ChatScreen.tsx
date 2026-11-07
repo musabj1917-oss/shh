@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Ably from 'ably';
 import {
   FlatList,
-  Image,
   KeyboardAvoidingView,
   Linking,
   Modal,
@@ -16,16 +15,19 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Image as ExpoImage } from 'expo-image';
 import type { RootStackParamList } from '../navigation/types';
 import { api, apiUrl, getSessionToken, messageForError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
-import { Avatar, ConfirmModal, ConfirmModalButton, EmptyState, Notice } from '../components/UI';
+import { Avatar, ConfirmModal, ConfirmModalButton, EmptyState } from '../components/UI';
 import { BackIcon, MapPinIcon, PaperclipIcon, SendIcon } from '../components/Icons';
 import { useTheme } from '../theme/ThemeContext';
 import { useImmersive } from '../system/immersive';
+import { ExpiringBubble, ExpiryCaption, fetchMediaUrl, MediaImage } from '../media';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Chat'>;
-type Message = {
+
+export type Message = {
   id: string;
   sender_id: string | null;
   message_type: 'text' | 'image' | 'video' | 'voice' | 'location';
@@ -34,9 +36,14 @@ type Message = {
   reply_to_id: string | null;
   created_at: string;
   edited_at: string | null;
+  expires_at?: string | null;
   receipt_status?: 'sent' | 'delivered' | 'read' | null;
   sender?: { username: string; displayName: string } | null;
+  width?: number;
+  height?: number;
+  duration?: number;
 };
+
 type ChannelSet = { realtime: Ably.Realtime; events: Ably.RealtimeChannel; ephemeral: Ably.RealtimeChannel };
 
 const timeLabel = (value: string) => new Date(value).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
@@ -47,10 +54,192 @@ const expiryOptions: { value: 1 | 24 | 168 | null; label: string }[] = [
   { value: 168, label: '7d' },
 ];
 
+interface MessageRowProps {
+  item: Message;
+  mine: boolean;
+  isExpiring: boolean;
+  kind: 'direct' | 'group';
+  colors: ReturnType<typeof useTheme>['colors'];
+  radii: ReturnType<typeof useTheme>['radii'];
+  onLongPress: (item: Message) => void;
+  onImagePress: (attachmentId: string) => void;
+  onVideoPress: (attachmentId: string) => void;
+  onExpired: (id: string) => void;
+}
+
+const MessageRow = memo(function MessageRow({
+  item,
+  mine,
+  isExpiring,
+  kind,
+  colors,
+  radii,
+  onLongPress,
+  onImagePress,
+  onVideoPress,
+  onExpired,
+}: MessageRowProps) {
+  const isMedia = Boolean(item.attachment_id) && item.message_type !== 'text';
+  const bubbleBg = mine ? colors.bubbleMe : colors.bubbleOther;
+  const bubbleTextColor = mine ? colors.bubbleMeText : colors.bubbleOtherText;
+
+  return (
+    <ExpiringBubble isExpiring={isExpiring} onExpired={() => onExpired(item.id)}>
+      <View style={{ width: '100%', alignItems: mine ? 'flex-end' : 'flex-start', paddingHorizontal: 14, marginBottom: 10 }}>
+        {kind === 'group' && !mine && item.sender?.displayName ? (
+          <Text style={{ fontSize: 11, color: colors.body, marginLeft: 8, marginBottom: 3 }}>
+            {item.sender.displayName}
+          </Text>
+        ) : null}
+
+        <Pressable
+          onLongPress={() => onLongPress(item)}
+          style={{
+            maxWidth: '84%',
+            paddingHorizontal: 14,
+            paddingVertical: 10,
+            borderRadius: radii.xl,
+            borderBottomRightRadius: mine ? 4 : radii.xl,
+            borderBottomLeftRadius: mine ? radii.xl : 4,
+            borderCurve: 'continuous',
+            backgroundColor: bubbleBg,
+            borderWidth: mine ? 0 : 1,
+            borderColor: colors.bubbleOtherBorder,
+            elevation: 2,
+          }}
+        >
+          {item.reply_to_id ? (
+            <Text
+              style={{
+                fontSize: 11,
+                fontWeight: '700',
+                color: mine ? colors.mintPale : colors.mintAccent,
+                marginBottom: 4,
+              }}
+            >
+              Quoted reply
+            </Text>
+          ) : null}
+
+          {isMedia && item.message_type === 'image' && item.attachment_id ? (
+            <MediaImage
+              attachmentId={item.attachment_id}
+              width={240}
+              height={item.height}
+              aspectRatio={item.width && item.height ? item.width / item.height : 4 / 3}
+              onPress={() => onImagePress(item.attachment_id!)}
+            />
+          ) : null}
+
+          {isMedia && item.message_type === 'video' && item.attachment_id ? (
+            <Pressable
+              onPress={() => onVideoPress(item.attachment_id!)}
+              style={{
+                width: 240,
+                height: 140,
+                backgroundColor: colors.card,
+                borderRadius: radii.md,
+                overflow: 'hidden',
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: colors.line,
+                marginVertical: 4,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 8,
+                  backgroundColor: 'rgba(0,0,0,0.65)',
+                  paddingHorizontal: 12,
+                  paddingVertical: 6,
+                  borderRadius: radii.pill,
+                }}
+              >
+                <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 13 }}>▶ Video</Text>
+                {item.duration ? (
+                  <View
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.2)',
+                      paddingHorizontal: 6,
+                      paddingVertical: 2,
+                      borderRadius: radii.sm,
+                    }}
+                  >
+                    <Text style={{ color: '#ffffff', fontSize: 11, fontWeight: '600' }}>
+                      {Math.floor(item.duration / 60)}:{(item.duration % 60).toString().padStart(2, '0')}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+            </Pressable>
+          ) : null}
+
+          {item.message_type === 'location' && item.body
+            ? (() => {
+                try {
+                  const loc = JSON.parse(item.body);
+                  const lat = Number(loc.latitude);
+                  const lng = Number(loc.longitude);
+                  return (
+                    <Pressable
+                      onPress={() => Linking.openURL(`https://www.google.com/maps?q=${lat},${lng}`)}
+                      style={{ padding: 10, backgroundColor: colors.mintPale, borderRadius: radii.md, marginVertical: 2 }}
+                    >
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <MapPinIcon size={18} color={colors.mint} />
+                        <View>
+                          <Text style={{ fontWeight: '700', fontSize: 13, color: colors.ink }}>
+                            {loc.title || 'Shared Location'}
+                          </Text>
+                          <Text style={{ fontSize: 11, color: colors.muted }}>
+                            {lat.toFixed(4)}, {lng.toFixed(4)}
+                          </Text>
+                        </View>
+                      </View>
+                      <Text style={{ fontSize: 11, color: colors.mint, fontWeight: '700', marginTop: 5 }}>
+                        Open in Maps
+                      </Text>
+                    </Pressable>
+                  );
+                } catch {
+                  return <Text style={{ color: bubbleTextColor }}>{item.body}</Text>;
+                }
+              })()
+            : null}
+
+          {item.message_type !== 'location' && item.body ? (
+            <Text style={{ fontSize: 14, lineHeight: 20, fontWeight: '400', color: bubbleTextColor }}>
+              {item.body}
+            </Text>
+          ) : null}
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 6, marginTop: 4 }}>
+            <ExpiryCaption expiresAt={item.expires_at} mine={mine} />
+            <Text
+              style={{
+                fontSize: 11,
+                fontWeight: '600',
+                color: mine ? 'rgba(244, 250, 247, 0.7)' : colors.muted,
+              }}
+            >
+              {timeLabel(item.created_at)}
+              {item.edited_at ? ' · edited' : ''}
+              {mine && item.receipt_status ? ` · ${item.receipt_status}` : ''}
+            </Text>
+          </View>
+        </Pressable>
+      </View>
+    </ExpiringBubble>
+  );
+});
+
 export function ChatScreen({ route, navigation }: Props) {
   const { conversationId, title, kind } = route.params;
   const { user } = useAuth();
-  const { colors, radii, controls } = useTheme();
+  const { colors, radii } = useTheme();
   const insets = useSafeAreaInsets();
   const { setImmersive } = useImmersive();
 
@@ -58,24 +247,23 @@ export function ChatScreen({ route, navigation }: Props) {
   const [viewerControls, setViewerControls] = useState(true);
 
   const [messages, setMessages] = useState<Message[]>([]);
+  const [expiringIds, setExpiringIds] = useState<Set<string>>(() => new Set());
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [loadingOlder, setLoadingOlder] = useState(false);
-  const [error, setError] = useState('');
+  const [, setError] = useState('');
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [realtimeStatus, setRealtimeStatus] = useState('Connecting…');
-  const [typing, setTyping] = useState(false);
+  const [, setTyping] = useState(false);
   const [, setTypingEnabled] = useState(false);
   const [, setPresenceEnabled] = useState(false);
   const [editingId, setEditingId] = useState('');
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
-  const [mediaUrls, setMediaUrls] = useState<Record<string, string>>({});
   const [expiresInHours, setExpiresInHours] = useState<1 | 24 | 168 | null>(null);
 
-  // Themed modal dialog state
   const [modalDialog, setModalDialog] = useState<{
     visible: boolean;
     title: string;
@@ -86,6 +274,7 @@ export function ChatScreen({ route, navigation }: Props) {
   const ephemeralRef = useRef<Ably.RealtimeChannel | null>(null);
   const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const remoteTypingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flatListRef = useRef<FlatList<Message>>(null);
 
   const load = useCallback(async () => {
     setError('');
@@ -163,6 +352,19 @@ export function ChatScreen({ route, navigation }: Props) {
         events.subscribe('message.created', () => {
           if (mounted) void load();
         });
+        events.subscribe('message.expired', (msg) => {
+          if (!mounted) return;
+          const data = msg.data as { conversationId?: string; messageIds?: string[] } | undefined;
+          if (!data || data.conversationId !== conversationId) return;
+          const ids = data.messageIds || [];
+          if (ids.length) {
+            setExpiringIds((prev) => {
+              const next = new Set(prev);
+              for (const id of ids) next.add(id);
+              return next;
+            });
+          }
+        });
         ephemeral.subscribe('typing', (message) => {
           if (message.clientId === user?.id) return;
           if (mounted) {
@@ -197,34 +399,33 @@ export function ChatScreen({ route, navigation }: Props) {
     }, [conversationId, load, user?.id, user?.displayName])
   );
 
-  useEffect(() => {
-    let active = true;
-    const missing = messages.filter(
-      (item) => item.attachment_id && !mediaUrls[item.attachment_id] && item.message_type !== 'voice'
-    );
-    if (missing.length) {
-      Promise.all(
-        missing.map(async (item) => {
-          try {
-            const result = await api<{ url: string }>(`/media/${item.attachment_id}`);
-            return [item.attachment_id!, result.url] as const;
-          } catch {
-            return null;
-          }
-        })
-      ).then((results) => {
-        if (!active) return;
-        setMediaUrls((prev) => {
-          const next = { ...prev };
-          for (const pair of results) if (pair) next[pair[0]] = pair[1];
-          return next;
-        });
-      });
+  const handleMessageExpired = useCallback((id: string) => {
+    setMessages((prev) => prev.filter((m) => m.id !== id));
+    setExpiringIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  }, []);
+
+  const handleImagePress = useCallback(async (attachmentId: string) => {
+    const cachedUrl = await fetchMediaUrl(attachmentId);
+    if (cachedUrl) {
+      setViewerImage(cachedUrl);
+      setViewerControls(true);
     }
-    return () => {
-      active = false;
-    };
-  }, [messages, mediaUrls]);
+  }, []);
+
+  const handleVideoPress = useCallback(async (attachmentId: string) => {
+    try {
+      const cachedUrl = await fetchMediaUrl(attachmentId);
+      if (cachedUrl) {
+        await Linking.openURL(cachedUrl);
+      }
+    } catch (e) {
+      setError(messageForError(e));
+    }
+  }, []);
 
   const send = async () => {
     const trimmed = text.trim();
@@ -364,7 +565,7 @@ export function ChatScreen({ route, navigation }: Props) {
     });
   };
 
-  const messageActions = (item: Message) => {
+  const messageActions = useCallback((item: Message) => {
     const own = item.sender_id === user?.id;
     const buttons: ConfirmModalButton[] = [
       {
@@ -454,152 +655,39 @@ export function ChatScreen({ route, navigation }: Props) {
       message: own ? 'Manage this message.' : 'Reply or remove this message from your view.',
       buttons,
     });
-  };
+  }, [conversationId, load, user?.id]);
 
-  const renderMessage = ({ item }: { item: Message }) => {
-    const mine = item.sender_id === user?.id;
-    const isMedia = Boolean(item.attachment_id) && item.message_type !== 'text';
-    const bubbleBg = mine ? colors.bubbleMe : colors.bubbleOther;
-    const bubbleTextColor = mine ? colors.bubbleMeText : colors.bubbleOtherText;
+  const renderItem = useCallback(
+    ({ item }: { item: Message }) => {
+      return (
+        <MessageRow
+          item={item}
+          mine={item.sender_id === user?.id}
+          isExpiring={expiringIds.has(item.id)}
+          kind={kind}
+          colors={colors}
+          radii={radii}
+          onLongPress={messageActions}
+          onImagePress={handleImagePress}
+          onVideoPress={handleVideoPress}
+          onExpired={handleMessageExpired}
+        />
+      );
+    },
+    [user?.id, expiringIds, kind, colors, radii, messageActions, handleImagePress, handleVideoPress, handleMessageExpired]
+  );
 
-    return (
-      <View style={{ width: '100%', alignItems: mine ? 'flex-end' : 'flex-start', paddingHorizontal: 14, marginBottom: 10 }}>
-        {kind === 'group' && !mine && item.sender?.displayName ? (
-          <Text style={{ fontSize: 11, color: colors.body, marginLeft: 8, marginBottom: 3 }}>
-            {item.sender.displayName}
-          </Text>
-        ) : null}
-        <Pressable
-          onLongPress={() => messageActions(item)}
-          style={{
-            maxWidth: '84%',
-            paddingHorizontal: 14,
-            paddingVertical: 10,
-            borderRadius: radii.xl,
-            borderBottomRightRadius: mine ? 4 : radii.xl,
-            borderBottomLeftRadius: mine ? radii.xl : 4,
-            borderCurve: 'continuous',
-            backgroundColor: bubbleBg,
-            borderWidth: mine ? 0 : 1,
-            borderColor: colors.bubbleOtherBorder,
-            elevation: 2,
-          }}
-        >
-          {item.reply_to_id ? (
-            <Text
-              style={{
-                fontSize: 11,
-                fontWeight: '700',
-                color: mine ? colors.mintPale : colors.mintAccent,
-                marginBottom: 4,
-              }}
-            >
-              Quoted reply
-            </Text>
-          ) : null}
+  const keyExtractor = useCallback((item: Message) => item.id, []);
 
-          {isMedia && item.message_type === 'image' ? (
-            mediaUrls[item.attachment_id!] ? (
-              <Pressable
-                onPress={() => {
-                  setViewerImage(mediaUrls[item.attachment_id!]);
-                  setViewerControls(true);
-                }}
-              >
-                <Image
-                  source={{ uri: mediaUrls[item.attachment_id!] }}
-                  style={{ width: 220, height: 190, borderRadius: radii.md, backgroundColor: colors.mintPale }}
-                  resizeMode="cover"
-                />
-              </Pressable>
-            ) : (
-              <View
-                style={{
-                  width: 210,
-                  height: 110,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: colors.mintPale,
-                  borderRadius: radii.md,
-                }}
-              >
-                <Text style={{ color: colors.mint, fontSize: 12 }}>Loading photo…</Text>
-              </View>
-            )
-          ) : null}
+  const flatListData = useMemo(() => {
+    return Platform.OS === 'web' ? messages : [...messages].reverse();
+  }, [messages]);
 
-          {isMedia && item.message_type === 'video' ? (
-            <Pressable
-              onPress={async () => {
-                try {
-                  const result = await api<{ url: string }>(`/media/${item.attachment_id}`);
-                  await Linking.openURL(result.url);
-                } catch (e) {
-                  setError(messageForError(e));
-                }
-              }}
-              style={{ padding: 13, backgroundColor: colors.mintPale, borderRadius: radii.md }}
-            >
-              <Text style={{ color: colors.mint, fontWeight: '700' }}>Open video</Text>
-            </Pressable>
-          ) : null}
-
-          {item.message_type === 'location' && item.body
-            ? (() => {
-                try {
-                  const loc = JSON.parse(item.body);
-                  const lat = Number(loc.latitude);
-                  const lng = Number(loc.longitude);
-                  return (
-                    <Pressable
-                      onPress={() => Linking.openURL(`https://www.google.com/maps?q=${lat},${lng}`)}
-                      style={{ padding: 10, backgroundColor: colors.mintPale, borderRadius: radii.md, marginVertical: 2 }}
-                    >
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        <MapPinIcon size={18} color={colors.mint} />
-                        <View>
-                          <Text style={{ fontWeight: '700', fontSize: 13, color: colors.ink }}>
-                            {loc.title || 'Shared Location'}
-                          </Text>
-                          <Text style={{ fontSize: 11, color: colors.muted }}>
-                            {lat.toFixed(4)}, {lng.toFixed(4)}
-                          </Text>
-                        </View>
-                      </View>
-                      <Text style={{ fontSize: 11, color: colors.mint, fontWeight: '700', marginTop: 5 }}>
-                        Open in Maps
-                      </Text>
-                    </Pressable>
-                  );
-                } catch {
-                  return <Text style={{ color: bubbleTextColor }}>{item.body}</Text>;
-                }
-              })()
-            : null}
-
-          {item.message_type !== 'location' && item.body ? (
-            <Text style={{ fontSize: 14, lineHeight: 20, fontWeight: '400', color: bubbleTextColor }}>
-              {item.body}
-            </Text>
-          ) : null}
-
-          <Text
-            style={{
-              textAlign: 'right',
-              fontSize: 11,
-              fontWeight: '600',
-              color: mine ? 'rgba(244, 250, 247, 0.7)' : colors.muted,
-              marginTop: 5,
-            }}
-          >
-            {timeLabel(item.created_at)}
-            {item.edited_at ? ' · edited' : ''}
-            {mine && item.receipt_status ? ` · ${item.receipt_status}` : ''}
-          </Text>
-        </Pressable>
-      </View>
-    );
-  };
+  useEffect(() => {
+    if (Platform.OS === 'web' && messages.length > 0) {
+      flatListRef.current?.scrollToEnd({ animated: false });
+    }
+  }, [messages.length]);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.canvas }}>
@@ -644,14 +732,14 @@ export function ChatScreen({ route, navigation }: Props) {
           <View
             style={{
               position: 'absolute',
-              bottom: 0,
-              right: 0,
-              width: 10,
-              height: 10,
-              borderRadius: 5,
+              bottom: -1,
+              right: -1,
+              width: 12,
+              height: 12,
+              borderRadius: 6,
               backgroundColor: realtimeStatus === 'Live' ? colors.mint : colors.muted,
-              borderWidth: 1.5,
-              borderColor: colors.canvas,
+              borderWidth: 2,
+              borderColor: colors.panel,
             }}
           />
         </View>
@@ -666,38 +754,28 @@ export function ChatScreen({ route, navigation }: Props) {
         <Pressable
           onPress={() => void load()}
           accessibilityRole="button"
-          accessibilityLabel="Refresh messages"
-          style={{
-            width: controls.heights.md,
-            height: controls.heights.md,
-            borderRadius: radii.md,
-            backgroundColor: colors.card,
-            borderWidth: 1,
-            borderColor: colors.line,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          accessibilityLabel="Refresh"
+          style={({ pressed }) => [
+            {
+              paddingHorizontal: 12,
+              paddingVertical: 7,
+              borderRadius: radii.sm,
+              backgroundColor: colors.card,
+              borderWidth: 1,
+              borderColor: colors.line,
+              opacity: pressed ? 0.75 : 1,
+            },
+          ]}
         >
-          <Text style={{ fontSize: 16, color: colors.mint }}>↻</Text>
+          <Text style={{ fontSize: 12, fontWeight: '700', color: colors.mint }}>Refresh</Text>
         </Pressable>
       </View>
 
-      {error ? (
-        <View style={{ paddingHorizontal: 12, paddingTop: 8 }}>
-          <Notice tone="error">{error}</Notice>
-        </View>
-      ) : null}
-
-      {typing ? (
-        <Text style={{ fontSize: 11, color: colors.muted, paddingHorizontal: 18, paddingTop: 7 }}>
-          {title} is composing…
-        </Text>
-      ) : null}
-
+      {/* Message List */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 6 : 0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
         {loading ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -707,69 +785,70 @@ export function ChatScreen({ route, navigation }: Props) {
           <EmptyState title="A fresh beginning." detail="Send a message to start this conversation." />
         ) : (
           <FlatList
-            inverted
-            data={[...messages].reverse()}
-            keyExtractor={(item) => item.id}
-            renderItem={renderMessage}
+            ref={flatListRef}
+            inverted={Platform.OS !== 'web'}
+            bounces={Platform.OS !== 'web'}
+            overScrollMode="never"
+            data={flatListData}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
             contentContainerStyle={{ paddingTop: 16, paddingBottom: 12 }}
             keyboardShouldPersistTaps="handled"
             onRefresh={() => {
               setRefreshing(true);
-              load();
+              void load();
             }}
             refreshing={refreshing}
-            onEndReached={() => {
-              void loadOlder();
-            }}
-            onEndReachedThreshold={0.35}
-            ListFooterComponent={
-              loadingOlder ? (
-                <Text style={{ textAlign: 'center', fontSize: 11, color: colors.muted, padding: 12 }}>
-                  Loading older messages…
-                </Text>
-              ) : undefined
-            }
+            onEndReached={loadOlder}
+            onEndReachedThreshold={0.2}
           />
         )}
 
-        {editingId ? (
-          <View style={{ paddingHorizontal: 14, paddingTop: 7, flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 11, color: colors.mint, fontWeight: '700' }}>Editing message</Text>
-            <Pressable
-              onPress={() => {
-                setEditingId('');
-                setText('');
-              }}
-            >
-              <Text style={{ fontSize: 11, color: colors.red, fontWeight: '700' }}>Cancel</Text>
-            </Pressable>
-          </View>
-        ) : replyingTo ? (
-          <View style={{ paddingHorizontal: 14, paddingTop: 7, flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text numberOfLines={1} style={{ fontSize: 11, color: colors.mint, fontWeight: '700', flex: 1 }}>
-              Replying to {replyingTo.sender_id === user?.id ? 'yourself' : replyingTo.sender?.displayName || title}
-            </Text>
-            <Pressable onPress={() => setReplyingTo(null)}>
-              <Text style={{ fontSize: 11, color: colors.red, fontWeight: '700' }}>Cancel</Text>
-            </Pressable>
-          </View>
-        ) : null}
-
-        {/* Composer Container */}
+        {/* Input Bar */}
         <View
           style={{
+            paddingBottom: Math.max(insets.bottom, 10),
+            paddingHorizontal: 14,
             paddingTop: 8,
-            paddingLeft: Math.max(insets.left, 10),
-            paddingRight: Math.max(insets.right, 10),
-            paddingBottom: Math.max(insets.bottom, Platform.OS === 'ios' ? 14 : 10),
-            backgroundColor: colors.canvas,
+            backgroundColor: colors.panel,
+            borderTopWidth: 1,
+            borderTopColor: colors.line,
           }}
         >
-          {!editingId ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 5, paddingBottom: 7 }}>
-              <Text style={{ fontSize: 11, fontWeight: '800', letterSpacing: 0.7, color: colors.muted }}>
-                DISAPPEARS
+          {replyingTo ? (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                marginBottom: 6,
+                backgroundColor: colors.mintWash,
+                borderRadius: radii.sm,
+              }}
+            >
+              <Text numberOfLines={1} style={{ fontSize: 12, color: colors.mint, flex: 1 }}>
+                Replying to: {replyingTo.body || 'Media'}
               </Text>
+              <Pressable onPress={() => setReplyingTo(null)} hitSlop={8}>
+                <Text style={{ fontSize: 13, color: colors.mint, fontWeight: '700', marginLeft: 8 }}>✕</Text>
+              </Pressable>
+            </View>
+          ) : null}
+
+          {/* Ephemeral Expiry Selector */}
+          {!editingId ? (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 6,
+                marginBottom: 8,
+                paddingHorizontal: 2,
+              }}
+            >
+              <Text style={{ fontSize: 11, fontWeight: '600', color: colors.muted }}>Self-destruct:</Text>
               {expiryOptions.map((option) => (
                 <Pressable
                   key={option.label}
@@ -918,7 +997,7 @@ export function ChatScreen({ route, navigation }: Props) {
         onDismiss={() => setModalDialog((d) => ({ ...d, visible: false }))}
       />
 
-      {/* Fullscreen Media Viewer with Immersive Tap-to-Toggle */}
+      {/* Fullscreen Media Viewer */}
       {viewerImage ? (
         <Modal
           visible={Boolean(viewerImage)}
@@ -939,10 +1018,10 @@ export function ChatScreen({ route, navigation }: Props) {
               });
             }}
           >
-            <Image
+            <ExpoImage
               source={{ uri: viewerImage }}
               style={{ width: '100%', height: '100%' }}
-              resizeMode="contain"
+              contentFit="contain"
             />
             {viewerControls ? (
               <View

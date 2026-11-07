@@ -85,7 +85,7 @@ conversationRoutes.get('/:conversationId/messages', async (c) => {
   const before = c.req.query('before');
   if (before && Number.isNaN(Date.parse(before))) return jsonError(c, 422, 'CURSOR_INVALID', 'Message cursor is invalid.');
   const cursor = before ? new Date(before).toISOString() : null;
-  const read = await getDb()`SELECT m.id,m.sender_id,m.message_type,m.body,m.attachment_id,m.reply_to_id,m.created_at,m.edited_at,
+  const read = await getDb()`SELECT m.id,m.sender_id,m.message_type,m.body,m.attachment_id,m.reply_to_id,m.created_at,m.edited_at,m.expires_at,
       CASE WHEN m.sender_id=${user.id} THEN (SELECT CASE
         WHEN count(*) FILTER(WHERE COALESCE(s.read_receipts_enabled,true))>0 AND bool_and(mr.read_at IS NOT NULL) FILTER(WHERE COALESCE(s.read_receipts_enabled,true)) THEN 'read'
         WHEN count(*)>0 AND bool_and(mr.delivered_at IS NOT NULL) THEN 'delivered' ELSE 'sent' END
