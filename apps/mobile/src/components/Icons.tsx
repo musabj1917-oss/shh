@@ -484,3 +484,43 @@ export function CheckIcon({ size = 18, color = '#4E9F86', style }: IconProps) {
   );
 }
 
+export function CameraIcon({ size = 22, color = '#E6EAE8', style }: IconProps) {
+  const stroke = Math.max(1.75, Math.round(size * 0.08));
+  return (
+    <View style={[{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }, style]}>
+      <View
+        style={{
+          width: size * 0.88,
+          height: size * 0.68,
+          borderRadius: Math.round(size * 0.2),
+          borderWidth: stroke,
+          borderColor: color,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <View
+          style={{
+            width: size * 0.32,
+            height: size * 0.32,
+            borderRadius: Math.round(size * 0.16),
+            borderWidth: stroke,
+            borderColor: color,
+          }}
+        />
+      </View>
+      <View
+        style={{
+          position: 'absolute',
+          top: size * 0.08,
+          width: size * 0.28,
+          height: stroke * 1.5,
+          backgroundColor: color,
+          borderRadius: stroke,
+        }}
+      />
+    </View>
+  );
+}
+
+

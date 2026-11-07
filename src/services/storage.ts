@@ -104,8 +104,9 @@ export function verifyMediaSignature(mediaType: string, mimeType: string, bytes:
     if (mime === 'image/jpeg' && starts(0xff,0xd8,0xff)) return true;
     if (mime === 'image/png' && starts(0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a)) return true;
     if (mime === 'image/webp' && String.fromCharCode(...b.slice(0,4)) === 'RIFF' && String.fromCharCode(...b.slice(8,12)) === 'WEBP') return true;
+    if ((mime === 'image/heic' || mime === 'image/heif') && String.fromCharCode(...b.slice(4,8)) === 'ftyp') return true;
   }
-  if (mediaType === 'video' && mime === 'video/mp4' && String.fromCharCode(...b.slice(4,8)) === 'ftyp') return true;
+  if (mediaType === 'video' && (mime === 'video/mp4' || mime === 'video/quicktime') && (String.fromCharCode(...b.slice(4,8)) === 'ftyp' || String.fromCharCode(...b.slice(4,8)) === 'moov' || String.fromCharCode(...b.slice(4,8)) === 'wide' || String.fromCharCode(...b.slice(4,8)) === 'mdat')) return true;
   if (mediaType === 'voice') {
     if (mime === 'audio/mp4' && String.fromCharCode(...b.slice(4,8)) === 'ftyp') return true;
     if (mime === 'audio/ogg' && String.fromCharCode(...b.slice(0,4)) === 'OggS') return true;

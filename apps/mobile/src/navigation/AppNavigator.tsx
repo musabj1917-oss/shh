@@ -23,7 +23,9 @@ import { PublicProfileScreen } from '../screens/PublicProfileScreen';
 import { JoinGroupScreen } from '../screens/JoinGroupScreen';
 import { takePendingInvite } from '../invites';
 import { BrandMark } from '../components/UI';
-import { ChatsIcon, MomentsIcon, PeopleIcon, SettingsIcon } from '../components/Icons';
+import { CameraIcon, ChatsIcon, MomentsIcon, PeopleIcon, SettingsIcon } from '../components/Icons';
+import { CameraScreen } from '../screens/CameraScreen';
+import { CameraPreviewScreen } from '../screens/CameraPreviewScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tabs = createBottomTabNavigator<MainTabParamList>();
@@ -35,6 +37,8 @@ const linking: LinkingOptions<RootStackParamList> = {
 
 function renderTabIcon(routeName: string, focused: boolean, color: string, size = 22) {
   switch (routeName) {
+    case 'Camera':
+      return <CameraIcon size={size} color={color} />;
     case 'Inbox':
       return <ChatsIcon size={size} color={color} />;
     case 'Stories':
@@ -248,6 +252,7 @@ function MainTabs() {
 
   return (
     <Tabs.Navigator
+      initialRouteName="Camera"
       tabBar={(props) => (isTablet ? <LeftNavRail {...props} /> : <BottomTabBar {...props} />)}
       screenOptions={{
         headerShown: false,
@@ -255,6 +260,7 @@ function MainTabs() {
         sceneStyle: { backgroundColor: colors.canvas },
       }}
     >
+      <Tabs.Screen name="Camera" component={CameraScreen} options={{ tabBarLabel: 'Camera' }} />
       <Tabs.Screen name="Inbox" component={InboxScreen} options={{ tabBarLabel: 'Chats' }} />
       <Tabs.Screen name="Stories" component={StoriesScreen} options={{ tabBarLabel: 'Moments' }} />
       <Tabs.Screen name="People" component={FriendsScreen} options={{ tabBarLabel: 'People' }} />
@@ -331,6 +337,11 @@ export function AppNavigator() {
         ) : (
           <>
             <Stack.Screen name="Main" component={MainTabs} />
+            <Stack.Screen
+              name="CameraPreview"
+              component={CameraPreviewScreen}
+              options={{ animation: 'fade' }}
+            />
             <Stack.Screen
               name="Chat"
               component={ChatScreen}

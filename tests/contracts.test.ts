@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { emailSchema,groupCreateSchema,locationPinSchema,locationUpdateSchema,meetsMinimumAge,passwordSchema,profilePatchSchema,pushTokenRegisterSchema,pushTokenUnregisterSchema,registerSchema,reportSchema,sendMessageSchema,usernameSchema } from '../packages/contracts/src/index.ts';
+import { emailSchema,groupCreateSchema,locationPinSchema,locationUpdateSchema,meetsMinimumAge,passwordSchema,profilePatchSchema,pushTokenRegisterSchema,pushTokenUnregisterSchema,registerSchema,reportSchema,sendMessageSchema,storyCreateSchema,usernameSchema } from '../packages/contracts/src/index.ts';
 
 test('13-year eligibility uses calendar dates and rejects invalid/future dates',()=>{
  const today=new Date('2026-06-15T12:00:00.000Z');
@@ -62,4 +62,10 @@ test('location contracts validate live coordinates and pins',()=>{
  assert.equal(locationPinSchema.safeParse({latitude:9.03,longitude:38.74,title:'Bole Medhanealem'}).success,true);
  assert.equal(locationPinSchema.safeParse({latitude:-45.1,longitude:12.3}).success,true);
  assert.equal(locationPinSchema.safeParse({latitude:100.0,longitude:0}).success,false);
+});
+
+test('story contracts validate attachmentId or mediaId and caption limits',()=>{
+ assert.equal(storyCreateSchema.safeParse({attachmentId:'78d82d70-3329-4515-ae20-4bfef3f7c4f2',mediaType:'image'}).success,true);
+ assert.equal(storyCreateSchema.safeParse({mediaId:'78d82d70-3329-4515-ae20-4bfef3f7c4f2',caption:'Hello world'}).success,true);
+ assert.equal(storyCreateSchema.safeParse({caption:'No media'}).success,false);
 });

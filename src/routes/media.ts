@@ -28,7 +28,7 @@ const uploadIntentSchema = z.object({
   if (value.purpose === 'story' && value.byteSize > 50 * 1024 * 1024) ctx.addIssue({ code:'custom', message:'Story media must be 50 MB or smaller.', path:['byteSize'] });
   if (value.mediaType === 'image' && value.byteSize > 10 * 1024 * 1024) ctx.addIssue({ code:'custom', message:'Images must be 10 MB or smaller.', path:['byteSize'] });
   if (value.mediaType === 'voice' && value.byteSize > 10 * 1024 * 1024) ctx.addIssue({ code:'custom', message:'Voice notes must be 10 MB or smaller.', path:['byteSize'] });
-  const allowed = value.mediaType === 'image' ? ['image/jpeg','image/png','image/webp'] : value.mediaType === 'video' ? ['video/mp4'] : ['audio/mp4','audio/ogg','audio/webm','audio/matroska','audio/mpeg'];
+  const allowed = value.mediaType === 'image' ? ['image/jpeg','image/png','image/webp','image/heic','image/heif'] : value.mediaType === 'video' ? ['video/mp4','video/quicktime'] : ['audio/mp4','audio/ogg','audio/webm','audio/matroska','audio/mpeg'];
   if (!allowed.includes(value.mimeType.toLowerCase().split(';')[0])) ctx.addIssue({ code:'custom', message:'This media format is not supported.', path:['mimeType'] });
 });
 
@@ -71,6 +71,65 @@ mediaRoutes.post('/upload-intents', async (c) => {
     const message = error instanceof Error ? error.message : '';
     if (message.startsWith('CONFIG_')) return jsonError(c, 503, message, 'Media storage is not configured.');
     return jsonError(c, 503, 'MEDIA_STORAGE_UNAVAILABLE', 'Upload could not be prepared.');
+  }
+});
+
+mediaRoutes.post('/upload-url', async (c) => {
+  const limited = await enforceRateLimit(c, 'media-upload-intent', 30, 600);
+  if (limited) return limited;
+  const user = c.get('user');
+  const body = await c.req.json().catch(() => ({}));
+  const purpose = body.purpose || 'message';
+  const mediaType = body.mediaType || (body.mimeType?.startsWith('video/') ? 'video' : 'image');
+  const mimeType = body.mimeType || (mediaType === 'video' ? 'video/mp4' : 'image/jpeg');
+  const byteSize = Number(body.byteSize || body.fileSize || 1024);
+  const conversationId = body.conversationId;
+  const groupId = body.groupId;
+
+  const parsed = uploadIntentSchema.safeParse({ purpose, mediaType, mimeType, byteSize, conversationId, groupId });
+  if (!parsed.success) {
+    return jsonError(c, 422, 'VALIDATION_FAILED', parsed.error.issues[0]?.message || 'Invalid upload parameters');
+  }
+  const input = parsed.data;
+  try {
+    if (getStorage().mode === 'local' && input.byteSize > 10 * 1024 * 1024) {
+      return jsonError(c, 413, 'LOCAL_MEDIA_LIMIT', 'Local development uploads are limited to 10 MB.');
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '';
+    return jsonError(c, 503, message.startsWith('CONFIG_') ? message : 'MEDIA_STORAGE_UNAVAILABLE', 'Media storage is not available.');
+  }
+
+  if (input.purpose === 'message' && !(await canUseConversation(user.id, input.conversationId!))) {
+    return jsonError(c, 403, 'MEDIA_NOT_ALLOWED', 'You cannot attach media to this conversation.');
+  }
+  if (input.purpose === 'group') {
+    const role = await getDb()`SELECT role FROM group_members WHERE group_id=${input.groupId!} AND user_id=${user.id} AND left_at IS NULL LIMIT 1`;
+    if (!role.length || !['owner', 'admin'].includes(String((role[0] as { role: string }).role))) {
+      return jsonError(c, 403, 'GROUP_ADMIN_REQUIRED', 'Only group admins can upload a group photo.');
+    }
+  }
+
+  try {
+    const id = randomUUID();
+    const objectKey = newObjectKey();
+    await getDb()`INSERT INTO attachments(id,owner_id,object_key,purpose,media_type,mime_type,byte_size,status)
+      VALUES (${id},${user.id},${objectKey},${input.purpose},${input.mediaType},${input.mimeType.toLowerCase().split(';')[0]},${input.byteSize},'pending')`;
+    const baseUrl = process.env.API_PUBLIC_URL || new URL(c.req.url).origin;
+    const plan = await getStorage().uploadPlan(objectKey, input.mimeType, input.byteSize, baseUrl, id);
+    return c.json({
+      attachmentId: id,
+      mediaId: id,
+      objectKey,
+      uploadUrl: plan.url,
+      method: plan.method,
+      headers: plan.headers,
+      mode: plan.mode,
+      upload: plan,
+    }, 201);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '';
+    return jsonError(c, 503, message.startsWith('CONFIG_') ? message : 'MEDIA_STORAGE_UNAVAILABLE', 'Upload could not be prepared.');
   }
 });
 

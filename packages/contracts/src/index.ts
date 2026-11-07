@@ -63,10 +63,13 @@ export const groupCreateSchema = z.object({
   memberIds: z.array(z.string().uuid()).max(99).default([]),
 }).strict();
 export const storyCreateSchema = z.object({
-  attachmentId: z.string().uuid(),
+  attachmentId: z.string().uuid().optional(),
+  mediaId: z.string().uuid().optional(),
   caption: z.string().trim().max(280).optional(),
-  mediaType: z.enum(['image', 'video']),
-}).strict();
+  mediaType: z.enum(['image', 'video']).optional(),
+}).refine((data) => data.attachmentId || data.mediaId, {
+  message: 'attachmentId or mediaId is required',
+});
 export const reportSchema = z.object({
   targetUserId: z.string().uuid().optional(),
   groupId: z.string().uuid().optional(),

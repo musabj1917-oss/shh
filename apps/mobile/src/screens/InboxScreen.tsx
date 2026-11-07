@@ -1,10 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { FlatList, Pressable, RefreshControl, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, ScrollView, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import NetInfo from '@react-native-community/netinfo';
 import { api, messageForError } from '../api/client';
+import { useAuth } from '../auth/AuthContext';
 import type { MainTabParamList, RootStackParamList } from '../navigation/types';
 import { Avatar, Button, EmptyState, Notice, Screen, SkeletonRow } from '../components/UI';
 import { BellIcon, PlusIcon, SearchIcon, PeopleIcon } from '../components/Icons';
@@ -21,6 +22,21 @@ type Conversation = {
   unread_count: number;
   member_count: number;
   avatar_object_key?: string | null;
+};
+
+type InboxStory = {
+  id: string;
+  user_id: string;
+  media_type: 'image' | 'video';
+  caption: string | null;
+  created_at: string;
+  expires_at: string;
+  attachment_id: string;
+  username: string;
+  display_name: string;
+  avatar_object_key?: string | null;
+  view_count?: number;
+  viewed?: boolean;
 };
 
 function formatRelativeTime(dateString: string | null): string {
@@ -44,9 +60,11 @@ function formatRelativeTime(dateString: string | null): string {
 export function InboxScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const tabs = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
+  const { user } = useAuth();
   const { colors, radii, controls } = useTheme();
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [stories, setStories] = useState<InboxStory[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
@@ -57,8 +75,12 @@ export function InboxScreen() {
   const load = useCallback(async () => {
     setError('');
     try {
-      const result = await api<{ conversations: Conversation[] }>('/conversations');
-      setConversations(result.conversations || []);
+      const [convRes, storyRes] = await Promise.all([
+        api<{ conversations: Conversation[] }>('/conversations'),
+        api<{ stories: InboxStory[] }>('/stories').catch(() => ({ stories: [] })),
+      ]);
+      setConversations(convRes.conversations || []);
+      setStories(storyRes.stories || []);
     } catch (e) {
       setError(messageForError(e));
     } finally {
@@ -76,6 +98,30 @@ export function InboxScreen() {
   );
 
   const unreadCount = useMemo(() => conversations.filter((c) => c.unread_count > 0).length, [conversations]);
+
+  const myStories = useMemo(() => {
+    return stories.filter((s) => s.user_id === user?.id);
+  }, [stories, user?.id]);
+
+  const friendStories = useMemo(() => {
+    const map = new Map<string, { userId: string; username: string; displayName: string; hasUnviewed: boolean; stories: InboxStory[] }>();
+    for (const story of stories) {
+      if (story.user_id === user?.id) continue;
+      if (!map.has(story.user_id)) {
+        map.set(story.user_id, {
+          userId: story.user_id,
+          username: story.username,
+          displayName: story.display_name,
+          hasUnviewed: false,
+          stories: [],
+        });
+      }
+      const entry = map.get(story.user_id)!;
+      entry.stories.push(story);
+      if (!story.viewed) entry.hasUnviewed = true;
+    }
+    return Array.from(map.values());
+  }, [stories, user?.id]);
 
   const filtered = useMemo(
     () =>
@@ -190,6 +236,96 @@ export function InboxScreen() {
           </Text>
         </Notice>
       ) : null}
+
+      {/* Stories Row */}
+      <View style={{ marginBottom: 16 }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: 14, paddingVertical: 4 }}
+        >
+          {/* Your Story */}
+          <Pressable
+            onPress={() => {
+              if (myStories.length > 0) {
+                navigation.navigate('StoryView', { stories: myStories });
+              } else {
+                tabs.navigate('Camera');
+              }
+            }}
+            style={{ alignItems: 'center', width: 68 }}
+            accessibilityLabel="Your Story"
+          >
+            <View
+              style={{
+                width: 60,
+                height: 60,
+                borderRadius: 30,
+                borderWidth: myStories.length > 0 ? 2.5 : 1.5,
+                borderColor: myStories.length > 0 ? colors.mint : colors.line,
+                borderStyle: myStories.length > 0 ? 'solid' : 'dashed',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+              }}
+            >
+              <Avatar name={user?.displayName || 'You'} size={50} />
+              {myStories.length === 0 ? (
+                <View
+                  style={{
+                    position: 'absolute',
+                    bottom: -2,
+                    right: -2,
+                    width: 20,
+                    height: 20,
+                    borderRadius: 10,
+                    backgroundColor: colors.mint,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderWidth: 2,
+                    borderColor: colors.canvas,
+                  }}
+                >
+                  <Text style={{ color: colors.mintContrast, fontSize: 13, fontWeight: '900', lineHeight: 15 }}>+</Text>
+                </View>
+              ) : null}
+            </View>
+            <Text numberOfLines={1} style={{ fontSize: 11, fontWeight: '600', color: colors.ink, marginTop: 5 }}>
+              Your story
+            </Text>
+          </Pressable>
+
+          {/* Friends' Stories */}
+          {friendStories.map((item) => {
+            const ringColor = item.hasUnviewed ? '#EAB308' : '#6B7280';
+            return (
+              <Pressable
+                key={item.userId}
+                onPress={() => navigation.navigate('StoryView', { userId: item.userId, stories: item.stories })}
+                style={{ alignItems: 'center', width: 68 }}
+                accessibilityLabel={`${item.displayName}'s story`}
+              >
+                <View
+                  style={{
+                    width: 60,
+                    height: 60,
+                    borderRadius: 30,
+                    borderWidth: 2.5,
+                    borderColor: ringColor,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Avatar name={item.displayName} size={50} />
+                </View>
+                <Text numberOfLines={1} style={{ fontSize: 11, fontWeight: '600', color: colors.ink, marginTop: 5 }}>
+                  {item.displayName}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      </View>
 
       {/* Modern Inset Search Bar */}
       <View

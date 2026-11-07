@@ -1,349 +1,575 @@
-import React, { useCallback, useState } from 'react';
-import { Image, Linking, Pressable, Text, TextInput, View } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Animated,
+  Dimensions,
+  FlatList,
+  Modal,
+  PanResponder,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { api, messageForError } from '../api/client';
-import { useAuth } from '../auth/AuthContext';
+import { Image as ExpoImage } from 'expo-image';
 import type { RootStackParamList } from '../navigation/types';
-import { Button, ConfirmModal, LoadingState, Notice } from '../components/UI';
+import { api, messageForError } from '../api/client';
+import { fetchMediaUrl } from '../media';
+import { useAuth } from '../auth/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
+import { Avatar, ConfirmModal, Notice } from '../components/UI';
 import { useImmersive } from '../system/immersive';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'StoryView'>;
-type Story = {
+
+export interface StoryItem {
   id: string;
   user_id: string;
   media_type: 'image' | 'video';
   caption: string | null;
+  created_at: string;
   expires_at: string;
   attachment_id: string;
-  display_name: string;
   username: string;
-};
-type Viewer = { id: string; username: string; display_name: string; viewed_at: string };
-
-interface ModalDialogState {
-  title: string;
-  message?: string;
-  buttons: Array<{
-    text: string;
-    style?: 'default' | 'cancel' | 'destructive' | 'primary';
-    onPress?: () => void;
-  }>;
+  display_name: string;
+  view_count?: number;
+  viewed?: boolean;
 }
 
+interface Viewer {
+  id: string;
+  username: string;
+  display_name: string;
+  viewed_at: string;
+}
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const STORY_DURATION = 5000; // 5 seconds per story
+
 export function StoryViewScreen({ route, navigation }: Props) {
-  const { storyId } = route.params;
+  const { storyId, userId, initialIndex = 0, stories: passedStories } = route.params || {};
   const { user } = useAuth();
-  const { colors, radii, typography, controls } = useTheme();
   const insets = useSafeAreaInsets();
+  const { colors, radii } = useTheme();
   const { setImmersive } = useImmersive();
 
-  const [story, setStory] = useState<Story | null>(null);
-  const [url, setUrl] = useState('');
-  const [viewers, setViewers] = useState<Viewer[]>([]);
-  const [text, setText] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
+  const [stories, setStories] = useState<StoryItem[]>(passedStories || []);
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [mediaUrls, setMediaUrls] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(!passedStories || passedStories.length === 0);
   const [error, setError] = useState('');
-  const [sent, setSent] = useState(false);
-  const [dialog, setDialog] = useState<ModalDialogState | null>(null);
-  const [showControls, setShowControls] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
+  const [viewers, setViewers] = useState<Viewer[]>([]);
+  const [showViewersSheet, setShowViewersSheet] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [busy, setBusy] = useState(false);
 
-  const load = useCallback(async () => {
-    setError('');
-    try {
-      const result = await api<{ story: Story }>(`/stories/${storyId}`);
-      setStory(result.story);
-      const media = await api<{ url: string }>(`/media/${result.story.attachment_id}`);
-      setUrl(media.url);
-      if (result.story.user_id === user?.id) {
-        const v = await api<{ viewers: Viewer[] }>(`/stories/${storyId}/viewers`);
-        setViewers(v.viewers || []);
+  const progressAnim = useRef(new Animated.Value(0)).current;
+  const animRef = useRef<Animated.CompositeAnimation | null>(null);
+
+  useEffect(() => {
+    void setImmersive(true);
+    return () => {
+      void setImmersive(false);
+    };
+  }, [setImmersive]);
+
+  // Load stories if not passed
+  useEffect(() => {
+    if (stories.length > 0) return;
+    void (async () => {
+      setLoading(true);
+      try {
+        if (userId) {
+          const res = await api<{ stories: StoryItem[] }>('/stories');
+          const userStories = (res.stories || []).filter((s) => s.user_id === userId);
+          setStories(userStories);
+        } else if (storyId) {
+          const res = await api<{ story: StoryItem }>(`/stories/${storyId}`);
+          setStories([res.story]);
+        }
+      } catch (e) {
+        setError(messageForError(e));
+      } finally {
+        setLoading(false);
       }
-    } catch (e) {
-      setError(messageForError(e));
-    } finally {
-      setLoading(false);
+    })();
+  }, [userId, storyId, stories.length]);
+
+  const currentStory = stories[currentIndex] as StoryItem | undefined;
+  const isMine = currentStory?.user_id === user?.id;
+
+  // Preload and fetch media URL for active story
+  useEffect(() => {
+    if (!currentStory?.attachment_id) return;
+    const attachId = currentStory.attachment_id;
+    if (mediaUrls[attachId]) return;
+
+    void (async () => {
+      const url = await fetchMediaUrl(attachId);
+      if (url) {
+        setMediaUrls((prev) => ({ ...prev, [attachId]: url }));
+      }
+    })();
+  }, [currentStory?.attachment_id, mediaUrls]);
+
+  // Mark story as viewed
+  useEffect(() => {
+    if (!currentStory?.id) return;
+    const id = currentStory.id;
+    if (currentStory.user_id !== user?.id) {
+      void api(`/stories/${id}/view`, { method: 'POST' }).catch(() => {});
+    } else {
+      // Load viewers list for own story
+      void api<{ viewers: Viewer[] }>(`/stories/${id}/viewers`)
+        .then((res) => setViewers(res.viewers || []))
+        .catch(() => {});
     }
-  }, [storyId, user?.id]);
+  }, [currentStory?.id, currentStory?.user_id, user?.id]);
 
-  useFocusEffect(
-    useCallback(() => {
-      void load();
-    }, [load])
-  );
+  // Handle segmented progress animation
+  const nextStory = useCallback(() => {
+    if (currentIndex < stories.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+    } else {
+      navigation.goBack();
+    }
+  }, [currentIndex, stories.length, navigation]);
 
-  const reply = async () => {
-    if (!text.trim() || !story) return;
+  const prevStory = useCallback(() => {
+    if (currentIndex > 0) {
+      setCurrentIndex((prev) => prev - 1);
+    } else {
+      progressAnim.setValue(0);
+    }
+  }, [currentIndex, progressAnim]);
+
+  useEffect(() => {
+    if (loading || !currentStory || isPaused || showViewersSheet || confirmDelete) {
+      animRef.current?.stop();
+      return;
+    }
+
+    progressAnim.setValue(0);
+    animRef.current = Animated.timing(progressAnim, {
+      toValue: 1,
+      duration: STORY_DURATION,
+      useNativeDriver: false,
+    });
+
+    animRef.current.start(({ finished }) => {
+      if (finished) {
+        nextStory();
+      }
+    });
+
+    return () => {
+      animRef.current?.stop();
+    };
+  }, [currentIndex, currentStory, loading, isPaused, showViewersSheet, confirmDelete, nextStory, progressAnim]);
+
+  // PanResponder to handle Swipe Down to close
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return gestureState.dy > 20 && Math.abs(gestureState.dx) < 30;
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 120) {
+          navigation.goBack();
+        }
+      },
+    })
+  ).current;
+
+  const deleteStory = useCallback(async () => {
+    if (!currentStory?.id) return;
     setBusy(true);
-    setError('');
     try {
-      await api(`/stories/${storyId}/replies`, { method: 'POST', body: JSON.stringify({ text: text.trim() }) });
-      setText('');
-      setSent(true);
+      await api(`/stories/${currentStory.id}`, { method: 'DELETE' });
+      setConfirmDelete(false);
+      const remaining = stories.filter((_, idx) => idx !== currentIndex);
+      if (remaining.length === 0) {
+        navigation.goBack();
+      } else {
+        setStories(remaining);
+        setCurrentIndex((prev) => Math.min(prev, remaining.length - 1));
+      }
     } catch (e) {
       setError(messageForError(e));
     } finally {
       setBusy(false);
     }
-  };
+  }, [currentStory?.id, stories, currentIndex, navigation]);
 
-  const remove = () => {
-    setDialog({
-      title: 'Delete this story?',
-      message: 'It will no longer be visible in Haiku Messenger.',
-      buttons: [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            setBusy(true);
-            try {
-              await api(`/stories/${storyId}`, { method: 'DELETE' });
-              navigation.goBack();
-            } catch (e) {
-              setError(messageForError(e));
-            } finally {
-              setBusy(false);
-            }
-          },
-        },
-      ],
-    });
-  };
-
-  const authorActions = () => {
-    setDialog({
-      title: story?.display_name || 'Story account',
-      message: 'Choose an action.',
-      buttons: [
-        {
-          text: 'Report account',
-          onPress: async () => {
-            try {
-              await api('/reports', {
-                method: 'POST',
-                body: JSON.stringify({
-                  targetUserId: story?.user_id,
-                  category: 'other',
-                  reason: 'Reported from a story.',
-                }),
-              });
-              setDialog({
-                title: 'Report submitted',
-                message: 'Thank you for helping keep Haiku Messenger safer.',
-                buttons: [{ text: 'OK', style: 'primary' }],
-              });
-            } catch (e) {
-              setError(messageForError(e));
-            }
-          },
-        },
-        {
-          text: 'Block account',
-          style: 'destructive',
-          onPress: () => {
-            setDialog({
-              title: 'Block this account?',
-              message: 'You will no longer see each other’s content or messages.',
-              buttons: [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                  text: 'Block',
-                  style: 'destructive',
-                  onPress: async () => {
-                    try {
-                      await api(`/friends/blocks/${story?.user_id}`, { method: 'POST' });
-                      navigation.goBack();
-                    } catch (e) {
-                      setError(messageForError(e));
-                    }
-                  },
-                },
-              ],
-            });
-          },
-        },
-        { text: 'Cancel', style: 'cancel' },
-      ],
-    });
-  };
-
-  if (loading) return <LoadingState message="Opening story…" />;
-  if (!story) {
+  if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', padding: 20, backgroundColor: colors.canvas }}>
-        {error ? <Notice tone="error">{error}</Notice> : null}
-        <Button title="Close" onPress={() => navigation.goBack()} />
+      <View style={[styles.container, styles.centered]}>
+        <ActivityIndicator size="large" color={colors.mint} />
       </View>
     );
   }
 
-  const own = story.user_id === user?.id;
+  if (error || !currentStory) {
+    return (
+      <View style={[styles.container, styles.centered, { padding: 24 }]}>
+        <Text style={{ color: '#ffffff', fontSize: 16, textAlign: 'center', marginBottom: 16 }}>
+          {error || 'Story no longer available.'}
+        </Text>
+        <Pressable onPress={() => navigation.goBack()} style={styles.closeButton}>
+          <Text style={{ color: '#ffffff', fontWeight: '700' }}>Close</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  const activeMediaUrl = mediaUrls[currentStory.attachment_id];
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: colors.canvas,
-        paddingTop: Math.max(insets.top, 16),
-        paddingBottom: Math.max(insets.bottom, 16),
-        paddingLeft: Math.max(insets.left, 16),
-        paddingRight: Math.max(insets.right, 16),
-      }}
-    >
-      {showControls ? (
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 12,
-          }}
-        >
-          <View>
-            <Text style={{ fontSize: typography.sizes.headline, fontWeight: '800', color: colors.ink }}>
-              {story.display_name}
+    <View style={styles.container} {...panResponder.panHandlers}>
+      {/* Background Media */}
+      {activeMediaUrl ? (
+        currentStory.media_type === 'video' ? (
+          <View style={[StyleSheet.absoluteFill, styles.centered, { backgroundColor: '#0B0F19' }]}>
+            <Text style={{ fontSize: 56 }}>▶</Text>
+            <Text style={{ color: '#ffffff', marginTop: 12, fontWeight: '700' }}>Video Story</Text>
+          </View>
+        ) : (
+          <ExpoImage
+            source={{ uri: activeMediaUrl, cacheKey: currentStory.attachment_id }}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+          />
+        )
+      ) : (
+        <View style={[StyleSheet.absoluteFill, styles.centered]}>
+          <ActivityIndicator color={colors.mint} />
+        </View>
+      )}
+
+      {/* Top Header Overlay */}
+      <View
+        style={[
+          styles.headerOverlay,
+          {
+            paddingTop: Math.max(insets.top, 14),
+            paddingLeft: Math.max(insets.left, 16),
+            paddingRight: Math.max(insets.right, 16),
+          },
+        ]}
+      >
+        {/* Segmented Progress Bars */}
+        <View style={styles.progressRow}>
+          {stories.map((s, idx) => {
+            let widthInterpolate: any = '0%';
+            if (idx < currentIndex) {
+              widthInterpolate = '100%';
+            } else if (idx === currentIndex) {
+              widthInterpolate = progressAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: ['0%', '100%'],
+              });
+            }
+
+            return (
+              <View key={s.id || idx} style={styles.progressTrack}>
+                <Animated.View
+                  style={[
+                    styles.progressBar,
+                    {
+                      width: widthInterpolate,
+                      backgroundColor: '#ffffff',
+                    },
+                  ]}
+                />
+              </View>
+            );
+          })}
+        </View>
+
+        {/* User Info & Close */}
+        <View style={styles.userRow}>
+          <Avatar name={currentStory.display_name} size={36} />
+          <View style={{ flex: 1, marginLeft: 10 }}>
+            <Text style={{ color: '#ffffff', fontWeight: '800', fontSize: 14 }}>
+              {currentStory.display_name}
             </Text>
-            <Text style={{ fontSize: typography.sizes.micro, color: colors.muted, marginTop: 3 }}>
-              @{story.username} · expires {new Date(story.expires_at).toLocaleString()}
+            <Text style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: 11 }}>
+              @{currentStory.username}
             </Text>
           </View>
-          {own ? (
+
+          {isMine ? (
             <Pressable
-              onPress={remove}
-              style={{ padding: 8, minHeight: controls.heights.sm, justifyContent: 'center' }}
+              onPress={() => setConfirmDelete(true)}
+              style={styles.headerActionBtn}
+              accessibilityLabel="Delete story"
             >
-              <Text style={{ fontSize: typography.sizes.micro, color: colors.red, fontWeight: '700' }}>Delete</Text>
+              <Text style={{ color: '#EF4444', fontWeight: '700', fontSize: 13 }}>Delete</Text>
             </Pressable>
-          ) : (
-            <Pressable
-              onPress={authorActions}
-              style={{ padding: 8, minHeight: controls.heights.sm, justifyContent: 'center' }}
-            >
-              <Text style={{ fontSize: 18, color: colors.muted, fontWeight: '700' }}>···</Text>
-            </Pressable>
-          )}
+          ) : null}
+
+          <Pressable
+            onPress={() => navigation.goBack()}
+            style={styles.closeHeaderBtn}
+            accessibilityLabel="Close story"
+          >
+            <Text style={{ color: '#ffffff', fontSize: 18, fontWeight: '700' }}>✕</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      {/* Caption if present */}
+      {currentStory.caption ? (
+        <View
+          style={[
+            styles.captionOverlay,
+            {
+              paddingBottom: Math.max(insets.bottom, 24) + (isMine ? 50 : 16),
+              paddingHorizontal: 20,
+            },
+          ]}
+        >
+          <Text style={styles.captionText}>{currentStory.caption}</Text>
         </View>
       ) : null}
 
-      {error ? <Notice tone="error">{error}</Notice> : null}
+      {/* Touch Targets: Tap Left (Prev), Tap Right (Next), Hold (Pause) */}
+      <View style={styles.touchContainer} pointerEvents="box-none">
+        <Pressable
+          style={styles.touchSide}
+          onPress={prevStory}
+          onPressIn={() => setIsPaused(true)}
+          onPressOut={() => setIsPaused(false)}
+        />
+        <Pressable
+          style={styles.touchSide}
+          onPress={nextStory}
+          onPressIn={() => setIsPaused(true)}
+          onPressOut={() => setIsPaused(false)}
+        />
+      </View>
 
-      <Pressable
-        onPress={() => {
-          setShowControls((prev) => {
-            const next = !prev;
-            void setImmersive(!next);
-            return next;
-          });
-        }}
-        style={{
-          flex: 1,
-          backgroundColor: colors.card,
-          borderRadius: radii.xxl,
-          borderWidth: 1,
-          borderColor: colors.line,
-          overflow: 'hidden',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        {story.media_type === 'image' && url ? (
-          <Image source={{ uri: url }} resizeMode="contain" style={{ width: '100%', height: '100%' }} />
-        ) : story.media_type === 'video' ? (
-          <Button
-            title="▶  Play video"
-            onPress={() => (url ? Linking.openURL(url) : setError('Video is not available.'))}
-            kind="secondary"
-          />
-        ) : (
-          <Text style={{ fontSize: typography.sizes.caption, color: colors.muted }}>Loading media…</Text>
-        )}
-        {story.caption ? (
-          <View
-            style={{
-              position: 'absolute',
-              bottom: 12,
-              left: 12,
-              right: 12,
-              padding: 12,
-              borderRadius: radii.md,
-              backgroundColor: colors.scrim,
-              borderWidth: 1,
-              borderColor: colors.line,
-            }}
+      {/* Bottom Viewers Bar for own story */}
+      {isMine ? (
+        <View
+          style={[
+            styles.viewersBar,
+            {
+              paddingBottom: Math.max(insets.bottom, 14),
+            },
+          ]}
+        >
+          <Pressable
+            onPress={() => setShowViewersSheet(true)}
+            style={styles.viewersPill}
           >
-            <Text style={{ color: colors.ink, fontSize: typography.sizes.sub, lineHeight: 19 }}>
-              {story.caption}
+            <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 13 }}>
+              👁️ {viewers.length} viewer{viewers.length === 1 ? '' : 's'}
             </Text>
-          </View>
-        ) : null}
-      </Pressable>
+          </Pressable>
+        </View>
+      ) : null}
 
-      {showControls ? (
-        own ? (
-          <View style={{ marginTop: 12 }}>
-            <Text
-              style={{
-                fontSize: typography.sizes.micro,
-                fontWeight: '800',
-                color: colors.mint,
-                marginBottom: 7,
-              }}
-            >
-              VIEWED BY {viewers.length}
-            </Text>
-            <Text numberOfLines={1} style={{ fontSize: typography.sizes.micro, color: colors.muted }}>
-              {viewers.slice(0, 6).map((item) => item.display_name).join(' · ') || 'No views yet'}
-            </Text>
-          </View>
-        ) : (
-          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 12 }}>
-            {sent ? (
-              <Text style={{ flex: 1, color: colors.mint, fontSize: typography.sizes.micro }}>Reply sent.</Text>
+      {/* Viewers Sheet Modal */}
+      <Modal
+        visible={showViewersSheet}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowViewersSheet(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View
+            style={[
+              styles.viewersSheet,
+              {
+                paddingBottom: Math.max(insets.bottom, 20),
+                backgroundColor: colors.panelSolid,
+              },
+            ]}
+          >
+            <View style={styles.viewersHeader}>
+              <Text style={{ color: colors.ink, fontWeight: '800', fontSize: 17 }}>
+                Story Viewers ({viewers.length})
+              </Text>
+              <Pressable onPress={() => setShowViewersSheet(false)} hitSlop={12}>
+                <Text style={{ color: colors.muted, fontSize: 16, fontWeight: '700' }}>Done</Text>
+              </Pressable>
+            </View>
+
+            {viewers.length === 0 ? (
+              <View style={{ padding: 32, alignItems: 'center' }}>
+                <Text style={{ color: colors.muted, fontSize: 14 }}>No views yet.</Text>
+              </View>
             ) : (
-              <TextInput
-                value={text}
-                onChangeText={setText}
-                placeholder="Reply to this story…"
-                placeholderTextColor={colors.muted}
-                style={{
-                  flex: 1,
-                  minHeight: controls.heights.md,
-                  borderRadius: radii.lg,
-                  backgroundColor: colors.inputBg,
-                  borderWidth: 1,
-                  borderColor: colors.line,
-                  paddingHorizontal: 13,
-                  color: colors.ink,
-                  fontSize: typography.sizes.caption,
-                }}
+              <FlatList
+                data={viewers}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <View style={[styles.viewerItem, { borderBottomColor: colors.line }]}>
+                    <Avatar name={item.display_name} size={36} />
+                    <View style={{ marginLeft: 12, flex: 1 }}>
+                      <Text style={{ color: colors.ink, fontWeight: '700', fontSize: 14 }}>
+                        {item.display_name}
+                      </Text>
+                      <Text style={{ color: colors.muted, fontSize: 11 }}>@{item.username}</Text>
+                    </View>
+                    <Text style={{ color: colors.muted, fontSize: 11 }}>
+                      {new Date(item.viewed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </Text>
+                  </View>
+                )}
               />
             )}
-            <Button title="Send" onPress={reply} loading={busy} disabled={!text.trim()} small />
           </View>
-        )
-      ) : null}
+        </View>
+      </Modal>
 
-      {/* Themed Dialog Modal */}
-      {dialog ? (
-        <ConfirmModal
-          visible={Boolean(dialog)}
-          title={dialog.title}
-          message={dialog.message}
-          buttons={dialog.buttons.map((b) => ({
-            ...b,
-            onPress: () => {
-              setDialog(null);
-              b.onPress?.();
-            },
-          }))}
-          onDismiss={() => setDialog(null)}
-        />
-      ) : null}
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        visible={confirmDelete}
+        title="Delete this story?"
+        message="This will remove your story permanently for all viewers."
+        buttons={[
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: deleteStory,
+          },
+        ]}
+        onDismiss={() => setConfirmDelete(false)}
+      />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000000',
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    paddingBottom: 12,
+  },
+  progressRow: {
+    flexDirection: 'row',
+    gap: 4,
+    marginBottom: 10,
+  },
+  progressTrack: {
+    flex: 1,
+    height: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 1.5,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+  },
+  userRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerActionBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 14,
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    marginRight: 8,
+  },
+  closeHeaderBtn: {
+    padding: 6,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  closeButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 18,
+  },
+  captionOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 5,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    paddingTop: 16,
+  },
+  captionText: {
+    color: '#ffffff',
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  touchContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flexDirection: 'row',
+    zIndex: 4,
+  },
+  touchSide: {
+    flex: 1,
+  },
+  viewersBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  viewersPill: {
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  viewersSheet: {
+    maxHeight: '60%',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 16,
+  },
+  viewersHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 14,
+  },
+  viewerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+});

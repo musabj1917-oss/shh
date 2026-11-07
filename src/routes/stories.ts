@@ -31,7 +31,11 @@ storyRoutes.post('/',async(c)=>{
   const limited=await enforceRateLimit(c,'story-create',20,86400);if(limited)return limited;
   const user=c.get('user');
   const parsed=await parseJson(c,storyCreateSchema);if('response' in parsed)return parsed.response;
-  const {attachmentId,caption,mediaType}=parsed.data;
+  const attachmentId = parsed.data.attachmentId || parsed.data.mediaId!;
+  const caption = parsed.data.caption;
+  const targetAttachment = await getDb()`SELECT media_type FROM attachments WHERE id=${attachmentId} AND owner_id=${user.id} AND status='ready' LIMIT 1`;
+  if (!targetAttachment.length) return jsonError(c,422,'STORY_MEDIA_INVALID','Upload a valid photo or video before posting.');
+  const mediaType = parsed.data.mediaType || String((targetAttachment[0] as {media_type:string}).media_type);
   const id=randomUUID();
   const rows=await getDb()`WITH ready AS (
       UPDATE attachments SET expires_at=now()+interval '24 hours'
@@ -42,6 +46,18 @@ storyRoutes.post('/',async(c)=>{
       RETURNING id,user_id,media_type,caption,created_at,expires_at,attachment_id`;
   if(!rows.length)return jsonError(c,422,'STORY_MEDIA_INVALID','Upload a valid photo or video before posting.');
   return c.json({story:rows[0]},201);
+});
+
+storyRoutes.post('/:storyId/view', async (c) => {
+  const user = c.get('user');
+  const storyId = c.req.param('storyId');
+  const story = await getDb()`SELECT user_id FROM stories WHERE id=${storyId} AND deleted_at IS NULL AND expires_at>now() LIMIT 1`;
+  if (!story.length) return jsonError(c, 404, 'STORY_NOT_FOUND', 'This story is no longer available.');
+  const ownerId = String((story[0] as { user_id: string }).user_id);
+  if (ownerId !== user.id) {
+    await getDb()`INSERT INTO story_views(story_id,viewer_id) VALUES (${storyId},${user.id}) ON CONFLICT(story_id,viewer_id) DO UPDATE SET viewed_at=now()`;
+  }
+  return c.json({ status: 'viewed' });
 });
 
 storyRoutes.get('/:storyId',async(c)=>{
