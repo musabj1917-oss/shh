@@ -76,12 +76,44 @@ export const reportSchema = z.object({
   evidenceAttachmentId: z.string().uuid().optional(),
 }).strict().refine((value) => Boolean(value.targetUserId || value.groupId || value.messageId), 'Select something to report.');
 
-export const messageKindSchema = z.enum(['text', 'image', 'video', 'voice']);
+export const pushTokenRegisterSchema = z.object({
+  token: z.string().trim().min(10).max(4096),
+  platform: z.enum(['android', 'ios', 'web']).default('android'),
+}).strict();
+
+export const pushTokenUnregisterSchema = z.object({
+  token: z.string().trim().min(10).max(4096),
+}).strict();
+
+export const locationUpdateSchema = z.object({
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  accuracy: z.number().nonnegative().optional(),
+  heading: z.number().min(0).max(360).optional(),
+  speed: z.number().nonnegative().optional(),
+  sharingMode: z.enum(['off', 'friends', 'live_chat']).default('friends'),
+  conversationId: z.string().uuid().optional(),
+  durationMinutes: z.number().int().min(5).max(1440).default(60),
+}).strict();
+
+export const locationPinSchema = z.object({
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  accuracy: z.number().nonnegative().optional(),
+  title: z.string().trim().max(120).optional(),
+  address: z.string().trim().max(250).optional(),
+}).strict();
+
+export const messageKindSchema = z.enum(['text', 'image', 'video', 'voice', 'location']);
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ProfilePatchInput = z.infer<typeof profilePatchSchema>;
 export type SendMessageInput = z.infer<typeof sendMessageSchema>;
 export type MessageKind = z.infer<typeof messageKindSchema>;
+export type PushTokenRegisterInput = z.infer<typeof pushTokenRegisterSchema>;
+export type PushTokenUnregisterInput = z.infer<typeof pushTokenUnregisterSchema>;
+export type LocationUpdateInput = z.infer<typeof locationUpdateSchema>;
+export type LocationPinInput = z.infer<typeof locationPinSchema>;
 export interface UserFriendlyError {
   title: string;
   message: string;

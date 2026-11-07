@@ -3,9 +3,9 @@ let isInitialized = false;
 export async function initFirebaseAdmin(): Promise<boolean> {
   if (isInitialized) return true;
 
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  const projectId = process.env.FIREBASE_PROJECT_ID || process.env.FCM_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL || process.env.FCM_CLIENT_EMAIL;
+  const privateKey = (process.env.FIREBASE_PRIVATE_KEY || process.env.FCM_PRIVATE_KEY)?.replace(/\\n/g, '\n');
 
   if (projectId && clientEmail && privateKey) {
     try {
@@ -87,9 +87,9 @@ export async function verifyFirebaseToken(idToken: string): Promise<{
 export async function sendFcmNotification(
   registrationTokens: string[],
   payload: { title: string; body: string; data?: Record<string, string> }
-): Promise<{ successCount: number; failureCount: number }> {
+): Promise<{ successCount: number; failureCount: number; invalidTokens: string[] }> {
   if (registrationTokens.length === 0 || !(await initFirebaseAdmin())) {
-    return { successCount: 0, failureCount: 0 };
+    return { successCount: 0, failureCount: 0, invalidTokens: [] };
   }
 
   try {
@@ -103,12 +103,28 @@ export async function sendFcmNotification(
       },
       data: payload.data,
     });
+
+    const invalidTokens: string[] = [];
+    response.responses.forEach((resp, idx) => {
+      if (!resp.success && resp.error) {
+        const code = resp.error.code;
+        if (
+          code === 'messaging/registration-token-not-registered' ||
+          code === 'messaging/invalid-registration-token' ||
+          code === 'messaging/invalid-argument'
+        ) {
+          invalidTokens.push(registrationTokens[idx]);
+        }
+      }
+    });
+
     return {
       successCount: response.successCount,
       failureCount: response.failureCount,
+      invalidTokens,
     };
   } catch (err) {
     console.error('[Firebase FCM] Push notification dispatch failed:', err);
-    return { successCount: 0, failureCount: registrationTokens.length };
+    return { successCount: 0, failureCount: registrationTokens.length, invalidTokens: [] };
   }
 }

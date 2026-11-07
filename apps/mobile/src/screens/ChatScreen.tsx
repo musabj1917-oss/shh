@@ -11,7 +11,7 @@ import {Avatar,EmptyState,Notice} from '../components/UI';
 import {colors} from '../theme/colors';
 
 type Props=NativeStackScreenProps<RootStackParamList,'Chat'>;
-type Message={id:string;sender_id:string|null;message_type:'text'|'image'|'video'|'voice';body:string|null;attachment_id:string|null;reply_to_id:string|null;created_at:string;edited_at:string|null;receipt_status?:'sent'|'delivered'|'read'|null;sender?:{username:string;displayName:string}|null};
+type Message={id:string;sender_id:string|null;message_type:'text'|'image'|'video'|'voice'|'location';body:string|null;attachment_id:string|null;reply_to_id:string|null;created_at:string;edited_at:string|null;receipt_status?:'sent'|'delivered'|'read'|null;sender?:{username:string;displayName:string}|null};
 type ChannelSet={realtime:Ably.Realtime;events:Ably.RealtimeChannel;ephemeral:Ably.RealtimeChannel};
 const timeLabel=(value:string)=>new Date(value).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
 const expiryOptions:{value:1|24|168|null;label:string}[]=[{value:null,label:'Off'},{value:1,label:'1h'},{value:24,label:'24h'},{value:168,label:'7d'}];
@@ -87,6 +87,26 @@ export function ChatScreen({route,navigation}:Props){
    await load();
   }catch(e){setError(messageForError(e));}finally{setUploading(false);}
  };
+ const sendLocation=async()=>{
+  Alert.alert('Share Location Pin','Would you like to share your location pin in this chat?',[
+   {text:'Cancel',style:'cancel'},
+   {text:'Share Current Pin',onPress:async()=>{
+    try{
+     if(typeof navigator!=='undefined'&&navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(async(pos)=>{
+       try{
+        await api('/location/pin',{method:'POST',body:JSON.stringify({conversationId,latitude:pos.coords.latitude,longitude:pos.coords.longitude,accuracy:pos.coords.accuracy,title:'Current Location'})});
+        await load();
+       }catch(e){setError(messageForError(e));}
+      },()=>setError('Location access was denied.'));
+     } else {
+      await api('/location/pin',{method:'POST',body:JSON.stringify({conversationId,latitude:9.03,longitude:38.74,title:'Pinned Location'})});
+      await load();
+     }
+    }catch(e){setError(messageForError(e));}
+   }}
+  ]);
+ };
  const messageActions=(item:Message)=>{
   const own=item.sender_id===user?.id;
   const options:any[]=[{text:'Reply',onPress:()=>{setReplyingTo(item);setEditingId('');}}];
@@ -123,7 +143,24 @@ export function ChatScreen({route,navigation}:Props){
     {item.reply_to_id?<Text style={{fontSize:10,fontWeight:'700',color:mine?colors.mintContrast:colors.mintAccent,marginBottom:4}}>↪ Quoted reply</Text>:null}
     {isMedia&&item.message_type==='image'?mediaUrls[item.attachment_id!]?<Image source={{uri:mediaUrls[item.attachment_id!]}} style={{width:220,height:190,borderRadius:12,backgroundColor:colors.mintPale}} resizeMode="cover"/>:<View style={{width:210,height:110,alignItems:'center',justifyContent:'center',backgroundColor:mine?colors.mintDark:colors.mintPale,borderRadius:10}}><Text style={{color:mine?colors.mintContrast:colors.mint,fontSize:12}}>Loading photo…</Text></View>:null}
     {isMedia&&item.message_type==='video'?<Pressable onPress={async()=>{try{const result=await api<{url:string}>(`/media/${item.attachment_id}`);await Linking.openURL(result.url);}catch(e){setError(messageForError(e));}}} style={{padding:13,backgroundColor:mine?colors.mintDark:colors.mintPale,borderRadius:10}}><Text style={{color:mine?colors.mintContrast:colors.mintDark,fontWeight:'700'}}>▶  Open video</Text></Pressable>:null}
-    {item.body?<Text style={{fontSize:14,lineHeight:20,fontWeight:mine?'600':'400',color:mine?colors.mintContrast:colors.ink}}>{item.body}</Text>:null}
+    {item.message_type==='location'&&item.body?(()=>{
+      try {
+        const loc = JSON.parse(item.body);
+        const lat = Number(loc.latitude);
+        const lng = Number(loc.longitude);
+        return <Pressable onPress={()=>Linking.openURL(`https://www.google.com/maps?q=${lat},${lng}`)} style={{padding:10,backgroundColor:mine?colors.mintDark:colors.mintPale,borderRadius:12,marginVertical:2}}>
+          <View style={{flexDirection:'row',alignItems:'center',gap:8}}>
+            <Text style={{fontSize:18}}>📍</Text>
+            <View>
+              <Text style={{fontWeight:'700',fontSize:13,color:mine?colors.mintContrast:colors.mintDark}}>{loc.title||'Shared Location'}</Text>
+              <Text style={{fontSize:10,color:mine?colors.mintContrast:colors.muted}}>{lat.toFixed(4)}, {lng.toFixed(4)}</Text>
+            </View>
+          </View>
+          <Text style={{fontSize:10,color:mine?colors.mintContrast:colors.mint,fontWeight:'700',marginTop:5}}>Open in Maps ↗</Text>
+        </Pressable>;
+      } catch { return <Text style={{color:mine?colors.mintContrast:colors.ink}}>{item.body}</Text>; }
+    })():null}
+    {item.message_type!=='location'&&item.body?<Text style={{fontSize:14,lineHeight:20,fontWeight:mine?'600':'400',color:mine?colors.mintContrast:colors.ink}}>{item.body}</Text>:null}
     <Text style={{textAlign:'right',fontSize:9,fontWeight:'600',color:mine?'rgba(7,18,10,0.65)':colors.muted,marginTop:5}}>
       {timeLabel(item.created_at)}{item.edited_at?' · edited':''}{mine&&item.receipt_status?` · ${item.receipt_status==='read'?'✓✓ Seen':item.receipt_status==='delivered'?'✓✓':'✓'}`:''}
     </Text>
@@ -158,6 +195,7 @@ export function ChatScreen({route,navigation}:Props){
     {!editingId?<View style={{flexDirection:'row',alignItems:'center',gap:6,paddingHorizontal:5,paddingBottom:7}}><Text style={{fontSize:8,fontWeight:'800',letterSpacing:.7,color:colors.muted}}>DISAPPEARS</Text>{expiryOptions.map(option=><Pressable key={option.label} onPress={()=>setExpiresInHours(option.value)} accessibilityRole="button" accessibilityState={{selected:expiresInHours===option.value}} accessibilityLabel={option.value===null?'Messages do not expire':`Messages expire after ${option.label}`} style={{paddingVertical:4,paddingHorizontal:8,borderRadius:9,borderWidth:1,borderColor:expiresInHours===option.value?colors.mint:colors.line,backgroundColor:expiresInHours===option.value?colors.mint:colors.card}}><Text style={{fontSize:9,fontWeight:'700',color:expiresInHours===option.value?colors.mintContrast:colors.muted}}>{option.label}</Text></Pressable>)}<Text numberOfLines={2} style={{fontSize:9,color:colors.muted,marginLeft:2,flexShrink:1}}>{expiresInHours===null?'Text & photos stay; video & voice clear after 10m':`Clears after ${expiresInHours===168?'7d':`${expiresInHours}h`}`}</Text></View>:null}
     <View style={{minHeight:52,flexDirection:'row',alignItems:'flex-end',gap:8,paddingHorizontal:10,paddingVertical:7,borderWidth:1,borderColor:colors.line,borderRadius:20,backgroundColor:'rgba(14, 22, 17, 0.95)'}}>
      <Pressable onPress={uploading?undefined:uploadMedia} accessibilityRole="button" accessibilityLabel="Attach photo or video" style={{width:36,height:36,borderRadius:12,backgroundColor:colors.mintPale,borderWidth:1,borderColor:colors.line,alignItems:'center',justifyContent:'center'}}><Text style={{fontSize:20,color:colors.mint}}>{uploading?'…':'＋'}</Text></Pressable>
+     <Pressable onPress={sendLocation} accessibilityRole="button" accessibilityLabel="Share location pin" style={{width:36,height:36,borderRadius:12,backgroundColor:colors.mintPale,borderWidth:1,borderColor:colors.line,alignItems:'center',justifyContent:'center'}}><Text style={{fontSize:16}}>📍</Text></Pressable>
      <TextInput value={text} onChangeText={onChangeText} placeholder={editingId?'Edit your message…':'Write a thoughtful message…'} placeholderTextColor={colors.muted} multiline style={{flex:1,maxHeight:110,minHeight:36,paddingVertical:8,color:colors.ink,fontSize:14}} editable={!uploading}/>
      <Pressable onPress={send} disabled={!text.trim()||sending||uploading} accessibilityRole="button" accessibilityLabel={editingId?'Save edit':'Send message'} style={{width:38,height:38,borderRadius:14,alignItems:'center',justifyContent:'center',backgroundColor:text.trim()?colors.mint:'rgba(163,230,53,0.12)'}}><Text style={{fontSize:16,fontWeight:'800',color:text.trim()?colors.mintContrast:colors.muted}}>↑</Text></Pressable>
     </View>

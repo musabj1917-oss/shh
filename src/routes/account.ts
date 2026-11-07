@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { Hono } from 'hono';
+import { z } from 'zod';
 import { getDb } from '../db.js';
 import { jsonError } from '../http.js';
 import { requireUser } from '../middleware/auth.js';
@@ -79,3 +80,36 @@ accountRoutes.get('/export',async(c)=>{
       ORDER BY created_at DESC LIMIT 2000` : [];
   return c.json({exportedAt:new Date().toISOString(),profile:profile[0]||null,friends,settings:settings[0]||null,conversations,messages,scope:'This limited export includes your profile, friend list, settings, and your own unexpired messages only. It excludes media bytes and messages authored by others.'});
 });
+
+const pushTokenSchema = z.object({
+  token: z.string().trim().min(10).max(4096),
+  platform: z.enum(['android', 'ios', 'web']).default('android'),
+});
+
+accountRoutes.get('/push-tokens', async (c) => {
+  const user = c.get('user');
+  const rows = await getDb()`SELECT id, platform, created_at, updated_at FROM device_push_tokens WHERE user_id = ${user.id} ORDER BY updated_at DESC`;
+  return c.json({ tokens: rows });
+});
+
+accountRoutes.post('/push-tokens', async (c) => {
+  const user = c.get('user');
+  const body = await c.req.json().catch(() => null);
+  const parsed = pushTokenSchema.safeParse(body);
+  if (!parsed.success) return jsonError(c, 400, 'INVALID_INPUT', 'Valid push token and platform required.', parsed.error.flatten());
+  const id = randomUUID();
+  await getDb()`INSERT INTO device_push_tokens (id, user_id, platform, token, created_at, updated_at)
+    VALUES (${id}, ${user.id}, ${parsed.data.platform}, ${parsed.data.token}, now(), now())
+    ON CONFLICT (user_id, token) DO UPDATE SET updated_at = now(), platform = EXCLUDED.platform`;
+  return c.json({ status: 'registered' }, 201);
+});
+
+accountRoutes.delete('/push-tokens', async (c) => {
+  const user = c.get('user');
+  const body = await c.req.json().catch(() => null);
+  const token = typeof body?.token === 'string' ? body.token : c.req.query('token');
+  if (!token) return jsonError(c, 400, 'INVALID_INPUT', 'Push token required.');
+  await getDb()`DELETE FROM device_push_tokens WHERE user_id = ${user.id} AND token = ${token}`;
+  return c.json({ status: 'unregistered' });
+});
+

@@ -36,3 +36,8 @@ export async function publishUserEvent(userId: string, name: string, data: Recor
   const client = getRest();
   await client.channels.get(`haiku:user:${userId}`).publish(name, data);
 }
+
+export async function publishConversationEvent(conversationId: string, name: string, data: Record<string, unknown>) {
+  const client = getRest();
+  await client.channels.get(`haiku:conversation:${conversationId}:events`).publish(name, data);
+}

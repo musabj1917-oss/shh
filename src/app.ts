@@ -16,6 +16,7 @@ import { appPublicRoutes } from './routes/app-releases.js';
 import { brandAssets } from './brand-assets.js';
 import { internalRoutes } from './routes/internal.js';
 import { releaseRoutes } from './routes/releases.js';
+import { locationRoutes } from './routes/location.js';
 import { getDb, dbReady } from './db.js';
 import { getWebUiHtml } from './web-ui.js';
 import type { ApiEnv } from './types.js';
@@ -92,6 +93,7 @@ app.route('/v1/admin',adminRoutes);
 app.route('/v1/internal',internalRoutes);
 app.route('/v1/app',appPublicRoutes);
 app.route('/v1/releases',releaseRoutes);
+app.route('/v1/location',locationRoutes);
 
 app.notFound((c)=>c.json({error:{code:'NOT_FOUND',message:'Endpoint not found.'}},404));
 app.onError((error,c)=>{

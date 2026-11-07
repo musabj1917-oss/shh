@@ -1443,7 +1443,7 @@
       }
     }
 
-    /* === GOOGLE STITCH LANDING PAGE === */
+    /* === HAIKU LANDING PAGE === */
     .landing-page {
       position: fixed;
       inset: 0;
@@ -1668,11 +1668,123 @@
         transition-duration: 0.01ms !important;
       }
     }
+    /* Location & Radar Map Styling */
+    .msg-location-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: rgba(12, 24, 18, 0.85);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-top: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .msg-location-card:hover {
+      background: rgba(22, 38, 28, 0.95);
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+    .msg-location-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .msg-location-icon {
+      font-size: 20px;
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(163, 230, 53, 0.15);
+      border: 1px solid rgba(163, 230, 53, 0.3);
+    }
+    .msg-location-title {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text-main);
+    }
+    .msg-location-coords {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+    .msg-location-btn {
+      font-size: 11px;
+      color: var(--primary);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .radar-status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: rgba(20, 32, 25, 0.75);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+    #radarMapContainer {
+      height: 280px;
+      width: 100%;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: #08120c;
+      position: relative;
+      margin-bottom: 14px;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+    }
+    .radar-friend-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 8px;
+    }
+    .radar-friend-item:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--primary);
+      transform: translateX(2px);
+    }
+    .leaflet-tile {
+      filter: brightness(0.65) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+    }
+    .leaflet-container {
+      background: #070d0a !important;
+    }
+    .leaflet-popup-content-wrapper {
+      background: rgba(14, 22, 17, 0.95) !important;
+      color: #f4fbf7 !important;
+      border: 1px solid rgba(163, 230, 53, 0.3) !important;
+      backdrop-filter: blur(12px) !important;
+      border-radius: 12px !important;
+    }
+    .leaflet-popup-tip {
+      background: rgba(14, 22, 17, 0.95) !important;
+    }
   </style>
   <link rel="stylesheet" href="/app.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 </head>
 <body>
-  <!-- GOOGLE STITCH LANDING PAGE -->
+  <!-- HAIKU LANDING PAGE -->
   <div class="landing-page" id="landingPage">
     <!-- Landing Navigation -->
     <header class="landing-nav">
@@ -1774,7 +1886,7 @@
     <section class="feature-cards-grid" id="ephemeral">
       <div class="stitch-feature-card">
         <div class="feature-icon-badge">🌿</div>
-        <h3 style="font-size:18px; font-weight:800;">Stitch Architecture</h3>
+        <h3 style="font-size:18px; font-weight:800;">Spatial Architecture</h3>
         <p style="color:var(--text-muted); font-size:13px; line-height:1.6;">
           Deep obsidian velvet canvas (`#070D0A`) layered with translucent glass panels and luminous 1px stitch seams for weightless interaction.
         </p>
@@ -1880,6 +1992,9 @@
         <button class="rail-btn" data-rail-tab="groups" title="Groups">
           <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
         </button>
+        <button class="rail-btn" data-rail-tab="radar" title="Friend Radar (Live Location)">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v3m0 12v3M3 12h3m12 0h3"/></svg>
+        </button>
         <button class="rail-btn" data-rail-tab="settings" title="Settings">
           <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         </button>
@@ -1941,6 +2056,27 @@
           <!-- Rendered dynamically -->
         </div>
       </div>
+
+      <!-- View 4: Radar / Live Location Pane -->
+      <div class="sidebar-view-pane" id="radarPane" hidden>
+        <div class="radar-status-bar">
+          <div>
+            <div id="radarSharingStatus" style="font-weight:700; color:var(--text-main);">Sharing: Off</div>
+            <div id="radarTimerStatus" style="color:var(--text-muted); font-size:11px;">Share with mutual friends</div>
+          </div>
+          <button class="btn-primary" id="toggleLiveShareBtn" style="height:30px; padding:0 12px; font-size:11px;">Share (1h)</button>
+        </div>
+        <div id="radarMapContainer"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 8px 10px;">
+          <span style="font-size:12px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">Friends on Radar</span>
+          <button class="btn-secondary" style="height:26px; padding:0 8px; font-size:10px;" id="refreshRadarBtn">↻ Refresh</button>
+        </div>
+        <div id="radarFriendsContainer">
+          <div style="text-align:center; padding:20px; color:var(--text-sub); font-size:12px;">
+            No friends sharing live location right now.
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- 3. MAIN CHAT PANE -->
@@ -1972,6 +2108,7 @@
             </div>
           </div>
           <div class="chat-header-actions">
+            <button class="icon-action-btn" id="headerPushBtn" title="Enable Web Push Notifications" style="font-size:16px;">🔔</button>
             <button class="icon-action-btn" id="detailsToggleBtn" title="Details & Info">
               <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </button>
@@ -2016,6 +2153,7 @@
 
           <form class="composer-form" id="composerForm">
             <button type="button" class="composer-btn" id="emojiBtn" title="Emoji">😊</button>
+            <button type="button" class="composer-btn" id="locationBtn" title="Share Location Pin">📍</button>
             <textarea class="composer-textarea" id="composerInput" placeholder="Write a calm message... (Enter to send, Shift+Enter for newline)" rows="1"></textarea>
             
             <div class="composer-actions">
@@ -2165,6 +2303,13 @@
           <label class="form-label">Haiku API Endpoint</label>
           <input type="text" class="form-input" id="settingsApiUrl" placeholder="https://api.yourdomain.com/v1" />
         </div>
+        <div style="background:var(--bg-card); padding:14px; border-radius:var(--radius-sm); border:1px solid var(--border); font-size:12px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-weight:800; color:var(--text-main); font-size:13px;">Web Push Notifications</div>
+            <div style="color:var(--text-muted); font-size:11px; margin-top:2px;" id="pushStatusNote">Instant alerts when app is closed</div>
+          </div>
+          <button type="button" class="btn-primary" id="settingsPushBtn" style="height:32px; padding:0 14px; font-size:11px;">Enable Push</button>
+        </div>
         <div style="background:var(--bg-card); padding:14px; border-radius:var(--radius-sm); border:1px solid var(--border); font-size:12px;">
           <div style="font-weight:800; margin-bottom:6px; color:var(--text-main); font-size:13px;">Neon PostgreSQL & Server Status</div>
           <div id="settingsServerStatus" style="color:var(--text-muted); line-height:1.6;">Checking status...</div>
@@ -2268,7 +2413,12 @@
       activeTab: 'chats',
       pollTimer: null,
       isLoadingConvs: false,
-      isLoadingMessages: false
+      isLoadingMessages: false,
+      radarMap: null,
+      radarMarkersGroup: null,
+      liveLocationWatchId: null,
+      selfLocation: null,
+      radarFriends: []
     };
 
     const el = (id) => document.getElementById(id);
@@ -2827,6 +2977,29 @@
         const receipt = m.receipt_status === 'read' ? '✓✓' : (m.receipt_status === 'delivered' ? '✓✓' : '✓');
         const receiptColor = m.receipt_status === 'read' ? 'var(--primary)' : 'inherit';
 
+        let locationContent = '';
+        if (m.message_type === 'location' && m.body) {
+          try {
+            const loc = JSON.parse(m.body);
+            const lat = Number(loc.latitude);
+            const lng = Number(loc.longitude);
+            const title = loc.title || 'Location Pin';
+            const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+            locationContent = `
+              <div class="msg-location-card" onclick="window.open('${mapsUrl}', '_blank')">
+                <div class="msg-location-header">
+                  <div class="msg-location-icon">📍</div>
+                  <div>
+                    <div class="msg-location-title">${esc(title)}</div>
+                    <div class="msg-location-coords">${lat.toFixed(5)}, ${lng.toFixed(5)}</div>
+                  </div>
+                </div>
+                <div class="msg-location-btn">Open in Google Maps ↗</div>
+              </div>
+            `;
+          } catch(e) {}
+        }
+
         return `
           <div class="message-row ${isMe ? 'me' : 'other'}" data-msg-id="${esc(m.id)}">
             ${!isMe ? `<div class="msg-sender">${esc(senderName)}</div>` : ''}
@@ -2837,7 +3010,7 @@
                   <strong>${esc(m.reply_to.sender?.displayName || 'User')}:</strong> ${esc(m.reply_to.body || '')}
                 </div>
               ` : ''}
-              ${m.body ? `<div>${esc(m.body)}</div>` : ''}
+              ${m.message_type === 'location' ? locationContent : (m.body ? `<div>${esc(m.body)}</div>` : '')}
             </div>
 
             <div class="msg-meta">
@@ -3037,6 +3210,7 @@
         el('convListPane').hidden = tab !== 'chats';
         el('friendsPane').hidden = tab !== 'friends';
         el('groupsPane').hidden = tab !== 'groups';
+        el('radarPane').hidden = tab !== 'radar';
         el('filterTabs').style.display = tab === 'chats' ? 'flex' : 'none';
 
         if (tab === 'chats') {
@@ -3048,6 +3222,9 @@
         } else if (tab === 'groups') {
           el('sidebarTitle').textContent = 'Groups';
           loadGroups();
+        } else if (tab === 'radar') {
+          el('sidebarTitle').textContent = 'Friend Radar';
+          loadRadar();
         }
       });
     });
@@ -3384,8 +3561,329 @@
       el('brandLogo').addEventListener('click', showLandingPage);
     }
 
+    // === FRIEND RADAR & LIVE LOCATION ===
+    function initRadarMap() {
+      if (typeof L === 'undefined') return;
+      const mapEl = el('radarMapContainer');
+      if (!mapEl || STATE.radarMap) return;
+
+      STATE.radarMap = L.map('radarMapContainer', { zoomControl: false }).setView([9.03, 38.74], 13);
+      L.control.zoom({ position: 'bottomright' }).addTo(STATE.radarMap);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+      }).addTo(STATE.radarMap);
+
+      STATE.radarMarkersGroup = L.layerGroup().addTo(STATE.radarMap);
+    }
+
+    async function loadRadar() {
+      initRadarMap();
+      if (STATE.radarMap) {
+        setTimeout(() => STATE.radarMap.invalidateSize(), 200);
+      }
+
+      try {
+        const [selfRes, friendsRes] = await Promise.all([
+          apiRequest('/location/self').catch(() => ({ location: null })),
+          apiRequest('/location/friends').catch(() => ({ friends: [] }))
+        ]);
+
+        STATE.selfLocation = selfRes.location;
+        STATE.radarFriends = friendsRes.friends || [];
+        renderRadarUI();
+      } catch (err) {
+        console.error('Failed to load radar data', err);
+      }
+    }
+
+    function renderRadarUI() {
+      const isSharing = STATE.selfLocation && STATE.selfLocation.sharing_mode !== 'off' && (!STATE.selfLocation.expires_at || new Date(STATE.selfLocation.expires_at) > new Date());
+      const statusTitle = el('radarSharingStatus');
+      const timerStatus = el('radarTimerStatus');
+      const toggleBtn = el('toggleLiveShareBtn');
+
+      if (!statusTitle || !toggleBtn) return;
+
+      if (isSharing) {
+        statusTitle.innerHTML = '🟢 <span style="color:var(--primary);">Live Sharing Active</span>';
+        const minsLeft = Math.max(1, Math.round((new Date(STATE.selfLocation.expires_at).getTime() - Date.now()) / 60000));
+        timerStatus.textContent = `${minsLeft}m remaining with mutual friends`;
+        toggleBtn.textContent = 'Stop Sharing';
+        toggleBtn.style.background = 'rgba(239, 68, 68, 0.2)';
+        toggleBtn.style.color = '#ef4444';
+        toggleBtn.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+      } else {
+        statusTitle.textContent = 'Sharing: Off';
+        timerStatus.textContent = 'Tap to share live with friends';
+        toggleBtn.textContent = 'Share (1h)';
+        toggleBtn.style.background = '';
+        toggleBtn.style.color = '';
+        toggleBtn.style.borderColor = '';
+      }
+
+      // Render friends list
+      const container = el('radarFriendsContainer');
+      if (container) {
+        if (!STATE.radarFriends.length) {
+          container.innerHTML = `
+            <div style="text-align:center; padding:24px; color:var(--text-sub); font-size:12px; line-height:1.6;">
+              No mutual friends sharing live location right now.
+            </div>
+          `;
+        } else {
+          container.innerHTML = STATE.radarFriends.map(f => {
+            const lat = Number(f.latitude).toFixed(4);
+            const lng = Number(f.longitude).toFixed(4);
+            const time = f.updated_at ? formatTime(f.updated_at) : '';
+            return `
+              <div class="radar-friend-item" onclick="panToCoords(${f.latitude}, ${f.longitude})">
+                <div class="avatar" style="width:36px; height:36px; font-size:14px;">${esc(f.display_name?.[0] || '?')}</div>
+                <div style="flex:1;">
+                  <div style="font-weight:700; font-size:13px; color:var(--text-main);">${esc(f.display_name || f.username)}</div>
+                  <div style="font-size:10px; color:var(--text-sub); font-family:var(--font-mono);">${lat}, ${lng} · ${time}</div>
+                </div>
+                <span style="font-size:16px;">📍</span>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // Update map markers
+      if (STATE.radarMap && STATE.radarMarkersGroup) {
+        STATE.radarMarkersGroup.clearLayers();
+        const bounds = [];
+
+        if (isSharing && STATE.selfLocation) {
+          const lat = Number(STATE.selfLocation.latitude);
+          const lng = Number(STATE.selfLocation.longitude);
+          const selfMarker = L.circleMarker([lat, lng], {
+            radius: 9,
+            fillColor: '#a3e635',
+            color: '#f4fbf7',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.9
+          }).bindPopup('<strong>You</strong><br>Sharing live location');
+          STATE.radarMarkersGroup.addLayer(selfMarker);
+          bounds.push([lat, lng]);
+        }
+
+        STATE.radarFriends.forEach(f => {
+          const lat = Number(f.latitude);
+          const lng = Number(f.longitude);
+          const marker = L.circleMarker([lat, lng], {
+            radius: 8,
+            fillColor: '#38bdf8',
+            color: '#ffffff',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.85
+          }).bindPopup(`<strong>${esc(f.display_name)}</strong><br>@${esc(f.username)}`);
+          STATE.radarMarkersGroup.addLayer(marker);
+          bounds.push([lat, lng]);
+        });
+
+        if (bounds.length > 0) {
+          STATE.radarMap.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+        }
+      }
+    }
+
+    window.panToCoords = (lat, lng) => {
+      if (STATE.radarMap) {
+        STATE.radarMap.setView([lat, lng], 15, { animate: true });
+      }
+    };
+
+    el('toggleLiveShareBtn')?.addEventListener('click', async () => {
+      const isSharing = STATE.selfLocation && STATE.selfLocation.sharing_mode !== 'off' && (!STATE.selfLocation.expires_at || new Date(STATE.selfLocation.expires_at) > new Date());
+      if (isSharing) {
+        try {
+          if (STATE.liveLocationWatchId) {
+            navigator.geolocation.clearWatch(STATE.liveLocationWatchId);
+            STATE.liveLocationWatchId = null;
+          }
+          await apiRequest('/location/live', { method: 'DELETE' });
+          STATE.selfLocation = null;
+          renderRadarUI();
+          showToast('Live location sharing stopped. 🔒');
+        } catch (err) {
+          showToast('Failed to stop location sharing');
+        }
+      } else {
+        if (!navigator.geolocation) {
+          showToast('Geolocation is not supported by your browser.', 'error');
+          return;
+        }
+
+        showToast('Acquiring location...');
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+          const { latitude, longitude, accuracy, heading, speed } = pos.coords;
+          try {
+            const res = await apiRequest('/location/live', {
+              method: 'PUT',
+              body: JSON.stringify({
+                latitude,
+                longitude,
+                accuracy,
+                heading: heading || undefined,
+                speed: speed || undefined,
+                sharingMode: 'friends',
+                durationMinutes: 60
+              })
+            });
+            STATE.selfLocation = res.location;
+            renderRadarUI();
+            showToast('Sharing live location with friends for 1 hour! 📍');
+
+            // Periodic watch updates
+            if (!STATE.liveLocationWatchId) {
+              STATE.liveLocationWatchId = navigator.geolocation.watchPosition(async (newPos) => {
+                try {
+                  await apiRequest('/location/live', {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                      latitude: newPos.coords.latitude,
+                      longitude: newPos.coords.longitude,
+                      accuracy: newPos.coords.accuracy,
+                      sharingMode: 'friends',
+                      durationMinutes: 60
+                    })
+                  });
+                } catch {}
+              }, null, { enableHighAccuracy: true, maximumAge: 10000 });
+            }
+          } catch (err) {
+            showToast('Could not save live location.');
+          }
+        }, (err) => {
+          showToast('Location permission denied or unavailable.', 'error');
+        }, { enableHighAccuracy: true });
+      }
+    });
+
+    el('refreshRadarBtn')?.addEventListener('click', loadRadar);
+
+    // Send Location Pin in Chat
+    el('locationBtn')?.addEventListener('click', () => {
+      if (!STATE.activeConvId) {
+        showToast('Open a conversation first!');
+        return;
+      }
+      if (!navigator.geolocation) {
+        showToast('Geolocation not available in this browser.');
+        return;
+      }
+
+      showToast('Finding your current location...');
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        try {
+          const { latitude, longitude, accuracy } = pos.coords;
+          await apiRequest('/location/pin', {
+            method: 'POST',
+            body: JSON.stringify({
+              conversationId: STATE.activeConvId,
+              latitude,
+              longitude,
+              accuracy,
+              title: 'Shared Location'
+            })
+          });
+          await loadMessages(STATE.activeConvId);
+          await loadConversations();
+          showToast('Location pin sent! 📍');
+        } catch (err) {
+          showToast('Failed to send location pin.');
+        }
+      }, (err) => {
+        showToast('Location permission denied.');
+      }, { enableHighAccuracy: true });
+    });
+
+    // === WEB PUSH NOTIFICATIONS (FCM) ===
+    async function initWebPush() {
+      if (!('serviceWorker' in navigator) || !('Notification' in window)) {
+        if (el('headerPushBtn')) el('headerPushBtn').style.display = 'none';
+        return;
+      }
+
+      try {
+        await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      } catch (err) {
+        console.warn('FCM SW registration error:', err);
+      }
+
+      if (Notification.permission === 'granted') {
+        if (el('headerPushBtn')) el('headerPushBtn').style.opacity = '0.35';
+        if (el('settingsPushBtn')) {
+          el('settingsPushBtn').textContent = 'Enabled ✓';
+          el('settingsPushBtn').disabled = true;
+        }
+      }
+    }
+
+    async function enableWebPushNotifications() {
+      if (!('Notification' in window)) {
+        showToast('Notifications are not supported in this browser.', 'error');
+        return;
+      }
+
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        showToast('Push notifications permission was denied.', 'error');
+        return;
+      }
+
+      try {
+        showToast('Registering push notifications...');
+        if (typeof firebase !== 'undefined' && firebase.messaging) {
+          if (!firebase.apps.length) {
+            firebase.initializeApp({
+              apiKey: "AIzaSyBkXKSIaIF-5zVBBLMBQYJhq_6dZeq5_gU",
+              authDomain: "haiku-f758f.firebaseapp.com",
+              projectId: "haiku-f758f",
+              storageBucket: "haiku-f758f.firebasestorage.app",
+              messagingSenderId: "279052480304",
+              appId: "1:279052480304:web:0087ad4e0e3aefffaae2f5"
+            });
+          }
+          const messaging = firebase.messaging();
+          const swReg = await navigator.serviceWorker.ready;
+          const token = await messaging.getToken({
+            serviceWorkerRegistration: swReg,
+            vapidKey: 'BBLoLJiR4Fi1s2x58blyKFtcY9b65U6HMq-UygV2Vwkd7iqqcnrO4aeiPWx79rEAwd_wg3gUp74G6nU'
+          }).catch((err) => {
+            console.error('FCM getToken error:', err);
+            return null;
+          });
+
+          if (token) {
+            await apiRequest('/account/push-tokens', {
+              method: 'POST',
+              body: JSON.stringify({ token, platform: 'web' })
+            });
+          }
+        }
+        showToast('Push notifications enabled! 🔔', 'success');
+        if (el('headerPushBtn')) el('headerPushBtn').style.opacity = '0.35';
+        if (el('settingsPushBtn')) {
+          el('settingsPushBtn').textContent = 'Enabled ✓';
+          el('settingsPushBtn').disabled = true;
+        }
+      } catch (err) {
+        console.warn('Push registration warning:', err);
+        showToast('Notifications enabled in browser.', 'success');
+      }
+    }
+
+    el('headerPushBtn')?.addEventListener('click', enableWebPushNotifications);
+    el('settingsPushBtn')?.addEventListener('click', enableWebPushNotifications);
+
     // Boot
     loadLatestApkInfo();
+    initWebPush();
     checkAuth();
   </script>
   <script>

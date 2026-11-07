@@ -39,3 +39,63 @@ export function messageForError(error:unknown){
   if(error instanceof Error)return error.message;
   return 'Something went wrong. Please try again.';
 }
+
+export async function registerPushToken(token:string, platform:'android'|'ios'|'web'='android'){
+  return api<{status:string}>('/account/push-tokens',{
+    method:'POST',
+    body:JSON.stringify({token,platform})
+  });
+}
+
+export async function unregisterPushToken(token:string){
+  return api<{status:string}>('/account/push-tokens',{
+    method:'DELETE',
+    body:JSON.stringify({token})
+  });
+}
+
+export async function updateLiveLocation(params: {
+  latitude: number;
+  longitude: number;
+  accuracy?: number;
+  heading?: number;
+  speed?: number;
+  sharingMode?: 'off' | 'friends' | 'live_chat';
+  durationMinutes?: number;
+  conversationId?: string;
+}) {
+  return api<{ location: unknown }>('/location/live', {
+    method: 'PUT',
+    body: JSON.stringify(params),
+  });
+}
+
+export async function getFriendsLocations() {
+  return api<{ friends: Array<{
+    user_id: string;
+    latitude: number;
+    longitude: number;
+    display_name: string;
+    username: string;
+    avatar_object_key: string | null;
+    updated_at: string;
+  }> }>('/location/friends');
+}
+
+export async function stopLiveLocation() {
+  return api<{ status: string }>('/location/live', {
+    method: 'DELETE',
+  });
+}
+
+export async function sendLocationPin(conversationId: string, params: {
+  latitude: number;
+  longitude: number;
+  accuracy?: number;
+  title?: string;
+}) {
+  return api<{ message: unknown }>('/location/pin', {
+    method: 'POST',
+    body: JSON.stringify({ conversationId, ...params }),
+  });
+}
