@@ -1,23 +1,41 @@
-import React from 'react';
-import {StatusBar,StyleSheet,View} from 'react-native';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {AuthProvider} from './src/auth/AuthContext';
-import {AppNavigator} from './src/navigation/AppNavigator';
-import {ErrorBoundary} from './src/components/ErrorBoundary';
-import {colors} from './src/theme/colors';
+import React, { useEffect } from 'react';
+import { StatusBar, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AuthProvider } from './src/auth/AuthContext';
+import { AppNavigator } from './src/navigation/AppNavigator';
+import { ErrorBoundary } from './src/components/ErrorBoundary';
+import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
+import { initImmersive, useImmersive } from './src/system/immersive';
 
-export default function App(){
+function AppRoot() {
+  const { colors, isDark } = useTheme();
+  const { immersive } = useImmersive();
+
+  useEffect(() => {
+    void initImmersive();
+  }, []);
+
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.canvas }}>
+      <StatusBar
+        hidden={immersive}
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+      />
+      <AppNavigator />
+    </View>
+  );
+}
+
+export default function App() {
   return (
     <SafeAreaProvider>
-      <ErrorBoundary>
-        <AuthProvider>
-          <View style={styles.root}>
-            <StatusBar barStyle="light-content"/>
-            <AppNavigator/>
-          </View>
-        </AuthProvider>
-      </ErrorBoundary>
+      <ThemeProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <AppRoot />
+          </AuthProvider>
+        </ErrorBoundary>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }
-const styles=StyleSheet.create({root:{flex:1,backgroundColor:colors.canvas}});
