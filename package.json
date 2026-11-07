@@ -23,8 +23,7 @@
     "migrate": "node scripts/migrate.mjs",
     "db:test": "node scripts/test-neon.mjs",
     "verify:services": "node --env-file-if-exists=.env scripts/verify-connected-services.mjs",
-    "build:admin": "next build --webpack",
-    "prepare": "git config core.hooksPath .githooks 2>/dev/null || true"
+    "build:admin": "next build --webpack"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1156.0",

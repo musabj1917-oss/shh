@@ -49,8 +49,8 @@ export function GroupsScreen() {
   const [modal, setModal] = useState(false);
   const [joinModal, setJoinModal] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
-  const [joining, setJoining] = useState(false);
+  const [_busy, setBusy] = useState(false);
+  const [_joining, setJoining] = useState(false);
   const [error, setError] = useState('');
   const [dialog, setDialog] = useState<ModalDialogState | null>(null);
 

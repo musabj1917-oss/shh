@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -26,7 +26,7 @@ import {
 } from '../components/UI';
 import { useTheme } from '../theme/ThemeContext';
 import { useImmersive } from '../system/immersive';
-import { ThemeId, ThemePreference, themes } from '@haiku/contracts';
+import { ThemePreference } from '@haiku/contracts';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -107,7 +107,7 @@ const mapSettings = (value: RawSettings): Settings => ({
 export function ProfileScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { user, signOut, refresh } = useAuth();
-  const { colors, theme, preference, setThemePreference, radii, typography, controls } = useTheme();
+  const { colors, preference, setThemePreference, radii, controls } = useTheme();
   const { immersive, updatePersisted } = useImmersive();
 
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');

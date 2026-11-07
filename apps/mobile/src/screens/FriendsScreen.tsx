@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { FlatList, Modal, Pressable, Text, View } from 'react-native';
+import { FlatList, Pressable, Text, View } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -58,7 +58,7 @@ export function FriendsScreen() {
   const [reportCategory, setReportCategory] = useState<
     'harassment' | 'spam' | 'impersonation' | 'unsafe_content' | 'other'
   >('other');
-  const [sendingReport, setSendingReport] = useState(false);
+  const [_sendingReport, setSendingReport] = useState(false);
   const [evidenceId, setEvidenceId] = useState('');
   const [evidenceLabel, setEvidenceLabel] = useState('');
   const [evidenceBusy, setEvidenceBusy] = useState(false);
