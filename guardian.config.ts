@@ -614,16 +614,47 @@ export class GuardianEngine {
     // 5.1 GitHub Actions Workflow & Mobile App Build Verification
     try {
       const t0 = Date.now();
-      const res = await fetch('https://api.github.com/repos/musabj1917-oss/shh/actions/runs?per_page=5', {
-        headers: {
-          'User-Agent': 'HaikuGuardian/1.0',
-          'Accept': 'application/vnd.github.v3+json',
-        },
-      });
+      let token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+      if (!token) {
+        try {
+          const creds = execSync('printf "protocol=https\\nhost=github.com\\n" | git credential fill', {
+            encoding: 'utf8',
+            stdio: ['pipe', 'pipe', 'pipe'],
+          });
+          const match = creds.match(/password=(.+)/);
+          if (match) token = match[1].trim();
+        } catch {}
+      }
+
+      const headers: Record<string, string> = {
+        'User-Agent': 'HaikuGuardian/1.0',
+        'Accept': 'application/vnd.github.v3+json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      let data: any;
+      try {
+        const res = await fetch('https://api.github.com/repos/musabj1917-oss/shh/actions/runs?per_page=5', {
+          headers,
+        });
+        if (res.ok) {
+          data = await res.json();
+        }
+      } catch {
+        try {
+          const authArg = token ? `-H "Authorization: Bearer ${token}"` : '';
+          const stdout = execSync(
+            `curl -s ${authArg} -H "User-Agent: HaikuGuardian/1.0" -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/musabj1917-oss/shh/actions/runs?per_page=5"`,
+            { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
+          );
+          data = JSON.parse(stdout);
+        } catch {}
+      }
       const duration = Date.now() - t0;
 
-      if (res.ok) {
-        const data = (await res.json()) as any;
+      if (data && data.workflow_runs) {
         const runs = data.workflow_runs || [];
         const latestRun = runs[0];
 
