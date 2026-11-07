@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View, useWindowDimensions } from 'react-native';
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import type { LinkingOptions, Theme as NavTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -23,27 +23,126 @@ import { PublicProfileScreen } from '../screens/PublicProfileScreen';
 import { JoinGroupScreen } from '../screens/JoinGroupScreen';
 import { takePendingInvite } from '../invites';
 import { BrandMark } from '../components/UI';
+import { ChatsIcon, MomentsIcon, PeopleIcon, SettingsIcon } from '../components/Icons';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tabs = createBottomTabNavigator<MainTabParamList>();
-const tabGlyph: Record<keyof MainTabParamList, string> = {
-  Inbox: '✉',
-  Stories: '✦',
-  People: '◈',
-  Profile: '⛭',
-};
+
 const linking: LinkingOptions<RootStackParamList> = {
   prefixes: ['haikumessenger://'],
   config: { screens: { JoinGroup: 'join/:token' } },
 };
 
+function renderTabIcon(routeName: string, focused: boolean, color: string, size = 22) {
+  switch (routeName) {
+    case 'Inbox':
+      return <ChatsIcon size={size} color={color} />;
+    case 'Stories':
+      return <MomentsIcon size={size} color={color} />;
+    case 'People':
+      return <PeopleIcon size={size} color={color} />;
+    case 'Profile':
+      return <SettingsIcon size={size} color={color} />;
+    default:
+      return null;
+  }
+}
+
+/**
+ * Modern Native Bottom Navigation Bar for Mobile Phones
+ */
+function BottomTabBar({ state, descriptors, navigation, insets }: BottomTabBarProps) {
+  const { colors, radii } = useTheme();
+
+  return (
+    <View
+      style={{
+        backgroundColor: colors.panelSolid,
+        borderTopWidth: 1,
+        borderTopColor: colors.line,
+        paddingBottom: Math.max(insets.bottom, 8),
+        paddingTop: 8,
+        paddingHorizontal: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-around',
+      }}
+    >
+      {state.routes.map((route, index) => {
+        const isFocused = state.index === index;
+        const { options } = descriptors[route.key];
+        const label =
+          options.tabBarLabel !== undefined
+            ? options.tabBarLabel
+            : options.title !== undefined
+            ? options.title
+            : route.name;
+
+        const iconColor = isFocused ? colors.mint : colors.muted;
+
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate(route.name);
+          }
+        };
+
+        return (
+          <Pressable
+            key={route.key}
+            onPress={onPress}
+            accessibilityRole="button"
+            accessibilityState={isFocused ? { selected: true } : {}}
+            accessibilityLabel={typeof label === 'string' ? label : route.name}
+            style={({ pressed }) => [
+              {
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingVertical: 4,
+                paddingHorizontal: 6,
+                minHeight: 48,
+                borderRadius: radii.lg,
+                borderCurve: 'continuous',
+                backgroundColor: isFocused ? colors.mintWash : 'transparent',
+                opacity: pressed ? 0.75 : 1,
+              },
+            ]}
+          >
+            <View style={{ marginBottom: 2 }}>
+              {renderTabIcon(route.name, isFocused, iconColor, 22)}
+            </View>
+            <Text
+              style={{
+                fontSize: 11,
+                fontWeight: isFocused ? '700' : '500',
+                color: isFocused ? colors.ink : colors.muted,
+                letterSpacing: 0.1,
+              }}
+            >
+              {typeof label === 'string' ? label : route.name}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+/**
+ * Adaptive Navigation Rail for Wide Screens / Landscape Tablets (>= 768px)
+ */
 function LeftNavRail({ state, descriptors, navigation, insets }: BottomTabBarProps) {
   const { colors, radii } = useTheme();
 
   return (
     <View
       style={{
-        width: 72 + insets.left,
+        width: 76 + insets.left,
         paddingLeft: insets.left,
         paddingRight: 0,
         paddingTop: Math.max(insets.top, 14),
@@ -56,14 +155,12 @@ function LeftNavRail({ state, descriptors, navigation, insets }: BottomTabBarPro
         zIndex: 10,
       }}
     >
-      {/* Top: App Logo */}
-      <View style={{ alignItems: 'center', gap: 12 }}>
-        <BrandMark size={36} />
-        <View style={{ width: 28, height: 1, backgroundColor: colors.line }} />
+      <View style={{ alignItems: 'center', gap: 14 }}>
+        <BrandMark size={38} />
+        <View style={{ width: 32, height: 1, backgroundColor: colors.line }} />
       </View>
 
-      {/* Center: Navigation Menu on the left */}
-      <View style={{ gap: 14, alignItems: 'center' }}>
+      <View style={{ gap: 12, alignItems: 'center' }}>
         {state.routes.map((route, index) => {
           const isFocused = state.index === index;
           const { options } = descriptors[route.key];
@@ -73,7 +170,8 @@ function LeftNavRail({ state, descriptors, navigation, insets }: BottomTabBarPro
               : options.title !== undefined
               ? options.title
               : route.name;
-          const glyph = tabGlyph[route.name as keyof MainTabParamList];
+
+          const iconColor = isFocused ? colors.mint : colors.muted;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -95,9 +193,10 @@ function LeftNavRail({ state, descriptors, navigation, insets }: BottomTabBarPro
               accessibilityLabel={typeof label === 'string' ? label : route.name}
               style={({ pressed }) => [
                 {
-                  width: 56,
-                  height: 52,
+                  width: 58,
+                  height: 54,
                   borderRadius: radii.lg,
+                  borderCurve: 'continuous',
                   alignItems: 'center',
                   justifyContent: 'center',
                   backgroundColor: isFocused
@@ -110,16 +209,14 @@ function LeftNavRail({ state, descriptors, navigation, insets }: BottomTabBarPro
                 },
               ]}
             >
-              <Text style={{ fontSize: 18, color: isFocused ? colors.mint : colors.muted }}>
-                {glyph}
-              </Text>
+              {renderTabIcon(route.name, isFocused, iconColor, 22)}
               <Text
                 style={{
-                  fontSize: 11,
-                  fontWeight: isFocused ? '800' : '600',
+                  fontSize: 10,
+                  fontWeight: isFocused ? '700' : '500',
                   color: isFocused ? colors.mint : colors.muted,
-                  marginTop: 2,
-                  letterSpacing: 0.2,
+                  marginTop: 3,
+                  letterSpacing: 0.1,
                 }}
               >
                 {typeof label === 'string' ? label : route.name}
@@ -129,7 +226,6 @@ function LeftNavRail({ state, descriptors, navigation, insets }: BottomTabBarPro
         })}
       </View>
 
-      {/* Bottom: Active status indicator */}
       <View style={{ alignItems: 'center', gap: 6 }}>
         <View
           style={{
@@ -147,13 +243,15 @@ function LeftNavRail({ state, descriptors, navigation, insets }: BottomTabBarPro
 
 function MainTabs() {
   const { colors } = useTheme();
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
 
   return (
     <Tabs.Navigator
-      tabBar={(props) => <LeftNavRail {...props} />}
+      tabBar={(props) => (isTablet ? <LeftNavRail {...props} /> : <BottomTabBar {...props} />)}
       screenOptions={{
         headerShown: false,
-        tabBarPosition: 'left',
+        tabBarPosition: isTablet ? 'left' : 'bottom',
         sceneStyle: { backgroundColor: colors.canvas },
       }}
     >
@@ -207,56 +305,47 @@ export function AppNavigator() {
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 14,
           backgroundColor: colors.canvas,
         }}
       >
-        <BrandMark size={48} />
-        <ActivityIndicator color={colors.mint} />
-        <Text style={{ color: colors.muted, fontSize: 13 }}>Opening your space…</Text>
+        <BrandMark size={52} />
+        <ActivityIndicator size="small" color={colors.mint} style={{ marginTop: 24 }} />
       </View>
     );
   }
 
   return (
-    <NavigationContainer ref={navigationRef} linking={linking} onReady={openPendingInvite} theme={navTheme}>
+    <NavigationContainer theme={navTheme} linking={linking} ref={navigationRef}>
       <Stack.Navigator
         screenOptions={{
-          headerTintColor: colors.ink,
-          headerStyle: { backgroundColor: colors.canvas },
-          headerTitleStyle: { fontWeight: '700', fontSize: 16 },
+          headerShown: false,
           contentStyle: { backgroundColor: colors.canvas },
-          headerShadowVisible: false,
+          animation: 'fade_from_bottom',
         }}
       >
-        {user ? (
+        {!user ? (
           <>
-            <Stack.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
-            <Stack.Screen
-              name="Chat"
-              component={ChatScreen}
-              options={({ route }) => ({ title: route.params.title, headerShown: false })}
-            />
-            <Stack.Screen name="Groups" component={GroupsScreen} options={{ title: 'Your groups' }} />
-            <Stack.Screen name="JoinGroup" component={JoinGroupScreen} options={{ title: 'Group invitation' }} />
-            <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notifications' }} />
-            <Stack.Screen name="PublicProfile" component={PublicProfileScreen} options={{ title: 'Profile' }} />
-            <Stack.Screen
-              name="GroupDetail"
-              component={GroupDetailScreen}
-              options={({ route }) => ({ title: route.params.name })}
-            />
-            <Stack.Screen
-              name="StoryView"
-              component={StoryViewScreen}
-              options={{ title: 'Story', presentation: 'modal' }}
-            />
+            <Stack.Screen name="Auth" component={AuthScreen} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
           </>
         ) : (
           <>
-            <Stack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ title: 'Account recovery' }} />
-            <Stack.Screen name="JoinGroup" component={JoinGroupScreen} options={{ title: 'Group invitation' }} />
+            <Stack.Screen name="Main" component={MainTabs} />
+            <Stack.Screen
+              name="Chat"
+              component={ChatScreen}
+              options={{ animation: 'slide_from_right' }}
+            />
+            <Stack.Screen name="Groups" component={GroupsScreen} />
+            <Stack.Screen name="GroupDetail" component={GroupDetailScreen} />
+            <Stack.Screen
+              name="StoryView"
+              component={StoryViewScreen}
+              options={{ animation: 'fade' }}
+            />
+            <Stack.Screen name="Notifications" component={NotificationsScreen} />
+            <Stack.Screen name="PublicProfile" component={PublicProfileScreen} />
+            <Stack.Screen name="JoinGroup" component={JoinGroupScreen} />
           </>
         )}
       </Stack.Navigator>

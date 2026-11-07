@@ -55,6 +55,7 @@ export function ConfirmModal({
               backgroundColor: colors.card,
               borderColor: colors.line,
               borderRadius: radii.xxl,
+              borderCurve: 'continuous',
             },
             style,
           ]}
@@ -96,6 +97,7 @@ export function ConfirmModal({
                       borderColor,
                       borderWidth: 1,
                       borderRadius: radii.md,
+                      borderCurve: 'continuous',
                       minHeight: controls.heights.md,
                       opacity: pressed ? 0.8 : 1,
                     },

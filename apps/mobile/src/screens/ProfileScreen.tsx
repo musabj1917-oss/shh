@@ -24,6 +24,7 @@ import {
   RemoteAvatar,
   Surface,
 } from '../components/UI';
+import { MapPinIcon, PlusIcon } from '../components/Icons';
 import { useTheme } from '../theme/ThemeContext';
 import { useImmersive } from '../system/immersive';
 import { ThemePreference } from '@haiku/contracts';
@@ -483,9 +484,11 @@ export function ProfileScreen() {
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ fontSize: 13, color: colors.mintContrast, fontWeight: '800' }}>
-                {uploading ? '…' : '+'}
-              </Text>
+              {uploading ? (
+                <Text style={{ fontSize: 13, color: colors.mintContrast, fontWeight: '800' }}>…</Text>
+              ) : (
+                <PlusIcon size={12} color={colors.mintContrast} />
+              )}
             </View>
           </Pressable>
 
@@ -523,9 +526,12 @@ export function ProfileScreen() {
               </View>
 
               {profile?.location ? (
-                <Text style={{ fontSize: 11, color: colors.muted }}>
-                  ⌖ {profile.location}
-                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+                  <MapPinIcon size={12} color={colors.muted} />
+                  <Text style={{ fontSize: 11, color: colors.muted }}>
+                    {profile.location}
+                  </Text>
+                </View>
               ) : null}
             </View>
           </View>

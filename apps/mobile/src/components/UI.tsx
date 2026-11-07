@@ -181,6 +181,7 @@ export function Button({
         {
           minHeight: height,
           borderRadius: radius,
+          borderCurve: 'continuous',
           backgroundColor: bg,
           borderWidth: border !== 'transparent' ? 1 : 0,
           borderColor: border,
@@ -223,6 +224,7 @@ export function Field({
           borderWidth: 1,
           borderColor: error ? colors.red : colors.line,
           borderRadius: radii.md,
+          borderCurve: 'continuous',
           backgroundColor: colors.inputBg,
           paddingHorizontal: 14,
           color: colors.ink,
@@ -246,6 +248,7 @@ export function Surface({ children, style }: { children: React.ReactNode; style?
         {
           backgroundColor: colors.card,
           borderRadius: radii.xl,
+          borderCurve: 'continuous',
           borderWidth: 1,
           borderColor: colors.line,
           padding: 16,
@@ -263,10 +266,12 @@ export function Avatar({
   name,
   color,
   large = false,
+  size: customSize,
 }: {
   name: string;
   color?: string;
   large?: boolean;
+  size?: number;
 }) {
   const { colors, radii } = useTheme();
   const c = color || colors.mint;
@@ -277,8 +282,8 @@ export function Avatar({
     .map((part) => part[0] || '')
     .join('')
     .toUpperCase();
-  const size = large ? 72 : 44;
-  const rad = large ? radii.xl : radii.lg;
+  const size = customSize || (large ? 72 : 44);
+  const rad = customSize ? Math.round(customSize * 0.35) : large ? radii.xl : radii.lg;
 
   return (
     <View
@@ -286,6 +291,7 @@ export function Avatar({
         width: size,
         height: size,
         borderRadius: rad,
+        borderCurve: 'continuous',
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,
@@ -293,7 +299,7 @@ export function Avatar({
         backgroundColor: colors.mintWash,
       }}
     >
-      <Text style={{ fontWeight: '800', fontSize: large ? 18 : 13, color: c }}>
+      <Text style={{ fontWeight: '800', fontSize: customSize ? Math.round(customSize * 0.4) : large ? 18 : 13, color: c }}>
         {initials || 'H'}
       </Text>
     </View>
@@ -305,23 +311,26 @@ export function RemoteAvatar({
   uri,
   color,
   large = false,
+  size: customSize,
 }: {
   name: string;
   uri?: string | null;
   color?: string;
   large?: boolean;
+  size?: number;
 }) {
   const { colors, radii } = useTheme();
-  const size = large ? 72 : 44;
-  const rad = large ? radii.xl : radii.lg;
+  const size = customSize || (large ? 72 : 44);
+  const rad = customSize ? Math.round(customSize * 0.35) : large ? radii.xl : radii.lg;
 
-  if (!uri) return <Avatar name={name} color={color} large={large} />;
+  if (!uri) return <Avatar name={name} color={color} large={large} size={customSize} />;
   return (
     <View
       style={{
         width: size,
         height: size,
         borderRadius: rad,
+        borderCurve: 'continuous',
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: colors.stitchGlow,
@@ -449,6 +458,7 @@ export function Notice({
       style={{
         padding: 12,
         borderRadius: radii.md,
+        borderCurve: 'continuous',
         marginBottom: 12,
         backgroundColor: bg,
         borderColor: border,
@@ -480,6 +490,7 @@ export function FilterPill({
         paddingVertical: 8,
         paddingHorizontal: 14,
         borderRadius: radii.md,
+        borderCurve: 'continuous',
         borderWidth: 1,
         alignItems: 'center',
         justifyContent: 'center',

@@ -18,6 +18,7 @@ import {
   Screen,
   Surface,
 } from '../components/UI';
+import { MoreHorizontalIcon, SearchIcon } from '../components/Icons';
 import { useTheme } from '../theme/ThemeContext';
 
 type Person = {
@@ -370,32 +371,53 @@ export function FriendsScreen() {
 
       {tab === 'discover' ? (
         <>
-          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'flex-start' }}>
-            <Field
-              value={query}
-              onChangeText={setQuery}
-              placeholder="Search by name or username"
-              autoCapitalize="none"
-              style={{ flex: 1, marginBottom: 8 }}
-              onSubmitEditing={search}
-            />
-            <Button title="Search" onPress={search} loading={busyId === 'search'} small style={{ marginTop: 19 }} />
+          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', marginBottom: 10 }}>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: colors.inputBg,
+                borderRadius: radii.lg,
+                borderCurve: 'continuous',
+                borderWidth: 1,
+                borderColor: colors.line,
+                paddingHorizontal: 12,
+                minHeight: controls.heights.md,
+                gap: 10,
+              }}
+            >
+              <SearchIcon size={16} color={colors.muted} />
+              <Field
+                value={query}
+                onChangeText={setQuery}
+                placeholder="Search username or name"
+                autoCapitalize="none"
+                style={{ flex: 1, marginBottom: 0, borderWidth: 0, backgroundColor: 'transparent', paddingHorizontal: 0 }}
+                onSubmitEditing={search}
+              />
+            </View>
+            <Button title="Search" onPress={search} loading={busyId === 'search'} small style={{ minHeight: controls.heights.md }} />
           </View>
           <Pressable
             onPress={suggestions}
             disabled={Boolean(busyId)}
-            style={{
-              alignSelf: 'flex-start',
-              paddingVertical: 8,
-              paddingHorizontal: 12,
-              borderRadius: radii.md,
-              backgroundColor: colors.mintPale,
-              borderWidth: 1,
-              borderColor: colors.line,
-              marginBottom: 10,
-              minHeight: controls.heights.sm,
-              justifyContent: 'center',
-            }}
+            style={({ pressed }) => [
+              {
+                alignSelf: 'flex-start',
+                paddingVertical: 8,
+                paddingHorizontal: 14,
+                borderRadius: radii.pill,
+                borderCurve: 'continuous',
+                backgroundColor: colors.mintWash,
+                borderWidth: 1,
+                borderColor: colors.stitchGlow,
+                marginBottom: 12,
+                minHeight: controls.heights.sm,
+                justifyContent: 'center',
+              },
+              pressed && { opacity: 0.8 },
+            ]}
           >
             <Text style={{ fontSize: typography.sizes.micro, color: colors.mint, fontWeight: '800' }}>
               {busyId === 'suggestions' ? 'Finding people…' : 'Show suggested people'}
@@ -410,7 +432,8 @@ export function FriendsScreen() {
         <FlatList
           data={data}
           keyExtractor={(item, index) => `${item.id}-${index}`}
-          contentContainerStyle={{ paddingBottom: 26, flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 36, flexGrow: 1 }}
           ListEmptyComponent={
             <EmptyState
               title={
@@ -437,6 +460,7 @@ export function FriendsScreen() {
                   padding: 14,
                   marginBottom: 10,
                   borderRadius: radii.xl,
+                  borderCurve: 'continuous',
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 12,
@@ -463,7 +487,7 @@ export function FriendsScreen() {
                     accessibilityRole="button"
                     style={{ fontSize: typography.sizes.micro, color: colors.mint, fontWeight: '700', marginTop: 6 }}
                   >
-                    View profile →
+                    View profile
                   </Text>
                 </View>
                 {tab === 'friends' ? (
@@ -473,9 +497,18 @@ export function FriendsScreen() {
                       onPress={() => friendActions(row)}
                       accessibilityRole="button"
                       accessibilityLabel={`More actions for ${row.display_name}`}
-                      style={{ padding: 8, minHeight: controls.heights.sm, justifyContent: 'center' }}
+                      style={({ pressed }) => [
+                        {
+                          width: 44,
+                          height: 44,
+                          borderRadius: radii.pill,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        },
+                        pressed && { backgroundColor: colors.stitch },
+                      ]}
                     >
-                      <Text style={{ fontSize: 18, color: colors.muted }}>···</Text>
+                      <MoreHorizontalIcon size={18} color={colors.muted} />
                     </Pressable>
                   </View>
                 ) : tab === 'requests' ? (
@@ -483,7 +516,15 @@ export function FriendsScreen() {
                     <Button title="Accept" onPress={() => accept(row as RequestRow)} loading={busyId === row.id} small />
                     <Pressable
                       onPress={() => reject(row as RequestRow)}
-                      style={{ paddingHorizontal: 10, minHeight: controls.heights.sm, justifyContent: 'center' }}
+                      style={({ pressed }) => [
+                        {
+                          paddingHorizontal: 12,
+                          minHeight: controls.heights.sm,
+                          justifyContent: 'center',
+                          borderRadius: radii.pill,
+                        },
+                        pressed && { opacity: 0.7 },
+                      ]}
                     >
                       <Text style={{ fontSize: typography.sizes.micro, color: colors.red, fontWeight: '700' }}>
                         Decline

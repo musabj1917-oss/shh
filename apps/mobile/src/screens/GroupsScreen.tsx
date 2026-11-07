@@ -13,8 +13,10 @@ import {
   Field,
   LoadingState,
   Notice,
+  Screen,
   Surface,
 } from '../components/UI';
+import { MoreHorizontalIcon, PlusIcon } from '../components/Icons';
 import { useTheme } from '../theme/ThemeContext';
 
 type Group = {
@@ -141,22 +143,24 @@ export function GroupsScreen() {
     setSelected((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.canvas, padding: 18, paddingTop: 20 }}>
+    <Screen style={{ paddingHorizontal: 18, paddingTop: 18, backgroundColor: colors.canvas }}>
+      {/* Editorial Header */}
       <View
         style={{
           flexDirection: 'row',
-          alignItems: 'center',
+          alignItems: 'flex-start',
           justifyContent: 'space-between',
-          marginBottom: 16,
+          marginBottom: 18,
         }}
       >
-        <View>
+        <View style={{ flex: 1, marginRight: 12 }}>
           <Text
             style={{
               fontSize: typography.sizes.micro,
               fontWeight: '800',
-              letterSpacing: 1.4,
+              letterSpacing: 1.6,
               color: colors.mint,
+              textTransform: 'uppercase',
             }}
           >
             TOGETHER
@@ -165,32 +169,70 @@ export function GroupsScreen() {
             style={{
               fontSize: typography.sizes.display,
               fontWeight: '800',
-              letterSpacing: -0.8,
+              letterSpacing: -0.9,
               color: colors.ink,
-              marginTop: 3,
+              marginTop: 4,
             }}
           >
-            Your groups
+            Groups
+          </Text>
+          <Text style={{ fontSize: typography.sizes.sub, color: colors.muted, marginTop: 4 }}>
+            Shared spaces for conversations and teams.
           </Text>
         </View>
-        <View style={{ flexDirection: 'row', gap: 7 }}>
-          <Button
-            title="Join"
-            kind="secondary"
+
+        <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+          <Pressable
             onPress={() => {
               setJoinModal(true);
               setError('');
             }}
-            small
-          />
-          <Button
-            title="＋ New"
+            accessibilityRole="button"
+            accessibilityLabel="Join group"
+            style={({ pressed }) => [
+              {
+                paddingVertical: 9,
+                paddingHorizontal: 13,
+                borderRadius: radii.pill,
+                borderCurve: 'continuous',
+                backgroundColor: colors.panel,
+                borderWidth: 1,
+                borderColor: colors.line,
+                minHeight: controls.heights.sm,
+                justifyContent: 'center',
+              },
+              pressed && { opacity: 0.8 },
+            ]}
+          >
+            <Text style={{ fontSize: 13, fontWeight: '700', color: colors.ink }}>Join</Text>
+          </Pressable>
+
+          <Pressable
             onPress={() => {
               setModal(true);
               setError('');
             }}
-            small
-          />
+            accessibilityRole="button"
+            accessibilityLabel="Create group"
+            style={({ pressed }) => [
+              {
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 5,
+                paddingVertical: 9,
+                paddingHorizontal: 13,
+                borderRadius: radii.pill,
+                borderCurve: 'continuous',
+                backgroundColor: colors.mint,
+                minHeight: controls.heights.sm,
+                justifyContent: 'center',
+              },
+              pressed && { opacity: 0.85 },
+            ]}
+          >
+            <PlusIcon size={15} color={colors.mintContrast} />
+            <Text style={{ fontSize: 13, fontWeight: '700', color: colors.mintContrast }}>New</Text>
+          </Pressable>
         </View>
       </View>
 
@@ -202,23 +244,32 @@ export function GroupsScreen() {
         <FlatList
           data={groups}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: 30 }}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 36 }}
           ListEmptyComponent={
             <EmptyState
               title="Better together."
               detail="Create a group to bring your friends into one conversation."
-              action={<Button title="Create a group" onPress={() => setModal(true)} small />}
+              action={
+                <Button
+                  title="Create a group"
+                  onPress={() => setModal(true)}
+                  small
+                  style={{ minHeight: controls.heights.sm }}
+                />
+              }
             />
           }
           renderItem={({ item }) => (
             <Surface
               style={{
-                padding: 13,
-                marginBottom: 9,
+                padding: 14,
+                marginBottom: 10,
                 borderRadius: radii.xl,
+                borderCurve: 'continuous',
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: 11,
+                gap: 12,
                 backgroundColor: colors.card,
                 borderWidth: 1,
                 borderColor: colors.line,
@@ -232,21 +283,22 @@ export function GroupsScreen() {
                     kind: 'group',
                   })
                 }
-                style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 }}
+                style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 }}
               >
                 <Avatar name={item.name} color={colors.blue} />
-                <View style={{ flex: 1 }}>
-                  <Text numberOfLines={1} style={{ fontSize: typography.sizes.sub, fontWeight: '800', color: colors.ink }}>
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text numberOfLines={1} style={{ fontSize: typography.sizes.body, fontWeight: '800', color: colors.ink }}>
                     {item.name}
                   </Text>
                   <Text style={{ fontSize: typography.sizes.micro, color: colors.muted, marginTop: 3 }}>
-                    {item.member_count} members · {item.role}
+                    {item.member_count} {item.member_count === 1 ? 'member' : 'members'} · {item.role}
                   </Text>
                   <Text numberOfLines={1} style={{ fontSize: typography.sizes.micro, color: colors.body, marginTop: 4 }}>
                     {item.last_message || 'Start your group conversation'}
                   </Text>
                 </View>
               </Pressable>
+
               <Pressable
                 onPress={() =>
                   navigation.navigate('GroupDetail', {
@@ -257,9 +309,18 @@ export function GroupsScreen() {
                 }
                 accessibilityRole="button"
                 accessibilityLabel={`Manage ${item.name}`}
-                style={{ padding: 8, minHeight: controls.heights.sm, justifyContent: 'center' }}
+                style={({ pressed }) => [
+                  {
+                    width: 44,
+                    height: 44,
+                    borderRadius: radii.pill,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  },
+                  pressed && { backgroundColor: colors.stitch },
+                ]}
               >
-                <Text style={{ fontSize: 19, color: colors.mint }}>···</Text>
+                <MoreHorizontalIcon size={18} color={colors.muted} />
               </Pressable>
             </Surface>
           )}
@@ -277,7 +338,7 @@ export function GroupsScreen() {
           { text: 'Continue', style: 'primary', onPress: join },
         ]}
       >
-        <View style={{ marginTop: 6 }}>
+        <View style={{ marginTop: 8 }}>
           {error ? <Notice tone="error">{error}</Notice> : null}
           <Field
             label="Invitation link or token"
@@ -300,68 +361,102 @@ export function GroupsScreen() {
           { text: 'Create group', style: 'primary', onPress: create },
         ]}
       >
-        <View style={{ marginTop: 6, maxHeight: 320 }}>
+        <View style={{ marginTop: 8 }}>
           {error ? <Notice tone="error">{error}</Notice> : null}
-          <Field label="Group name" value={name} onChangeText={setName} placeholder="Weekend plans" maxLength={80} />
+          <Field
+            label="Group name"
+            value={name}
+            onChangeText={setName}
+            placeholder="e.g., Mountain Climbers, Project Apex"
+          />
+
           <Text
             style={{
               fontSize: typography.sizes.micro,
-              fontWeight: '700',
-              color: colors.body,
-              marginBottom: 7,
-              marginTop: 4,
+              fontWeight: '800',
+              color: colors.muted,
+              letterSpacing: 1.2,
+              marginTop: 10,
+              marginBottom: 8,
+              textTransform: 'uppercase',
             }}
           >
-            Add friends · {selected.length} selected
+            ADD FRIENDS ({selected.length})
           </Text>
-          <FlatList
-            data={friends}
-            keyExtractor={(item) => item.id}
-            style={{ maxHeight: 180 }}
-            ListEmptyComponent={
-              <Text style={{ fontSize: typography.sizes.micro, color: colors.muted, padding: 12 }}>
-                Add friends first, or create an empty group.
-              </Text>
-            }
-            renderItem={({ item }) => (
-              <Pressable
-                onPress={() => toggle(item.id)}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 9,
-                  paddingVertical: 8,
-                  borderBottomWidth: 1,
-                  borderBottomColor: colors.line,
+
+          {friends.length === 0 ? (
+            <Text style={{ fontSize: typography.sizes.micro, color: colors.muted, fontStyle: 'italic', marginBottom: 10 }}>
+              No friends to invite yet. You can invite members after creating the group.
+            </Text>
+          ) : (
+            <View style={{ maxHeight: 200, marginBottom: 8 }}>
+              <FlatList
+                data={friends}
+                keyExtractor={(item) => item.id}
+                nestedScrollEnabled
+                renderItem={({ item }) => {
+                  const isChecked = selected.includes(item.id);
+                  return (
+                    <Pressable
+                      onPress={() => toggle(item.id)}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: isChecked }}
+                      style={({ pressed }) => [
+                        {
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          paddingVertical: 10,
+                          paddingHorizontal: 12,
+                          borderRadius: radii.md,
+                          borderCurve: 'continuous',
+                          backgroundColor: isChecked ? colors.mintWash : colors.inputBg,
+                          borderWidth: 1,
+                          borderColor: isChecked ? colors.mint : colors.line,
+                          marginBottom: 6,
+                        },
+                        pressed && { opacity: 0.8 },
+                      ]}
+                    >
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                        <Avatar name={item.display_name} size={30} />
+                        <Text style={{ fontSize: typography.sizes.sub, fontWeight: '700', color: colors.ink }}>
+                          {item.display_name}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: 6,
+                          borderCurve: 'continuous',
+                          borderWidth: 2,
+                          borderColor: isChecked ? colors.mint : colors.line,
+                          backgroundColor: isChecked ? colors.mint : 'transparent',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        {isChecked ? (
+                          <Text style={{ fontSize: 11, fontWeight: '900', color: colors.mintContrast }}>✓</Text>
+                        ) : null}
+                      </View>
+                    </Pressable>
+                  );
                 }}
-              >
-                <Avatar name={item.display_name} />
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: typography.sizes.caption, fontWeight: '700', color: colors.ink }}>
-                    {item.display_name}
-                  </Text>
-                  <Text style={{ fontSize: typography.sizes.micro, color: colors.muted }}>@{item.username}</Text>
-                </View>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    color: selected.includes(item.id) ? colors.mint : colors.muted,
-                  }}
-                >
-                  {selected.includes(item.id) ? '●' : '○'}
-                </Text>
-              </Pressable>
-            )}
-          />
+              />
+            </View>
+          )}
         </View>
       </ConfirmModal>
 
-      {/* Themed Alerts/Dialogs */}
+      {/* Action / Result dialog */}
       {dialog ? (
         <ConfirmModal
-          visible={Boolean(dialog)}
+          visible={true}
           title={dialog.title}
           message={dialog.message}
+          onDismiss={() => setDialog(null)}
           buttons={dialog.buttons.map((b) => ({
             ...b,
             onPress: () => {
@@ -369,9 +464,8 @@ export function GroupsScreen() {
               b.onPress?.();
             },
           }))}
-          onDismiss={() => setDialog(null)}
         />
       ) : null}
-    </View>
+    </Screen>
   );
 }

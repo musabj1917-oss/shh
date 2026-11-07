@@ -20,6 +20,7 @@ import type { RootStackParamList } from '../navigation/types';
 import { api, apiUrl, getSessionToken, messageForError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { Avatar, ConfirmModal, ConfirmModalButton, EmptyState, Notice } from '../components/UI';
+import { BackIcon, MapPinIcon, PaperclipIcon, SendIcon } from '../components/Icons';
 import { useTheme } from '../theme/ThemeContext';
 import { useImmersive } from '../system/immersive';
 
@@ -477,6 +478,7 @@ export function ChatScreen({ route, navigation }: Props) {
             borderRadius: radii.xl,
             borderBottomRightRadius: mine ? 4 : radii.xl,
             borderBottomLeftRadius: mine ? radii.xl : 4,
+            borderCurve: 'continuous',
             backgroundColor: bubbleBg,
             borderWidth: mine ? 0 : 1,
             borderColor: colors.bubbleOtherBorder,
@@ -554,7 +556,7 @@ export function ChatScreen({ route, navigation }: Props) {
                       style={{ padding: 10, backgroundColor: colors.mintPale, borderRadius: radii.md, marginVertical: 2 }}
                     >
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        <Text style={{ fontSize: 18, color: colors.mint }}>⌖</Text>
+                        <MapPinIcon size={18} color={colors.mint} />
                         <View>
                           <Text style={{ fontWeight: '700', fontSize: 13, color: colors.ink }}>
                             {loc.title || 'Shared Location'}
@@ -565,7 +567,7 @@ export function ChatScreen({ route, navigation }: Props) {
                         </View>
                       </View>
                       <Text style={{ fontSize: 11, color: colors.mint, fontWeight: '700', marginTop: 5 }}>
-                        Open in Maps ↗
+                        Open in Maps
                       </Text>
                     </Pressable>
                   );
@@ -620,18 +622,22 @@ export function ChatScreen({ route, navigation }: Props) {
           onPress={() => navigation.goBack()}
           accessibilityRole="button"
           accessibilityLabel="Back"
-          style={{
-            width: controls.heights.md,
-            height: controls.heights.md,
-            borderRadius: radii.md,
-            backgroundColor: colors.card,
-            borderWidth: 1,
-            borderColor: colors.line,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          style={({ pressed }) => [
+            {
+              width: 44,
+              height: 44,
+              borderRadius: radii.xl,
+              borderCurve: 'continuous',
+              backgroundColor: colors.card,
+              borderWidth: 1,
+              borderColor: colors.line,
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: pressed ? 0.75 : 1,
+            },
+          ]}
         >
-          <Text style={{ fontSize: 20, color: colors.mint, marginTop: -2 }}>‹</Text>
+          <BackIcon size={18} color={colors.ink} />
         </Pressable>
         <View style={{ position: 'relative' }}>
           <Avatar name={title} color={kind === 'group' ? colors.blue : colors.mint} />
@@ -817,36 +823,44 @@ export function ChatScreen({ route, navigation }: Props) {
               onPress={uploading ? undefined : uploadMedia}
               accessibilityRole="button"
               accessibilityLabel="Attach photo or video"
-              style={{
-                width: controls.heights.md,
-                height: controls.heights.md,
-                borderRadius: radii.md,
-                backgroundColor: colors.card,
-                borderWidth: 1,
-                borderColor: colors.line,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              style={({ pressed }) => [
+                {
+                  width: 44,
+                  height: 44,
+                  borderRadius: radii.xl,
+                  borderCurve: 'continuous',
+                  backgroundColor: colors.card,
+                  borderWidth: 1,
+                  borderColor: colors.line,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: pressed ? 0.75 : 1,
+                },
+              ]}
             >
-              <Text style={{ fontSize: 20, color: colors.mint }}>{uploading ? '…' : '+'}</Text>
+              <PaperclipIcon size={18} color={uploading ? colors.muted : colors.mint} />
             </Pressable>
 
             <Pressable
               onPress={sendLocation}
               accessibilityRole="button"
               accessibilityLabel="Share location pin"
-              style={{
-                width: controls.heights.md,
-                height: controls.heights.md,
-                borderRadius: radii.md,
-                backgroundColor: colors.card,
-                borderWidth: 1,
-                borderColor: colors.line,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              style={({ pressed }) => [
+                {
+                  width: 44,
+                  height: 44,
+                  borderRadius: radii.xl,
+                  borderCurve: 'continuous',
+                  backgroundColor: colors.card,
+                  borderWidth: 1,
+                  borderColor: colors.line,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: pressed ? 0.75 : 1,
+                },
+              ]}
             >
-              <Text style={{ fontSize: 16, color: colors.mint }}>⌖</Text>
+              <MapPinIcon size={18} color={colors.mint} />
             </Pressable>
 
             <TextInput
@@ -871,24 +885,20 @@ export function ChatScreen({ route, navigation }: Props) {
               disabled={!text.trim() || sending || uploading}
               accessibilityRole="button"
               accessibilityLabel={editingId ? 'Save edit' : 'Send message'}
-              style={{
-                width: controls.heights.md,
-                height: controls.heights.md,
-                borderRadius: radii.md,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: text.trim() ? colors.mint : colors.mintWash,
-              }}
+              style={({ pressed }) => [
+                {
+                  width: 44,
+                  height: 44,
+                  borderRadius: radii.xl,
+                  borderCurve: 'continuous',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: text.trim() ? colors.mint : colors.mintWash,
+                  opacity: pressed ? 0.8 : 1,
+                },
+              ]}
             >
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontWeight: '800',
-                  color: text.trim() ? colors.mintContrast : colors.muted,
-                }}
-              >
-                ↑
-              </Text>
+              <SendIcon size={16} color={text.trim() ? colors.mintContrast : colors.muted} />
             </Pressable>
           </View>
           {uploading ? (
