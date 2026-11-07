@@ -1,5 +1,6 @@
-import React, { useCallback, useState } from 'react';
-import { FlatList, Pressable, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FlatList, Keyboard, KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -43,6 +44,21 @@ interface ModalDialogState {
 export function FriendsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { colors, radii, typography, controls } = useTheme();
+  const insets = useSafeAreaInsets();
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, () => setKeyboardOpen(true));
+    const hideSub = Keyboard.addListener(hideEvent, () => setKeyboardOpen(false));
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const [tab, setTab] = useState<'friends' | 'requests' | 'discover'>('friends');
   const [friends, setFriends] = useState<Person[]>([]);
@@ -336,8 +352,13 @@ export function FriendsScreen() {
   const data = tab === 'friends' ? friends : tab === 'requests' ? requests : people;
 
   return (
-    <Screen style={{ paddingHorizontal: 18, paddingTop: 18, backgroundColor: colors.canvas }}>
-      <PageHeading eyebrow="CONNECTIONS" title="People" subtitle="Find friends and start meaningful conversations." />
+    <Screen style={{ paddingHorizontal: 18, paddingTop: 18, paddingBottom: keyboardOpen ? 0 : Math.max(insets.bottom, 18), backgroundColor: colors.canvas }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
+      >
+        <PageHeading eyebrow="CONNECTIONS" title="People" subtitle="Find friends and start meaningful conversations." />
       {error ? <Notice tone="error">{error}</Notice> : null}
 
       <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
@@ -433,6 +454,7 @@ export function FriendsScreen() {
           data={data}
           keyExtractor={(item, index) => `${item.id}-${index}`}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ paddingBottom: 36, flexGrow: 1 }}
           ListEmptyComponent={
             <EmptyState
@@ -653,6 +675,7 @@ export function FriendsScreen() {
           onDismiss={() => setDialog(null)}
         />
       ) : null}
+      </KeyboardAvoidingView>
     </Screen>
   );
 }

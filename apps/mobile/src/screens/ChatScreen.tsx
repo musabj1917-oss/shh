@@ -2,6 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from '
 import * as Ably from 'ably';
 import {
   FlatList,
+  Keyboard,
   KeyboardAvoidingView,
   Linking,
   Modal,
@@ -683,6 +684,35 @@ export function ChatScreen({ route, navigation }: Props) {
     return Platform.OS === 'web' ? messages : [...messages].reverse();
   }, [messages]);
 
+  const headerHeight = 64 + insets.top;
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+
+  const scrollToNewest = useCallback((animated = true) => {
+    if (Platform.OS === 'web') {
+      flatListRef.current?.scrollToEnd({ animated });
+    } else {
+      flatListRef.current?.scrollToOffset({ offset: 0, animated });
+    }
+  }, []);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, () => {
+      setKeyboardOpen(true);
+      scrollToNewest(true);
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setKeyboardOpen(false);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [scrollToNewest]);
+
   useEffect(() => {
     if (Platform.OS === 'web' && messages.length > 0) {
       flatListRef.current?.scrollToEnd({ animated: false });
@@ -697,7 +727,7 @@ export function ChatScreen({ route, navigation }: Props) {
           paddingTop: insets.top,
           paddingLeft: Math.max(insets.left, 14),
           paddingRight: Math.max(insets.right, 14),
-          height: 64 + insets.top,
+          height: headerHeight,
           flexDirection: 'row',
           alignItems: 'center',
           gap: 12,
@@ -771,11 +801,11 @@ export function ChatScreen({ route, navigation }: Props) {
         </Pressable>
       </View>
 
-      {/* Message List */}
+      {/* Message List & Composer */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={headerHeight}
       >
         {loading ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -807,7 +837,7 @@ export function ChatScreen({ route, navigation }: Props) {
         {/* Input Bar */}
         <View
           style={{
-            paddingBottom: Math.max(insets.bottom, 10),
+            paddingBottom: keyboardOpen ? 8 : Math.max(insets.bottom, 10),
             paddingHorizontal: 14,
             paddingTop: 8,
             backgroundColor: colors.panel,
@@ -945,6 +975,7 @@ export function ChatScreen({ route, navigation }: Props) {
             <TextInput
               value={text}
               onChangeText={setText}
+              onFocus={() => scrollToNewest(true)}
               placeholder={editingId ? 'Edit your message…' : 'Write a thoughtful message…'}
               placeholderTextColor={colors.muted}
               multiline

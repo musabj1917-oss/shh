@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Keyboard, KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { loginSchema, mapErrorToUserFriendly, meetsMinimumAge, registerSchema } from '@haiku/contracts';
 import type { RootStackParamList } from '../navigation/types';
@@ -13,6 +14,22 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Auth'>;
 export function AuthScreen({ navigation }: Props) {
   const { signIn, register } = useAuth();
   const { colors, radii, controls } = useTheme();
+
+  const insets = useSafeAreaInsets();
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, () => setKeyboardOpen(true));
+    const hideSub = Keyboard.addListener(hideEvent, () => setKeyboardOpen(false));
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
@@ -95,8 +112,12 @@ export function AuthScreen({ navigation }: Props) {
 
   return (
     <Screen scroll style={{ backgroundColor: colors.canvas }}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View style={{ paddingHorizontal: 22, paddingTop: 32, paddingBottom: 36, maxWidth: 520, width: '100%', alignSelf: 'center' }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
+      >
+        <View style={{ paddingHorizontal: 22, paddingTop: 32, paddingBottom: keyboardOpen ? 16 : Math.max(insets.bottom, 36), maxWidth: 520, width: '100%', alignSelf: 'center' }}>
           
           {/* Hero Header */}
           <View style={{ alignItems: 'center', marginBottom: 28 }}>
