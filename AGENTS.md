@@ -9,4 +9,8 @@
 ## Subagents
 - **`post-push-sentinel`**:
   - Automatically invoked after git pushes or manually via `npm run verify:services`.
-  - Verifies all connected services: GitHub repository sync, Vercel deployments & env vars, Neon Postgres connectivity & migrations, Firebase FCM Admin SDK, test suites, and mobile React Native compilation.
+  - **Always audits three core pillars after every push**:
+    1. **Vercel Build**: Deployment status `READY` on project `shh` via Composio / live deployment check.
+    2. **Debug APK & Android**: Mobile config generation, Android manifest/Kotlin sources integrity, and mobile Jest test suite.
+    3. **Type Check (Triple Layer)**: Zero errors in Root (`tsc`), `@haiku/contracts` (`tsc`), and Mobile (`tsc`).
+  - Also verifies GitHub remote sync, Neon Lakebase Postgres connectivity & migrations, Firebase FCM Admin SDK, and backend test suites.

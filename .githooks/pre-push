@@ -1,0 +1,28 @@
+#!/data/data/com.termux/files/usr/bin/sh
+# Haiku Messenger Pre-Push Hook
+echo "============================================================"
+echo " [Sentinel] Running pre-push verification suite...          "
+echo "============================================================"
+
+# 1. Type Check Suite
+echo "-> Type checking root & backend..."
+npm run typecheck || { echo "❌ Root typecheck failed"; exit 1; }
+
+echo "-> Type checking contracts package..."
+npm run --workspace @haiku/contracts typecheck || { echo "❌ Contracts typecheck failed"; exit 1; }
+
+echo "-> Type checking mobile React Native app..."
+npm run --workspace haiku-mobile typecheck || { echo "❌ Mobile typecheck failed"; exit 1; }
+
+# 2. Debug APK & Mobile Configuration Integrity
+echo "-> Verifying mobile configuration..."
+node scripts/write-mobile-config.mjs || { echo "❌ Mobile config generation failed"; exit 1; }
+
+echo "-> Running mobile test suite..."
+npm run --workspace haiku-mobile test || { echo "❌ Mobile tests failed"; exit 1; }
+
+echo "============================================================"
+echo " ✅ Pre-push checks passed. Proceeding with push.          "
+echo " Note: Run 'npm run verify:services' post-push to audit     "
+echo " Vercel deployment, Neon DB, and Firebase push services.   "
+echo "============================================================"
