@@ -9,7 +9,14 @@ import { randomUUID } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  CopyObjectCommand,
+  DeleteObjectCommand,
+  GetObjectCommand,
+  HeadObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { isProduction } from '../config.js';
 
@@ -22,6 +29,8 @@ export type StorageAdapter = {
   readLocal?(objectKey: string): Promise<Buffer>;
   checkObject?(objectKey: string, expectedMimeType?: string): Promise<{ byteSize: number; mimeType: string; prefix: Uint8Array }>;
   deleteObject(objectKey: string): Promise<void>;
+  copyObject?(sourceKey: string, destinationKey: string): Promise<void>;
+  healthCheck?(): Promise<{ ok: boolean; mode: string; latencyMs: number; bucket?: string; details?: Record<string, any> }>;
 };
 
 const localRoot = existsSync(path.resolve(process.cwd(), '.haiku-media'))
@@ -32,6 +41,12 @@ function safePath(objectKey: string) {
   const result = path.join(localRoot, objectKey);
   if (!result.startsWith(localRoot + path.sep)) throw new Error('MEDIA_KEY_INVALID');
   return result;
+}
+
+export function formatCopySource(bucket: string, key: string): string {
+  // CopySource must be `${Bucket}/${key}` with only the key URI-encoded (do not encode the slash)
+  const cleanKey = key.startsWith('/') ? key.slice(1) : key;
+  return `${bucket}/${cleanKey.split('/').map(encodeURIComponent).join('/')}`;
 }
 
 function localStorage(): StorageAdapter {
@@ -51,17 +66,39 @@ function localStorage(): StorageAdapter {
       return { byteSize: bytes.byteLength, mimeType: expectedMimeType || 'application/octet-stream', prefix: bytes.subarray(0, 32) };
     },
     async deleteObject(key) { try { await unlink(safePath(key)); } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; } },
+    async copyObject(sourceKey, destinationKey) {
+      const bytes = await readFile(safePath(sourceKey));
+      await mkdir(localRoot, { recursive: true });
+      await writeFile(safePath(destinationKey), bytes);
+    },
+    async healthCheck() {
+      const probeKey = randomUUID();
+      const probeData = Buffer.from('haiku-storage-health-check');
+      const start = Date.now();
+      await mkdir(localRoot, { recursive: true });
+      await writeFile(safePath(probeKey), probeData);
+      await readFile(safePath(probeKey));
+      await unlink(safePath(probeKey));
+      return { ok: true, mode: 'local', latencyMs: Date.now() - start };
+    },
   };
 }
 
 function neonS3Storage(): StorageAdapter {
-  const endpoint = process.env.AWS_ENDPOINT_URL_S3;
-  const region = process.env.AWS_REGION;
-  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
-  const bucket = process.env.MEDIA_BUCKET;
-  if (!endpoint || !region || !accessKeyId || !secretAccessKey || !bucket) throw new Error('CONFIG_NEON_OBJECT_STORAGE_MISSING');
-  const s3 = new S3Client({ region, endpoint, forcePathStyle: true, credentials: { accessKeyId, secretAccessKey } });
+  const endpoint = process.env.S3_ENDPOINT || process.env.AWS_ENDPOINT_URL_S3;
+  const region = process.env.S3_REGION || process.env.AWS_REGION || 'auto';
+  const accessKeyId = process.env.S3_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.S3_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY;
+  const bucket = process.env.S3_BUCKET || process.env.MEDIA_BUCKET;
+  if (!endpoint || !accessKeyId || !secretAccessKey || !bucket) throw new Error('CONFIG_NEON_OBJECT_STORAGE_MISSING');
+  const s3 = new S3Client({
+    region,
+    endpoint,
+    forcePathStyle: true,
+    requestChecksumCalculation: 'WHEN_REQUIRED',
+    responseChecksumValidation: 'WHEN_REQUIRED',
+    credentials: { accessKeyId, secretAccessKey },
+  });
   return {
     mode: 'neon-s3',
     async uploadPlan(objectKey, mimeType, byteSize) {
@@ -81,6 +118,39 @@ function neonS3Storage(): StorageAdapter {
       return { byteSize: Number(head.ContentLength || 0), mimeType: String(head.ContentType || 'application/octet-stream'), prefix };
     },
     async deleteObject(objectKey) { await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: objectKey })); },
+    async copyObject(sourceKey, destinationKey) {
+      const copySource = formatCopySource(bucket, sourceKey);
+      await s3.send(new CopyObjectCommand({
+        Bucket: bucket,
+        Key: destinationKey,
+        CopySource: copySource,
+      }));
+    },
+    async healthCheck() {
+      const probeKey = `_probe_${Date.now()}_${randomUUID().slice(0, 8)}.txt`;
+      const probeData = Buffer.from('haiku-storage-health-check');
+      const start = Date.now();
+      await s3.send(new PutObjectCommand({
+        Bucket: bucket,
+        Key: probeKey,
+        Body: probeData,
+        ContentType: 'text/plain',
+      }));
+      await s3.send(new HeadObjectCommand({
+        Bucket: bucket,
+        Key: probeKey,
+      }));
+      await s3.send(new DeleteObjectCommand({
+        Bucket: bucket,
+        Key: probeKey,
+      }));
+      return {
+        ok: true,
+        mode: 'neon-s3',
+        bucket,
+        latencyMs: Date.now() - start,
+      };
+    },
   };
 }
 
@@ -92,6 +162,28 @@ export function getStorage(): StorageAdapter {
   else if (mode === 'neon-s3') cached = neonS3Storage();
   else throw new Error('CONFIG_MEDIA_STORAGE_INVALID');
   return cached;
+}
+
+export async function copyObject(sourceKey: string, destinationKey: string): Promise<void> {
+  const storage = getStorage();
+  if (storage.copyObject) {
+    await storage.copyObject(sourceKey, destinationKey);
+  }
+}
+
+export async function checkStorageHealth(): Promise<{ ok: boolean; mode: string; latencyMs: number; bucket?: string; error?: string }> {
+  try {
+    const storage = getStorage();
+    if (storage.healthCheck) {
+      return await storage.healthCheck();
+    }
+    return { ok: true, mode: storage.mode, latencyMs: 0 };
+  } catch (err: any) {
+    const rawMsg = err instanceof Error ? err.message : String(err);
+    // Sanitize error string so secrets or credentials are never leaked
+    const safeMsg = rawMsg.replace(/([A-Za-z0-9+/=]{20,})/g, '***');
+    return { ok: false, mode: process.env.MEDIA_STORAGE || 'local', latencyMs: 0, error: safeMsg };
+  }
 }
 
 export function newObjectKey() { return randomUUID(); }

@@ -17,6 +17,9 @@ import { brandAssets } from './brand-assets.js';
 import { internalRoutes } from './routes/internal.js';
 import { releaseRoutes } from './routes/releases.js';
 import { locationRoutes } from './routes/location.js';
+import { requireUser } from './middleware/auth.js';
+import { requireAdmin } from './middleware/admin.js';
+import { checkStorageHealth } from './services/storage.js';
 import { getDb, dbReady } from './db.js';
 import { getWebUiHtml } from './web-ui.js';
 import type { ApiEnv } from './types.js';
@@ -79,6 +82,16 @@ app.get('/v1/health/ready',async(c)=>{
   if(!dbReady())return c.json({status:'not_ready',reason:'database_not_configured'},503);
   try{await getDb()`SELECT 1`;return c.json({status:'ready'});}catch{return c.json({status:'not_ready',reason:'database_unavailable'},503);}
 });
+
+const storageHealthHandler = async (c: any) => {
+  const result = await checkStorageHealth();
+  if (!result.ok) {
+    return c.json({ status: 'error', storage: result }, 503);
+  }
+  return c.json({ status: 'ok', storage: result });
+};
+app.get('/health/storage', requireUser, requireAdmin, storageHealthHandler);
+app.get('/v1/health/storage', requireUser, requireAdmin, storageHealthHandler);
 
 app.route('/v1/auth',authRoutes);
 app.route('/v1/profile',profileRoutes);

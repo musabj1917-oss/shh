@@ -6,7 +6,7 @@ import { jsonError, parseJson } from '../http.js';
 import { requireUser } from '../middleware/auth.js';
 import { hasAdminPermission, requireAdmin } from '../middleware/admin.js';
 import { auditAdmin } from '../services/audit.js';
-import { getStorage } from '../services/storage.js';
+import { getStorage, checkStorageHealth } from '../services/storage.js';
 import { releaseAdminRoutes, ensureAppVersionsTable } from './app-releases.js';
 import { getLatestApkRelease, setLatestApkRelease } from '../services/vercel-blob.js';
 import { publishMessageCreated } from '../services/realtime.js';
@@ -58,6 +58,14 @@ adminRoutes.put('/app-versions', async (c) => {
   });
 
   return c.json({ version: rows[0] });
+});
+
+adminRoutes.get('/health/storage', async (c) => {
+  const result = await checkStorageHealth();
+  if (!result.ok) {
+    return c.json({ status: 'error', storage: result }, 503);
+  }
+  return c.json({ status: 'ok', storage: result });
 });
 
 adminRoutes.get('/me',async(c)=>{
