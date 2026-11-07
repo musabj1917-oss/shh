@@ -1,9 +1,11 @@
 node_modules/
-.env
-.env.local
-.env.*.local
+.env*
+!.env.example
 *.env.local
-apps/mobile/.env
+apps/mobile/.env*
+!apps/mobile/.env.example
+*.pem
+*.key
 .next/
 coverage/
 *.log

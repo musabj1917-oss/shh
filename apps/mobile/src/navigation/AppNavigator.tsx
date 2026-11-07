@@ -142,7 +142,7 @@ function BottomTabBar({ state, descriptors, navigation, insets }: BottomTabBarPr
 /**
  * Adaptive Navigation Rail for Wide Screens / Landscape Tablets (>= 768px)
  */
-function LeftNavRail({ state, descriptors, navigation, insets }: BottomTabBarProps) {
+function LeftNavRail({ state, navigation, insets }: BottomTabBarProps) {
   const { colors, radii } = useTheme();
 
   return (

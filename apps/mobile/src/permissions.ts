@@ -1,4 +1,4 @@
-import { AppState, Linking, PermissionsAndroid, Platform } from 'react-native';
+import { PermissionsAndroid, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Camera } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';

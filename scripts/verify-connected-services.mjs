@@ -243,10 +243,10 @@ try {
 // 7. BACKEND TEST SUITE
 try {
   const testOut = run('npm test');
-  if (testOut && testOut.includes('tests 14')) {
-    record('Quality & Tests', 'Backend Test Suite', 'PASS', 'All 14 backend test suites passing');
-  } else if (testOut && !testOut.includes('fail 0')) {
-    record('Quality & Tests', 'Backend Test Suite', 'PASS', 'Tests completed cleanly');
+  if (testOut && testOut.includes('fail 0')) {
+    const match = testOut.match(/pass (\d+)/);
+    const count = match ? match[1] : 'all';
+    record('Quality & Tests', 'Backend Test Suite', 'PASS', `All ${count} backend tests passing cleanly`);
   } else {
     record('Quality & Tests', 'Backend Test Suite', 'WARN', 'Test suite finished with unexpected output');
   }

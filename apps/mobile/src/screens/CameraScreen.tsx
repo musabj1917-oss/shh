@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
-  Dimensions,
   Linking,
   Platform,
   Pressable,
@@ -17,8 +16,6 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import type { RootStackParamList } from '../navigation/types';
 import { useTheme } from '../theme/ThemeContext';
 import { useImmersive } from '../system/immersive';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export function CameraScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -109,6 +106,17 @@ export function CameraScreen() {
     }
   }, [isRecording, navigation]);
 
+  const stopRecording = useCallback(() => {
+    if (cameraRef.current && isRecording) {
+      cameraRef.current.stopRecording();
+      setIsRecording(false);
+      if (recordTimer.current) {
+        clearInterval(recordTimer.current);
+        recordTimer.current = null;
+      }
+    }
+  }, [isRecording]);
+
   const startRecording = useCallback(async () => {
     if (!cameraRef.current || isRecording) return;
     try {
@@ -142,18 +150,7 @@ export function CameraScreen() {
         recordTimer.current = null;
       }
     }
-  }, [isRecording, navigation]);
-
-  const stopRecording = useCallback(() => {
-    if (cameraRef.current && isRecording) {
-      cameraRef.current.stopRecording();
-      setIsRecording(false);
-      if (recordTimer.current) {
-        clearInterval(recordTimer.current);
-        recordTimer.current = null;
-      }
-    }
-  }, [isRecording]);
+  }, [isRecording, navigation, stopRecording]);
 
   const pickFromGallery = useCallback(async () => {
     if (Platform.OS === 'web') {

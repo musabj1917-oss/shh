@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Dimensions,
   FlatList,
   KeyboardAvoidingView,
   Modal,
@@ -22,7 +21,6 @@ import { api, messageForError } from '../api/client';
 import { uploadMedia } from '../api';
 import { useTheme } from '../theme/ThemeContext';
 import { Avatar, Button, Notice } from '../components/UI';
-import { BackIcon, CheckIcon } from '../components/Icons';
 import { useEscapeKey } from '../theme/webStyles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'CameraPreview'>;
@@ -39,12 +37,10 @@ interface RecipientStatus {
   error?: string;
 }
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
 export function CameraPreviewScreen({ route, navigation }: Props) {
   const { uri, mediaType } = route.params;
   const insets = useSafeAreaInsets();
-  const { colors, radii } = useTheme();
+  const { colors } = useTheme();
 
   const [caption, setCaption] = useState('');
   const [busy, setBusy] = useState(false);
@@ -86,7 +82,7 @@ export function CameraPreviewScreen({ route, navigation }: Props) {
       await MediaLibrary.saveToLibraryAsync(uri);
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
-    } catch (e) {
+    } catch {
       Alert.alert('Save Failed', 'Could not save media to device library.');
     }
   }, [uri]);

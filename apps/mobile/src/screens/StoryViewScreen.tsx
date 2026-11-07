@@ -2,11 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
-  Dimensions,
   FlatList,
   Modal,
   PanResponder,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -20,7 +18,7 @@ import { api, messageForError } from '../api/client';
 import { fetchMediaUrl } from '../media';
 import { useAuth } from '../auth/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
-import { Avatar, ConfirmModal, Notice } from '../components/UI';
+import { Avatar, ConfirmModal } from '../components/UI';
 import { useImmersive } from '../system/immersive';
 import { useEscapeKey } from '../theme/webStyles';
 
@@ -47,14 +45,13 @@ interface Viewer {
   viewed_at: string;
 }
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const STORY_DURATION = 5000; // 5 seconds per story
 
 export function StoryViewScreen({ route, navigation }: Props) {
   const { storyId, userId, initialIndex = 0, stories: passedStories } = route.params || {};
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
-  const { colors, radii } = useTheme();
+  const { colors } = useTheme();
   const { setImmersive } = useImmersive();
 
   const [stories, setStories] = useState<StoryItem[]>(passedStories || []);
@@ -66,7 +63,7 @@ export function StoryViewScreen({ route, navigation }: Props) {
   const [viewers, setViewers] = useState<Viewer[]>([]);
   const [showViewersSheet, setShowViewersSheet] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const [, setBusy] = useState(false);
 
   const progressAnim = useRef(new Animated.Value(0)).current;
   const animRef = useRef<Animated.CompositeAnimation | null>(null);

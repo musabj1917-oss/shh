@@ -38,7 +38,7 @@ app.use('/v1/*',cors({
     if(allowedOrigins.includes(origin)) return origin;
     if(origin.endsWith('.vercel.app')) return origin;
     if(/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return origin;
-    return origin;
+    return null;
   },
   allowMethods:['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
   allowHeaders:['Authorization','Content-Type','X-Request-Id'],
