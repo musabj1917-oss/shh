@@ -25,8 +25,13 @@ import { BackIcon, MapPinIcon, PaperclipIcon, SendIcon } from '../components/Ico
 import { useTheme } from '../theme/ThemeContext';
 import { useImmersive } from '../system/immersive';
 import { ExpiringBubble, ExpiryCaption, fetchMediaUrl, MediaImage } from '../media';
+import { useEscapeKey } from '../theme/webStyles';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Chat'>;
+type Props = Partial<NativeStackScreenProps<RootStackParamList, 'Chat'>> & {
+  route?: any;
+  navigation?: any;
+  isTwoPane?: boolean;
+};
 
 export type Message = {
   id: string;
@@ -212,7 +217,16 @@ const MessageRow = memo(function MessageRow({
             : null}
 
           {item.message_type !== 'location' && item.body ? (
-            <Text style={{ fontSize: 14, lineHeight: 20, fontWeight: '400', color: bubbleTextColor }}>
+            <Text
+              selectable={true}
+              style={{
+                fontSize: 14,
+                lineHeight: 20,
+                fontWeight: '400',
+                color: bubbleTextColor,
+                userSelect: 'text' as any,
+              }}
+            >
               {item.body}
             </Text>
           ) : null}
@@ -237,8 +251,10 @@ const MessageRow = memo(function MessageRow({
   );
 });
 
-export function ChatScreen({ route, navigation }: Props) {
-  const { conversationId, title, kind } = route.params;
+export function ChatScreen({ route, navigation, isTwoPane }: Props) {
+  const conversationId = route?.params?.conversationId || '';
+  const title = route?.params?.title || 'Chat';
+  const kind = (route?.params?.kind || 'direct') as 'direct' | 'group';
   const { user } = useAuth();
   const { colors, radii } = useTheme();
   const insets = useSafeAreaInsets();
@@ -271,6 +287,22 @@ export function ChatScreen({ route, navigation }: Props) {
     message?: string;
     buttons: ConfirmModalButton[];
   }>({ visible: false, title: '', buttons: [] });
+
+  useEscapeKey(
+    useCallback(() => {
+      if (viewerImage) {
+        setViewerImage(null);
+        void setImmersive(true);
+      } else if (modalDialog.visible) {
+        setModalDialog((d) => ({ ...d, visible: false }));
+      } else if (replyingTo) {
+        setReplyingTo(null);
+      } else if (editingId) {
+        setEditingId('');
+        setText('');
+      }
+    }, [viewerImage, modalDialog.visible, replyingTo, editingId, setImmersive])
+  );
 
   const ephemeralRef = useRef<Ably.RealtimeChannel | null>(null);
   const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -721,42 +753,52 @@ export function ChatScreen({ route, navigation }: Props) {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.canvas }}>
-      {/* Chat Header */}
       <View
         style={{
-          paddingTop: insets.top,
-          paddingLeft: Math.max(insets.left, 14),
-          paddingRight: Math.max(insets.right, 14),
-          height: headerHeight,
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.line,
-          backgroundColor: colors.panel,
+          flex: 1,
+          width: '100%',
+          maxWidth: isTwoPane ? undefined : 1200,
+          alignSelf: 'center',
         }}
       >
-        <Pressable
-          onPress={() => navigation.goBack()}
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-          style={({ pressed }) => [
-            {
-              width: 44,
-              height: 44,
-              borderRadius: radii.xl,
-              borderCurve: 'continuous',
-              backgroundColor: colors.card,
-              borderWidth: 1,
-              borderColor: colors.line,
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: pressed ? 0.75 : 1,
-            },
-          ]}
+        {/* Chat Header */}
+        <View
+          style={{
+            paddingTop: insets.top,
+            paddingLeft: Math.max(insets.left, 14),
+            paddingRight: Math.max(insets.right, 14),
+            height: headerHeight,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 12,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.line,
+            backgroundColor: colors.panel,
+          }}
         >
-          <BackIcon size={18} color={colors.ink} />
-        </Pressable>
+          {!isTwoPane ? (
+            <Pressable
+              onPress={() => navigation?.goBack?.()}
+              accessibilityRole="button"
+              accessibilityLabel="Back"
+              style={({ pressed }) => [
+                {
+                  width: 44,
+                  height: 44,
+                  borderRadius: radii.xl,
+                  borderCurve: 'continuous',
+                  backgroundColor: colors.card,
+                  borderWidth: 1,
+                  borderColor: colors.line,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: pressed ? 0.75 : 1,
+                },
+              ]}
+            >
+              <BackIcon size={18} color={colors.ink} />
+            </Pressable>
+          ) : null}
         <View style={{ position: 'relative' }}>
           <Avatar name={title} color={kind === 'group' ? colors.blue : colors.mint} />
           <View
@@ -976,6 +1018,17 @@ export function ChatScreen({ route, navigation }: Props) {
               value={text}
               onChangeText={setText}
               onFocus={() => scrollToNewest(true)}
+              onKeyPress={(e: any) => {
+                if (Platform.OS === 'web') {
+                  const native = e.nativeEvent;
+                  if (native && native.key === 'Enter' && !native.shiftKey) {
+                    e.preventDefault?.();
+                    if (text.trim() && !sending && !uploading) {
+                      void send();
+                    }
+                  }
+                }
+              }}
               placeholder={editingId ? 'Edit your message…' : 'Write a thoughtful message…'}
               placeholderTextColor={colors.muted}
               multiline
@@ -1080,6 +1133,7 @@ export function ChatScreen({ route, navigation }: Props) {
           </Pressable>
         </Modal>
       ) : null}
+      </View>
     </View>
   );
 }

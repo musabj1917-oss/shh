@@ -37,6 +37,13 @@ export function CameraScreen() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [focusPoint, setFocusPoint] = useState<{ x: number; y: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const isWeb = Platform.OS === 'web';
+  const hasGetUserMedia = isWeb
+    ? typeof navigator !== 'undefined' &&
+      Boolean(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+    : true;
 
   const cameraRef = useRef<any>(null);
   const recordTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -149,6 +156,31 @@ export function CameraScreen() {
   }, [isRecording]);
 
   const pickFromGallery = useCallback(async () => {
+    if (Platform.OS === 'web') {
+      if (typeof document !== 'undefined') {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*,video/*';
+        input.style.display = 'none';
+        input.onchange = (e: any) => {
+          const file = e.target?.files?.[0];
+          if (file) {
+            const uri = URL.createObjectURL(file);
+            const isVideo = file.type?.startsWith('video') || file.name?.endsWith('.mp4') || file.name?.endsWith('.mov');
+            navigation.navigate('CameraPreview', {
+              uri,
+              mediaType: isVideo ? 'video' : 'photo',
+            });
+          }
+        };
+        document.body.appendChild(input);
+        input.click();
+        setTimeout(() => {
+          if (document.body.contains(input)) document.body.removeChild(input);
+        }, 1000);
+      }
+      return;
+    }
     const res = await launchImageLibrary({
       mediaType: 'mixed',
       selectionLimit: 1,
@@ -163,6 +195,126 @@ export function CameraScreen() {
       mediaType: isVideo ? 'video' : 'photo',
     });
   }, [navigation]);
+
+  // Drag and drop support on web
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+
+    const handleDragOver = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+    };
+
+    const handleDrop = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+      const file = e.dataTransfer?.files?.[0];
+      if (file) {
+        const uri = URL.createObjectURL(file);
+        const isVideo = file.type?.startsWith('video') || file.name?.endsWith('.mp4') || file.name?.endsWith('.mov');
+        navigation.navigate('CameraPreview', {
+          uri,
+          mediaType: isVideo ? 'video' : 'photo',
+        });
+      }
+    };
+
+    window.addEventListener('dragover', handleDragOver);
+    window.addEventListener('dragleave', handleDragLeave);
+    window.addEventListener('drop', handleDrop);
+
+    return () => {
+      window.removeEventListener('dragover', handleDragOver);
+      window.removeEventListener('dragleave', handleDragLeave);
+      window.removeEventListener('drop', handleDrop);
+    };
+  }, [navigation]);
+
+  // Fallback on web when getUserMedia is unavailable
+  if (isWeb && !hasGetUserMedia) {
+    return (
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: '#0A0E0D',
+            paddingTop: insets.top + 40,
+            paddingBottom: insets.bottom + 20,
+            paddingHorizontal: 24,
+            justifyContent: 'center',
+            alignItems: 'center',
+          },
+        ]}
+      >
+        <View
+          style={{
+            width: 80,
+            height: 80,
+            borderRadius: 40,
+            backgroundColor: 'rgba(255,255,255,0.06)',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 24,
+          }}
+        >
+          <Text style={{ fontSize: 36 }}>📁</Text>
+        </View>
+
+        <Text style={{ fontSize: 22, fontWeight: '800', color: '#F4FAF7', textAlign: 'center', marginBottom: 10 }}>
+          Web Camera Fallback
+        </Text>
+        <Text
+          style={{
+            fontSize: 14,
+            lineHeight: 22,
+            color: '#8E9C96',
+            textAlign: 'center',
+            marginBottom: 28,
+            maxWidth: 360,
+          }}
+        >
+          Camera streaming (getUserMedia) is unavailable or restricted in this environment. Drag & drop a photo or video here, or browse files directly.
+        </Text>
+
+        <Pressable
+          onPress={pickFromGallery}
+          style={({ pressed }) => [
+            {
+              width: '100%',
+              maxWidth: 360,
+              paddingVertical: 32,
+              paddingHorizontal: 20,
+              borderRadius: radii.xl,
+              borderWidth: 2,
+              borderColor: isDragging ? colors.mint : 'rgba(255,255,255,0.2)',
+              borderStyle: 'dashed',
+              backgroundColor: isDragging ? colors.mintWash : 'rgba(255,255,255,0.03)',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 20,
+              opacity: pressed ? 0.8 : 1,
+            },
+          ]}
+        >
+          <Text style={{ fontSize: 32, marginBottom: 8 }}>{isDragging ? '📥' : '✨'}</Text>
+          <Text style={{ color: colors.mint, fontWeight: '700', fontSize: 16, marginBottom: 4 }}>
+            {isDragging ? 'Drop file to upload' : 'Click to browse files'}
+          </Text>
+          <Text style={{ color: '#8E9C96', fontSize: 13, textAlign: 'center' }}>
+            Supports photos (JPEG, PNG, HEIC) and videos (MP4, MOV)
+          </Text>
+        </Pressable>
+      </View>
+    );
+  }
 
   // Permission not granted state
   const hasCameraPerm = cameraPermission?.granted;
@@ -269,6 +421,25 @@ export function CameraScreen() {
 
   return (
     <View style={styles.container}>
+      {isDragging ? (
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              backgroundColor: 'rgba(0,0,0,0.85)',
+              zIndex: 99,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderWidth: 3,
+              borderColor: colors.mint,
+              borderStyle: 'dashed',
+            },
+          ]}
+        >
+          <Text style={{ fontSize: 48, marginBottom: 16 }}>📥</Text>
+          <Text style={{ color: colors.mint, fontSize: 20, fontWeight: '800' }}>Drop photo or video here</Text>
+        </View>
+      ) : null}
       {isFocused ? (
         <CameraView
           ref={cameraRef}

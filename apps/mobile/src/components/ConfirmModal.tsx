@@ -8,6 +8,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
+import { useEscapeKey } from '../theme/webStyles';
 
 export interface ConfirmModalButton {
   text: string;
@@ -35,6 +36,8 @@ export function ConfirmModal({
   style,
 }: ConfirmModalProps) {
   const { colors, radii, controls } = useTheme();
+
+  useEscapeKey(onDismiss, visible);
 
   if (!visible) return null;
 

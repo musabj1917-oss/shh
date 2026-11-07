@@ -167,69 +167,73 @@ function LeftNavRail({ state, descriptors, navigation, insets }: BottomTabBarPro
       </View>
 
       <View style={{ gap: 12, alignItems: 'center' }}>
-        {state.routes.map((route, index) => {
-          const isFocused = state.index === index;
-          const { options } = descriptors[route.key];
-          const label =
-            options.tabBarLabel !== undefined
-              ? options.tabBarLabel
-              : options.title !== undefined
-              ? options.title
-              : route.name;
+        {state.routes
+          .filter((r) => ['Camera', 'Inbox', 'People', 'Profile'].includes(r.name))
+          .map((route) => {
+            const index = state.routes.findIndex((r) => r.key === route.key);
+            const isFocused = state.index === index;
+            const label =
+              route.name === 'Inbox'
+                ? 'Chats'
+                : route.name === 'People'
+                ? 'Friends'
+                : route.name === 'Profile'
+                ? 'Profile'
+                : 'Camera';
 
-          const iconColor = isFocused ? colors.mint : colors.muted;
+            const iconColor = isFocused ? colors.mint : colors.muted;
 
-          const onPress = () => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true,
-            });
-            if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name);
-            }
-          };
+            const onPress = () => {
+              const event = navigation.emit({
+                type: 'tabPress',
+                target: route.key,
+                canPreventDefault: true,
+              });
+              if (!isFocused && !event.defaultPrevented) {
+                navigation.navigate(route.name);
+              }
+            };
 
-          return (
-            <Pressable
-              key={route.key}
-              onPress={onPress}
-              accessibilityRole="button"
-              accessibilityState={isFocused ? { selected: true } : {}}
-              accessibilityLabel={typeof label === 'string' ? label : route.name}
-              style={({ pressed }) => [
-                {
-                  width: 58,
-                  height: 54,
-                  borderRadius: radii.lg,
-                  borderCurve: 'continuous',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: isFocused
-                    ? colors.mintWash
-                    : pressed
-                    ? colors.line
-                    : 'transparent',
-                  borderWidth: 1,
-                  borderColor: isFocused ? colors.stitchGlow : 'transparent',
-                },
-              ]}
-            >
-              {renderTabIcon(route.name, isFocused, iconColor, 22)}
-              <Text
-                style={{
-                  fontSize: 10,
-                  fontWeight: isFocused ? '700' : '500',
-                  color: isFocused ? colors.mint : colors.muted,
-                  marginTop: 3,
-                  letterSpacing: 0.1,
-                }}
+            return (
+              <Pressable
+                key={route.key}
+                onPress={onPress}
+                accessibilityRole="button"
+                accessibilityState={isFocused ? { selected: true } : {}}
+                accessibilityLabel={label}
+                style={({ pressed }) => [
+                  {
+                    width: 58,
+                    height: 54,
+                    borderRadius: radii.lg,
+                    borderCurve: 'continuous',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: isFocused
+                      ? colors.mintWash
+                      : pressed
+                      ? colors.line
+                      : 'transparent',
+                    borderWidth: 1,
+                    borderColor: isFocused ? colors.stitchGlow : 'transparent',
+                  },
+                ]}
               >
-                {typeof label === 'string' ? label : route.name}
-              </Text>
-            </Pressable>
-          );
-        })}
+                {renderTabIcon(route.name, isFocused, iconColor, 22)}
+                <Text
+                  style={{
+                    fontSize: 10,
+                    fontWeight: isFocused ? '700' : '500',
+                    color: isFocused ? colors.mint : colors.muted,
+                    marginTop: 3,
+                    letterSpacing: 0.1,
+                  }}
+                >
+                  {label}
+                </Text>
+              </Pressable>
+            );
+          })}
       </View>
 
       <View style={{ alignItems: 'center', gap: 6 }}>
@@ -250,15 +254,15 @@ function LeftNavRail({ state, descriptors, navigation, insets }: BottomTabBarPro
 function MainTabs() {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
-  const isTablet = width >= 768;
+  const isWide = width >= 900;
 
   return (
     <Tabs.Navigator
       initialRouteName="Camera"
-      tabBar={(props) => (isTablet ? <LeftNavRail {...props} /> : <BottomTabBar {...props} />)}
+      tabBar={(props) => (isWide ? <LeftNavRail {...props} /> : <BottomTabBar {...props} />)}
       screenOptions={{
         headerShown: false,
-        tabBarPosition: isTablet ? 'left' : 'bottom',
+        tabBarPosition: isWide ? 'left' : 'bottom',
         sceneStyle: { backgroundColor: colors.canvas },
       }}
     >

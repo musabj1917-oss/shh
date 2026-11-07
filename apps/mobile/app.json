@@ -9,6 +9,15 @@
       "resizeMode": "contain",
       "backgroundColor": "#0A0A0A"
     },
+    "web": {
+      "favicon": "./assets/icons/haiku/icon-haiku.png",
+      "name": "Haiku Messenger",
+      "shortName": "Haiku",
+      "themeColor": "#0A0A0A",
+      "backgroundColor": "#0A0A0A",
+      "display": "standalone",
+      "lang": "en"
+    },
     "plugins": [
       [
         "expo-camera",

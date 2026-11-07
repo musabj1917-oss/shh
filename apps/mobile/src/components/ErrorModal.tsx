@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { mapErrorToUserFriendly, UserFriendlyError } from '@haiku/contracts';
 import { useTheme } from '../theme/ThemeContext';
+import { useEscapeKey } from '../theme/webStyles';
 
 export interface ErrorModalProps {
   visible: boolean;
@@ -30,6 +31,8 @@ export function ErrorModal({
 }: ErrorModalProps) {
   const { colors, typography, radii, controls } = useTheme();
   const [showDetails, setShowDetails] = useState(false);
+
+  useEscapeKey(onDismiss, visible);
 
   if (!visible) return null;
 

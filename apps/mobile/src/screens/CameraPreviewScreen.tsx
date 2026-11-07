@@ -23,6 +23,7 @@ import { uploadMedia } from '../api';
 import { useTheme } from '../theme/ThemeContext';
 import { Avatar, Button, Notice } from '../components/UI';
 import { BackIcon, CheckIcon } from '../components/Icons';
+import { useEscapeKey } from '../theme/webStyles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'CameraPreview'>;
 
@@ -54,6 +55,16 @@ export function CameraPreviewScreen({ route, navigation }: Props) {
   const [selectedFriends, setSelectedFriends] = useState<Set<string>>(new Set());
   const [recipientStatuses, setRecipientStatuses] = useState<Record<string, RecipientStatus>>({});
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  useEscapeKey(
+    useCallback(() => {
+      if (friendsModal) {
+        setFriendsModal(false);
+      } else {
+        navigation.goBack();
+      }
+    }, [friendsModal, navigation])
+  );
 
   useEffect(() => {
     // Load friends for the "Send to..." sheet

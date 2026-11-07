@@ -22,6 +22,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
 import { Avatar, ConfirmModal, Notice } from '../components/UI';
 import { useImmersive } from '../system/immersive';
+import { useEscapeKey } from '../theme/webStyles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'StoryView'>;
 
@@ -69,6 +70,18 @@ export function StoryViewScreen({ route, navigation }: Props) {
 
   const progressAnim = useRef(new Animated.Value(0)).current;
   const animRef = useRef<Animated.CompositeAnimation | null>(null);
+
+  useEscapeKey(
+    useCallback(() => {
+      if (showViewersSheet) {
+        setShowViewersSheet(false);
+      } else if (confirmDelete) {
+        setConfirmDelete(false);
+      } else {
+        navigation.goBack();
+      }
+    }, [showViewersSheet, confirmDelete, navigation])
+  );
 
   useEffect(() => {
     void setImmersive(true);

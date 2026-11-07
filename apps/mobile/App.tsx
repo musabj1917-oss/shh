@@ -7,6 +7,7 @@ import { ErrorBoundary } from './src/components/ErrorBoundary';
 import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
 import { initImmersive, useImmersive } from './src/system/immersive';
 import { UpdateGate } from './src/updates';
+import { injectWebStyles, initWebMetadata } from './src/theme/webStyles';
 
 function AppRoot() {
   const { colors, isDark } = useTheme();
@@ -14,7 +15,12 @@ function AppRoot() {
 
   useEffect(() => {
     void initImmersive();
+    initWebMetadata();
   }, []);
+
+  useEffect(() => {
+    injectWebStyles(colors.mint);
+  }, [colors.mint]);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.canvas }}>

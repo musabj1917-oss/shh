@@ -1,0 +1,24 @@
+{
+  "name": "Haiku Messenger",
+  "short_name": "Haiku",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0A0A0A",
+  "theme_color": "#0A0A0A",
+  "description": "Private, Ephemeral, Connected messaging",
+  "icons": [
+    {
+      "src": "/assets/icons/haiku/icon-haiku.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/haiku/adaptive-foreground-haiku.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

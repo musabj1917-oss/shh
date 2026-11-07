@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { FlatList, Pressable, RefreshControl, ScrollView, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, ScrollView, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -8,8 +8,9 @@ import { api, messageForError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import type { MainTabParamList, RootStackParamList } from '../navigation/types';
 import { Avatar, Button, EmptyState, Notice, Screen, SkeletonRow } from '../components/UI';
-import { BellIcon, PlusIcon, SearchIcon, PeopleIcon } from '../components/Icons';
+import { BellIcon, PlusIcon, SearchIcon, PeopleIcon, ChatsIcon } from '../components/Icons';
 import { useTheme } from '../theme/ThemeContext';
+import { ChatScreen } from './ChatScreen';
 
 type Conversation = {
   id: string;
@@ -135,15 +136,32 @@ export function InboxScreen() {
     [conversations, query, unreadOnly]
   );
 
-  const open = (item: Conversation) =>
-    navigation.navigate('Chat', {
-      conversationId: item.id,
-      title: item.title || 'Conversation',
-      kind: item.kind,
-    });
+  const { width } = useWindowDimensions();
+  const isWide = width >= 900;
+  const [selectedConv, setSelectedConv] = useState<{
+    conversationId: string;
+    title: string;
+    kind: 'direct' | 'group';
+  } | null>(null);
 
-  return (
-    <Screen style={{ paddingHorizontal: 20, paddingTop: 14, backgroundColor: colors.canvas }}>
+  const open = (item: Conversation) => {
+    if (isWide) {
+      setSelectedConv({
+        conversationId: item.id,
+        title: item.title || 'Conversation',
+        kind: item.kind,
+      });
+    } else {
+      navigation.navigate('Chat', {
+        conversationId: item.id,
+        title: item.title || 'Conversation',
+        kind: item.kind,
+      });
+    }
+  };
+
+  const chatListContent = (
+    <View style={{ flex: 1 }}>
       {/* Top App Bar */}
       <View
         style={{
@@ -525,6 +543,7 @@ export function InboxScreen() {
           }
           renderItem={({ item }) => {
             const hasUnread = item.unread_count > 0;
+            const isSelected = isWide && selectedConv?.conversationId === item.id;
             return (
               <Pressable
                 onPress={() => open(item)}
@@ -539,9 +558,17 @@ export function InboxScreen() {
                     borderRadius: radii.xxl,
                     borderCurve: 'continuous',
                     marginBottom: 10,
-                    backgroundColor: pressed ? colors.cardHover : colors.card,
+                    backgroundColor: isSelected
+                      ? colors.mintWash
+                      : pressed
+                      ? colors.cardHover
+                      : colors.card,
                     borderWidth: 1,
-                    borderColor: hasUnread ? colors.stitchGlow : colors.line,
+                    borderColor: isSelected
+                      ? colors.mint
+                      : hasUnread
+                      ? colors.stitchGlow
+                      : colors.line,
                     shadowColor: '#000',
                     shadowOpacity: 0.1,
                     shadowRadius: 8,
@@ -664,6 +691,125 @@ export function InboxScreen() {
           }}
         />
       )}
+    </View>
+  );
+
+  if (isWide) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.canvas }}>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            width: '100%',
+            maxWidth: 1440,
+            marginHorizontal: 'auto',
+          }}
+        >
+          {/* Left Sidebar Pane (~360px) */}
+          <View
+            style={{
+              width: 360,
+              borderRightWidth: 1,
+              borderRightColor: colors.line,
+              backgroundColor: colors.canvas,
+              paddingHorizontal: 16,
+              paddingTop: 14,
+              height: '100%',
+            }}
+          >
+            {chatListContent}
+          </View>
+
+          {/* Right Pane */}
+          <View style={{ flex: 1, backgroundColor: colors.canvas, height: '100%' }}>
+            {selectedConv ? (
+              <ChatScreen
+                key={selectedConv.conversationId}
+                route={{
+                  key: `chat-${selectedConv.conversationId}`,
+                  name: 'Chat',
+                  params: selectedConv,
+                } as any}
+                navigation={navigation as any}
+                isTwoPane={true}
+              />
+            ) : (
+              <View
+                style={{
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 32,
+                  backgroundColor: colors.canvas,
+                }}
+              >
+                <View
+                  style={{
+                    width: 88,
+                    height: 88,
+                    borderRadius: 44,
+                    backgroundColor: colors.panel,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: 20,
+                    borderWidth: 1,
+                    borderColor: colors.line,
+                  }}
+                >
+                  <ChatsIcon size={44} color={colors.mint} />
+                </View>
+                <Text
+                  style={{
+                    fontSize: 22,
+                    fontWeight: '800',
+                    color: colors.ink,
+                    marginBottom: 8,
+                    textAlign: 'center',
+                  }}
+                >
+                  Select a conversation
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: colors.muted,
+                    textAlign: 'center',
+                    maxWidth: 360,
+                    lineHeight: 22,
+                    marginBottom: 24,
+                  }}
+                >
+                  Choose a conversation from the sidebar or reach out to a friend to start chatting with end-to-end ephemeral privacy.
+                </Text>
+                <Pressable
+                  onPress={() => tabs.navigate('People')}
+                  accessibilityRole="button"
+                  style={({ pressed }) => [
+                    {
+                      paddingVertical: 12,
+                      paddingHorizontal: 24,
+                      borderRadius: radii.pill,
+                      backgroundColor: colors.mint,
+                      opacity: pressed ? 0.8 : 1,
+                    },
+                  ]}
+                >
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: colors.mintContrast }}>
+                    Start a New Chat
+                  </Text>
+                </Pressable>
+              </View>
+            )}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <Screen style={{ paddingHorizontal: 20, paddingTop: 14, backgroundColor: colors.canvas }}>
+      {chatListContent}
     </Screen>
   );
 }
