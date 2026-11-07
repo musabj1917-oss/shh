@@ -6,7 +6,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.haikumessenger.MainActivity
 
-class ImmersiveModule(reactContext: ReactApplicationContext) :
+class ImmersiveModule(private val reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
 
   override fun getName(): String = "HaikuImmersive"
@@ -14,7 +14,7 @@ class ImmersiveModule(reactContext: ReactApplicationContext) :
   @ReactMethod
   fun setImmersive(enabled: Boolean, promise: Promise) {
     MainActivity.isImmersiveEnabled = enabled
-    val activity = currentActivity as? MainActivity
+    val activity = (reactContext.currentActivity ?: reactApplicationContext.currentActivity) as? MainActivity
     if (activity != null) {
       activity.runOnUiThread {
         MainActivity.applyImmersiveMode(activity)
