@@ -1,35 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --canvas: #070D0A;
-  --panel: rgba(14, 22, 17, 0.88);
-  --panel-solid: #0E1611;
-  --card: rgba(20, 32, 25, 0.78);
-  --card-hover: rgba(28, 44, 34, 0.88);
-  --input-bg: rgba(10, 16, 12, 0.88);
+  --canvas: #0C1015;
+  --panel: rgba(18, 24, 32, 0.90);
+  --panel-solid: #121820;
+  --card: rgba(24, 33, 44, 0.82);
+  --card-hover: rgba(33, 45, 60, 0.92);
+  --input-bg: rgba(14, 19, 26, 0.92);
 
-  --stitch-line: rgba(163, 230, 53, 0.16);
-  --stitch-subtle: rgba(255, 255, 255, 0.08);
-  --stitch-glow: rgba(163, 230, 53, 0.32);
+  --stitch-line: rgba(255, 255, 255, 0.08);
+  --stitch-subtle: rgba(255, 255, 255, 0.05);
+  --stitch-glow: rgba(78, 159, 134, 0.20);
 
-  --accent-primary: #A3E635;
-  --accent-highlight: #BEF264;
-  --accent-dark: #65A30D;
-  --accent-contrast: #07120A;
+  --accent-primary: #4E9F86;
+  --accent-highlight: #62B89D;
+  --accent-dark: #377561;
+  --accent-contrast: #071712;
 
-  --ink: #F4FBF7;
-  --body: #A8C2B5;
-  --muted: #6E8B7E;
+  --ink: #EDF2F7;
+  --body: #8C9DAE;
+  --muted: #556778;
 
-  --danger: #F87171;
-  --danger-bg: rgba(248, 113, 113, 0.14);
-  --danger-border: rgba(248, 113, 113, 0.28);
-  --amber: #FACC15;
-  --amber-bg: rgba(250, 204, 21, 0.12);
-  --blue: #38BDF8;
-  --blue-bg: rgba(56, 189, 248, 0.12);
+  --danger: #E06C75;
+  --danger-bg: rgba(224, 108, 117, 0.14);
+  --danger-border: rgba(224, 108, 117, 0.28);
+  --amber: #D48259;
+  --amber-bg: rgba(212, 130, 89, 0.12);
+  --blue: #61AFEF;
+  --blue-bg: rgba(97, 175, 239, 0.12);
 
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Newsreader', Georgia, serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
 

@@ -3,151 +3,153 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#070d0a" />
-  <title>Haiku Messenger — Calm, Connected Conversations</title>
+  <meta name="theme-color" content="#0c1015" />
+  <title>Haiku Messenger — Calm, Ephemeral, Connected</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
   <link rel="alternate icon" type="image/x-icon" sizes="any" href="/favicon.ico?v=2" />
   <link rel="apple-touch-icon" href="/logo.png?v=2" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font: 'Instrument Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-serif: 'Newsreader', Georgia, serif;
       --font-mono: 'JetBrains Mono', monospace;
 
-      /* === THEME: LIME VELVET (Default) === */
-      --primary: #a3e635;
-      --primary-glow: rgba(163, 230, 53, 0.32);
-      --primary-dark: #65a30d;
-      --primary-light: #ecfccb;
-      --primary-contrast: #07120a;
+      /* === THEME: SUMI & RAIN (Default Calm Sanctuary) === */
+      --primary: #4e9f86;
+      --primary-glow: rgba(78, 159, 134, 0.22);
+      --primary-dark: #377561;
+      --primary-light: #d6ebe3;
+      --primary-contrast: #071712;
 
-      --accent: #bef264;
-      --accent-glow: rgba(190, 242, 100, 0.25);
+      --accent: #d48259;
+      --accent-glow: rgba(212, 130, 89, 0.2);
 
-      /* Deep Velvet Obsidian Layers */
-      --bg-dark: #070d0a;
-      --bg-panel: rgba(14, 22, 17, 0.78);
-      --bg-card: rgba(20, 32, 25, 0.72);
-      --bg-card-hover: rgba(28, 44, 34, 0.85);
-      --bg-input: rgba(10, 16, 12, 0.85);
-      --bg-hover: rgba(163, 230, 53, 0.08);
+      /* Natural Washi & Basalt Layers */
+      --bg-dark: #0c1015;
+      --bg-panel: rgba(18, 24, 32, 0.88);
+      --bg-card: rgba(24, 33, 44, 0.82);
+      --bg-card-hover: rgba(33, 45, 60, 0.95);
+      --bg-input: rgba(14, 19, 26, 0.92);
+      --bg-hover: rgba(78, 159, 134, 0.08);
 
-      --text-main: #f4fbf7;
-      --text-muted: #9ab3a6;
-      --text-sub: #61796d;
+      --text-main: #edf2f7;
+      --text-muted: #8c9dae;
+      --text-sub: #556778;
 
-      --border: rgba(163, 230, 53, 0.14);
-      --border-light: rgba(255, 255, 255, 0.08);
-      --border-focus: #a3e635;
-      --border-focus-glow: 0 0 0 3px rgba(163, 230, 53, 0.25);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-light: rgba(255, 255, 255, 0.04);
+      --border-focus: #4e9f86;
+      --border-focus-glow: 0 0 0 2px rgba(78, 159, 134, 0.25);
 
-      --bubble-me: linear-gradient(135deg, #a3e635 0%, #65a30d 100%);
-      --bubble-me-text: #07120a;
-      --bubble-other: rgba(22, 34, 27, 0.9);
-      --bubble-other-text: #f4fbf7;
-      --bubble-other-border: rgba(163, 230, 53, 0.12);
+      --bubble-me: #377561;
+      --bubble-me-text: #f4faf7;
+      --bubble-other: rgba(26, 36, 48, 0.88);
+      --bubble-other-text: #edf2f7;
+      --bubble-other-border: rgba(255, 255, 255, 0.06);
 
-      --online: #a3e635;
-      --offline: #61796d;
-      --danger: #f87171;
-      --danger-glow: rgba(248, 113, 113, 0.2);
-      --warning: #facc15;
+      --online: #4e9f86;
+      --offline: #556778;
+      --danger: #e06c75;
+      --danger-glow: rgba(224, 108, 117, 0.2);
+      --warning: #e5a855;
 
-      --radius-xs: 6px;
-      --radius-sm: 10px;
-      --radius-md: 16px;
-      --radius-lg: 24px;
+      --radius-xs: 4px;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
       --radius-full: 9999px;
 
-      /* Anti-Gravity Weightless Elevation */
-      --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.35);
-      --shadow-md: 0 12px 28px -6px rgba(0, 0, 0, 0.55), 0 0 1px 1px rgba(163, 230, 53, 0.12);
-      --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.75), 0 0 25px -5px rgba(163, 230, 53, 0.18);
-      --shadow-float: 0 16px 36px -8px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(163, 230, 53, 0.2);
-      --glass-sheen: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+      /* Gentle Atmospheric Depth */
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.07);
+      --shadow-float: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.07);
+      --glass-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
 
-    /* === THEME: CLASSIC MINT === */
-    [data-theme="mint"] {
-      --primary: #10b981;
-      --primary-glow: rgba(16, 185, 129, 0.3);
-      --primary-dark: #059669;
-      --primary-light: #d1fae5;
-      --primary-contrast: #ffffff;
-      --accent: #06b6d4;
-      --accent-glow: rgba(6, 182, 212, 0.25);
-      --bg-dark: #0b1319;
-      --bg-panel: rgba(18, 29, 39, 0.8);
-      --bg-card: rgba(24, 38, 51, 0.75);
-      --bg-card-hover: rgba(32, 50, 68, 0.85);
-      --bg-input: rgba(13, 22, 30, 0.85);
-      --bg-hover: rgba(16, 185, 129, 0.08);
-      --text-main: #f0fdf4;
-      --text-muted: #94a3b8;
-      --text-sub: #64748b;
-      --border: rgba(16, 185, 129, 0.15);
-      --bubble-me: linear-gradient(135deg, #10b981 0%, #0d9488 100%);
+    /* === THEME: KOMOREBI (Cedar & Amber) === */
+    [data-theme="komorebi"], [data-theme="mint"] {
+      --primary: #58a379;
+      --primary-glow: rgba(88, 163, 121, 0.22);
+      --primary-dark: #3f7b58;
+      --primary-light: #daf0e3;
+      --primary-contrast: #07150d;
+      --accent: #d48259;
+      --accent-glow: rgba(212, 130, 89, 0.2);
+      --bg-dark: #0b120e;
+      --bg-panel: rgba(16, 26, 20, 0.90);
+      --bg-card: rgba(22, 36, 28, 0.85);
+      --bg-card-hover: rgba(30, 48, 38, 0.95);
+      --bg-input: rgba(12, 20, 15, 0.92);
+      --bg-hover: rgba(88, 163, 121, 0.08);
+      --text-main: #f0faf4;
+      --text-muted: #8dafa0;
+      --text-sub: #537264;
+      --border: rgba(255, 255, 255, 0.08);
+      --bubble-me: #386f50;
       --bubble-me-text: #ffffff;
-      --bubble-other: rgba(26, 42, 56, 0.9);
-      --bubble-other-text: #f8fafc;
-      --bubble-other-border: rgba(255, 255, 255, 0.08);
+      --bubble-other: rgba(23, 37, 29, 0.90);
+      --bubble-other-text: #f0faf4;
+      --bubble-other-border: rgba(255, 255, 255, 0.06);
     }
 
-    /* === THEME: EMERALD NOIR === */
+    /* === THEME: SUMI NOIR (Pure Charcoal Monochrome) === */
     [data-theme="noir"] {
-      --primary: #4ade80;
-      --primary-glow: rgba(74, 222, 128, 0.28);
-      --primary-dark: #22c55e;
-      --primary-light: #bbf7d0;
-      --primary-contrast: #051408;
-      --accent: #2dd4bf;
-      --accent-glow: rgba(45, 212, 191, 0.25);
-      --bg-dark: #030704;
-      --bg-panel: rgba(8, 16, 11, 0.85);
-      --bg-card: rgba(14, 24, 18, 0.8);
-      --bg-card-hover: rgba(22, 36, 28, 0.9);
-      --bg-input: rgba(6, 12, 8, 0.9);
-      --bg-hover: rgba(74, 222, 128, 0.08);
-      --text-main: #f0fdf4;
-      --text-muted: #86efac;
-      --text-sub: #4b6b55;
-      --border: rgba(74, 222, 128, 0.16);
-      --bubble-me: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+      --primary: #9baec1;
+      --primary-glow: rgba(155, 174, 193, 0.2);
+      --primary-dark: #708498;
+      --primary-light: #dbe4ee;
+      --primary-contrast: #0a0e12;
+      --accent: #d48259;
+      --accent-glow: rgba(212, 130, 89, 0.2);
+      --bg-dark: #080a0d;
+      --bg-panel: rgba(14, 18, 23, 0.90);
+      --bg-card: rgba(20, 26, 33, 0.85);
+      --bg-card-hover: rgba(28, 36, 46, 0.95);
+      --bg-input: rgba(11, 14, 18, 0.92);
+      --bg-hover: rgba(155, 174, 193, 0.08);
+      --text-main: #edf2f7;
+      --text-muted: #8292a2;
+      --text-sub: #4e5b68;
+      --border: rgba(255, 255, 255, 0.07);
+      --bubble-me: #323e4d;
       --bubble-me-text: #ffffff;
-      --bubble-other: rgba(18, 28, 21, 0.9);
-      --bubble-other-text: #f0fdf4;
-      --bubble-other-border: rgba(74, 222, 128, 0.1);
+      --bubble-other: rgba(20, 26, 33, 0.90);
+      --bubble-other-text: #edf2f7;
+      --bubble-other-border: rgba(255, 255, 255, 0.05);
     }
 
-    /* === THEME: VELVET MOONLIGHT (Light) === */
+    /* === THEME: WASHI PAPER (Warm Daylight Linen) === */
     [data-theme="light"] {
-      --primary: #4d7c0f;
-      --primary-glow: rgba(77, 124, 15, 0.2);
-      --primary-dark: #3f6212;
-      --primary-light: #ecfccb;
+      --primary: #377561;
+      --primary-glow: rgba(55, 117, 97, 0.18);
+      --primary-dark: #275647;
+      --primary-light: #dcece5;
       --primary-contrast: #ffffff;
-      --accent: #65a30d;
-      --accent-glow: rgba(101, 163, 13, 0.15);
-      --bg-dark: #f6faf6;
-      --bg-panel: rgba(255, 255, 255, 0.88);
-      --bg-card: rgba(240, 248, 242, 0.85);
-      --bg-card-hover: rgba(230, 242, 233, 0.95);
+      --accent: #b8623b;
+      --accent-glow: rgba(184, 98, 59, 0.15);
+      --bg-dark: #f8f6f0;
+      --bg-panel: rgba(255, 255, 255, 0.92);
+      --bg-card: rgba(247, 244, 237, 0.90);
+      --bg-card-hover: rgba(238, 234, 224, 0.95);
       --bg-input: #ffffff;
-      --bg-hover: rgba(77, 124, 15, 0.06);
-      --text-main: #0c1a11;
-      --text-muted: #4e6b57;
-      --text-sub: #789982;
-      --border: rgba(77, 124, 15, 0.15);
-      --bubble-me: linear-gradient(135deg, #65a30d 0%, #4d7c0f 100%);
+      --bg-hover: rgba(55, 117, 97, 0.07);
+      --text-main: #141c22;
+      --text-muted: #536473;
+      --text-sub: #8696a6;
+      --border: rgba(0, 0, 0, 0.08);
+      --bubble-me: #377561;
       --bubble-me-text: #ffffff;
-      --bubble-other: #e6efe8;
-      --bubble-other-text: #0c1a11;
-      --bubble-other-border: rgba(0, 0, 0, 0.05);
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-      --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
-      --shadow-lg: 0 20px 40px -10px rgba(0, 0, 0, 0.12);
+      --bubble-other: #eae5d9;
+      --bubble-other-text: #141c22;
+      --bubble-other-border: rgba(0, 0, 0, 0.06);
+      --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+    }
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -162,15 +164,15 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* Ambient Spatial Velvet Glow Background */
+    /* Ambient Spatial Washi & Rain Background */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(circle at 12% 18%, rgba(163, 230, 53, 0.07) 0%, transparent 45%),
-        radial-gradient(circle at 88% 82%, rgba(190, 242, 100, 0.05) 0%, transparent 45%),
-        radial-gradient(circle at 50% 50%, rgba(101, 163, 13, 0.03) 0%, transparent 60%);
+        radial-gradient(circle at 15% 15%, rgba(78, 159, 134, 0.05) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(212, 130, 89, 0.03) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(55, 117, 97, 0.02) 0%, transparent 60%);
       pointer-events: none;
       z-index: 0;
     }
@@ -196,9 +198,9 @@
     .skeleton {
       background: linear-gradient(
         90deg,
-        rgba(255, 255, 255, 0.04) 0%,
-        rgba(163, 230, 53, 0.13) 50%,
-        rgba(255, 255, 255, 0.04) 100%
+        rgba(255, 255, 255, 0.03) 0%,
+        rgba(78, 159, 134, 0.09) 50%,
+        rgba(255, 255, 255, 0.03) 100%
       );
       background-size: 200% 100%;
       animation: skeletonPulse 1.8s infinite ease-in-out;
@@ -270,57 +272,58 @@
     }
 
     .brand-logo {
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       border-radius: var(--radius-md);
-      background: linear-gradient(135deg, #a3e635 0%, #4d7c0f 100%);
-      box-shadow: 0 8px 24px var(--primary-glow);
+      background: var(--primary);
+      box-shadow: var(--shadow-sm);
       display: grid;
       place-items: center;
       color: var(--primary-contrast);
-      font-size: 22px;
-      font-weight: 800;
-      margin-bottom: 30px;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 28px;
       cursor: pointer;
       transform: translateZ(0);
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .brand-logo:hover {
-      transform: translateY(-2px) scale(1.05);
-      box-shadow: 0 12px 30px var(--primary-glow);
+      background: #5ab397;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
     }
 
     .rail-nav {
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
       width: 100%;
       align-items: center;
     }
 
     .rail-btn {
-      width: 50px;
-      height: 50px;
-      border-radius: var(--radius-md);
+      width: 46px;
+      height: 46px;
+      border-radius: var(--radius-sm);
       background: transparent;
       color: var(--text-muted);
       display: grid;
       place-items: center;
       position: relative;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .rail-btn:hover {
       color: var(--text-main);
       background: var(--bg-hover);
-      transform: translateY(-2px);
+      transform: translateY(-1px);
     }
 
     .rail-btn.active {
       color: var(--primary);
-      background: rgba(163, 230, 53, 0.14);
-      box-shadow: 0 4px 16px rgba(163, 230, 53, 0.15), inset 0 0 0 1px rgba(163, 230, 53, 0.35);
+      background: rgba(78, 159, 134, 0.12);
+      box-shadow: inset 0 0 0 1px rgba(78, 159, 134, 0.3);
     }
 
     .rail-btn.active::before {
@@ -328,49 +331,51 @@
       position: absolute;
       left: 0;
       width: 3px;
-      height: 24px;
+      height: 20px;
       background: var(--primary);
-      border-radius: 0 4px 4px 0;
-      box-shadow: 0 0 10px var(--primary);
+      border-radius: 0 3px 3px 0;
     }
 
     .rail-badge {
       position: absolute;
-      top: 6px;
-      right: 6px;
-      background: var(--primary);
-      color: var(--primary-contrast);
+      top: 4px;
+      right: 4px;
+      background: var(--accent);
+      color: #ffffff;
       font-size: 10px;
-      font-weight: 800;
-      min-width: 18px;
-      height: 18px;
+      font-weight: 700;
+      min-width: 17px;
+      height: 17px;
       border-radius: var(--radius-full);
       display: grid;
       place-items: center;
       padding: 0 4px;
-      box-shadow: 0 2px 8px var(--primary-glow);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
     }
 
     .rail-spacer { flex: 1; }
 
     .rail-avatar-btn {
-      width: 46px;
-      height: 46px;
+      width: 44px;
+      height: 44px;
       border-radius: var(--radius-full);
       background: var(--bg-card);
-      border: 2px solid var(--primary);
-      color: var(--primary);
-      font-weight: 800;
-      font-size: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--primary-light);
+      font-weight: 600;
+      font-size: 14px;
       display: grid;
       place-items: center;
       position: relative;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .rail-avatar-btn:hover {
-      transform: scale(1.08);
+      border-color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
       box-shadow: 0 6px 20px var(--primary-glow);
     }
 
@@ -503,10 +508,10 @@
     }
 
     .filter-tab.active {
-      background: rgba(163, 230, 53, 0.16);
-      border-color: rgba(163, 230, 53, 0.35);
+      background: rgba(78, 159, 134, 0.12);
+      border-color: rgba(78, 159, 134, 0.30);
       color: var(--primary);
-      box-shadow: 0 2px 8px rgba(163, 230, 53, 0.15);
+      box-shadow: none;
     }
 
     /* Sidebar Content Sections (Chats, Friends, Groups) */
@@ -528,26 +533,24 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px;
-      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
       background: transparent;
       border: 1px solid transparent;
       text-align: left;
       width: 100%;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
     }
 
     .conv-item:hover {
       background: var(--bg-card-hover);
       border-color: var(--border);
-      transform: translateY(-1px);
     }
 
     .conv-item.active {
-      background: rgba(163, 230, 53, 0.13);
-      border-color: rgba(163, 230, 53, 0.3);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+      background: rgba(78, 159, 134, 0.10);
+      border-color: rgba(78, 159, 134, 0.25);
     }
 
     .avatar-wrap {
@@ -556,14 +559,14 @@
     }
 
     .avatar {
-      width: 46px;
-      height: 46px;
+      width: 44px;
+      height: 44px;
       border-radius: var(--radius-full);
-      background: linear-gradient(135deg, #162c20, #224330);
-      border: 1px solid rgba(163, 230, 53, 0.25);
-      color: var(--primary);
-      font-weight: 800;
-      font-size: 15px;
+      background: rgba(33, 45, 60, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--primary-light);
+      font-weight: 600;
+      font-size: 14px;
       display: grid;
       place-items: center;
       text-transform: uppercase;
@@ -571,8 +574,8 @@
     }
 
     .avatar.group {
-      background: linear-gradient(135deg, #a3e635 0%, #4d7c0f 100%);
-      color: var(--primary-contrast);
+      background: var(--primary-dark);
+      color: #ffffff;
       border-color: var(--primary);
     }
 
@@ -580,8 +583,8 @@
       position: absolute;
       right: 0;
       bottom: 0;
-      width: 13px;
-      height: 13px;
+      width: 11px;
+      height: 11px;
       border-radius: var(--radius-full);
       border: 2px solid var(--bg-panel);
       background: var(--offline);
@@ -589,7 +592,7 @@
 
     .status-dot.online {
       background: var(--online);
-      box-shadow: 0 0 8px var(--primary);
+      box-shadow: 0 0 4px var(--primary);
     }
 
     .conv-info {
@@ -636,18 +639,18 @@
     }
 
     .conv-unread {
-      background: var(--primary);
-      color: var(--primary-contrast);
+      background: var(--accent);
+      color: #ffffff;
       font-size: 10px;
-      font-weight: 800;
-      min-width: 20px;
-      height: 20px;
+      font-weight: 700;
+      min-width: 18px;
+      height: 18px;
       border-radius: var(--radius-full);
       display: grid;
       place-items: center;
       padding: 0 5px;
       flex-shrink: 0;
-      box-shadow: 0 2px 8px var(--primary-glow);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
     }
 
     /* Friends & Groups Cards */
@@ -659,15 +662,15 @@
       padding: 12px 14px;
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border-radius: var(--radius-sm);
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .contact-card:hover {
       background: var(--bg-card-hover);
-      border-color: rgba(163, 230, 53, 0.3);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
+      border-color: rgba(78, 159, 134, 0.3);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
     }
 
     /* === 3. MAIN CHAT PANE === */
@@ -783,14 +786,14 @@
     }
 
     .message-bubble {
-      padding: 12px 18px;
-      border-radius: var(--radius-lg);
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
       font-size: 14px;
-      line-height: 1.5;
+      line-height: 1.55;
       word-break: break-word;
       position: relative;
       box-shadow: var(--shadow-sm);
-      transition: transform 0.15s, box-shadow 0.15s;
+      transition: all 0.15s ease;
     }
 
     .message-bubble:hover {
@@ -800,17 +803,16 @@
     .message-row.me .message-bubble {
       background: var(--bubble-me);
       color: var(--bubble-me-text);
-      font-weight: 500;
-      border-bottom-right-radius: 4px;
-      box-shadow: 0 4px 18px var(--primary-glow);
+      font-weight: 450;
+      border-bottom-right-radius: 2px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
     }
 
     .message-row.other .message-bubble {
       background: var(--bubble-other);
       color: var(--bubble-other-text);
       border: 1px solid var(--bubble-other-border);
-      border-bottom-left-radius: 4px;
-      backdrop-filter: blur(12px);
+      border-bottom-left-radius: 2px;
     }
 
     .msg-reply-snippet {
@@ -947,7 +949,7 @@
       gap: 10px;
       background: var(--bg-input);
       border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-md);
       padding: 8px 14px;
       box-shadow: var(--shadow-sm);
       transition: all 0.2s;
@@ -956,7 +958,7 @@
     .composer-form:focus-within {
       border-color: var(--border-focus);
       box-shadow: var(--border-focus-glow);
-      background: rgba(12, 22, 16, 0.95);
+      background: rgba(16, 22, 30, 0.98);
     }
 
     .composer-textarea {
@@ -981,38 +983,36 @@
     }
 
     .composer-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: var(--radius-md);
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-sm);
       background: transparent;
       color: var(--text-muted);
       display: grid;
       place-items: center;
-      font-size: 16px;
+      font-size: 15px;
     }
 
     .composer-btn:hover {
       color: var(--text-main);
       background: var(--bg-hover);
-      transform: scale(1.1);
     }
 
     .send-btn {
       background: var(--primary);
       color: var(--primary-contrast);
-      border-radius: var(--radius-md);
-      width: 40px;
-      height: 40px;
+      border-radius: var(--radius-sm);
+      width: 36px;
+      height: 36px;
       display: grid;
       place-items: center;
-      box-shadow: 0 4px 16px var(--primary-glow);
-      font-weight: 800;
+      box-shadow: var(--shadow-sm);
+      font-weight: 700;
     }
 
     .send-btn:hover {
-      background: var(--accent);
-      transform: translateY(-2px) scale(1.04);
-      box-shadow: 0 6px 22px var(--primary-glow);
+      background: #5ab397;
+      transform: translateY(-1px);
     }
 
     .send-btn:disabled {
@@ -1809,32 +1809,31 @@
 
     <!-- Hero Section -->
     <section class="landing-hero">
-      <div class="stitch-badge">
-        <span>✦</span> Google Stitch Architecture · Obsidian Velvet
+      <div class="haiku-badge">
+        <span>✦</span> Mindful Communication · Ephemeral Sanctuary
       </div>
       <h1 class="landing-title">
-        Calm, Ephemeral, Weightless Messaging.
+        Calm, ephemeral conversations <em>in fleeting time</em>.
       </h1>
       <p class="landing-subtitle">
-        Private by design. Real-time conversations with disappearing messages, voice notes, and zero tracking. Built with Stitch aesthetics for Android and the Web.
+        Private by design. Real-time conversations with disappearing messages, ambient proximity radar, and zero algorithmic noise. Built for peace of mind on Android and the Web.
       </p>
       <div class="landing-cta-row">
         <a id="heroDownloadApkBtn" class="btn-download-apk" href="https://github.com/musabj1917-oss/shh/releases/latest">
-          <span style="font-size:20px;">🤖</span>
+          <span style="font-size:18px;">⬇</span>
           <span>Download Android APK</span>
-          <span id="heroApkBadge" style="font-size:11px; opacity:0.85; padding:2px 8px; border-radius:6px; background:rgba(0,0,0,0.15);">v1.0</span>
+          <span id="heroApkBadge" style="font-size:11px; opacity:0.85; padding:2px 8px; border-radius:6px; background:rgba(255,255,255,0.06);">v1.0</span>
         </a>
         <button id="heroOpenWebBtn" class="btn-launch-web">
-          <span style="font-size:18px;">🌐</span>
-          <span>Use Web Version</span>
+          <span>Launch Web Client</span>
         </button>
       </div>
 
-      <!-- Live Mockup Showcase (Stitch UI for Mobile & Web) -->
+      <!-- Live Mockup Showcase -->
       <div class="landing-showcase" id="features">
         <div class="mockup-grid">
           <!-- Mobile Phone Mockup -->
-          <div style="background:#070d0a; border:2px solid var(--border); border-radius:32px; padding:16px 12px; box-shadow:var(--shadow-float); display:flex; flex-direction:column; height:420px; overflow:hidden;">
+          <div style="background:#0c1015; border:1px solid var(--border); border-radius:28px; padding:16px 12px; box-shadow:var(--shadow-float); display:flex; flex-direction:column; height:420px; overflow:hidden;">
             <!-- Phone Status Bar -->
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--text-sub); padding:0 8px 10px;">
               <span>09:41</span>
@@ -1843,76 +1842,76 @@
             <!-- Phone App Interior: Left Rail + Chat -->
             <div style="flex:1; display:flex; gap:8px; overflow:hidden;">
               <!-- Left Rail -->
-              <div style="width:48px; background:rgba(10,16,13,0.96); border-right:1px solid var(--border); border-radius:14px; padding:10px 4px; display:flex; flex-direction:column; align-items:center; justify-content:space-between;">
-                <img src="/logo.svg" style="width:24px; height:24px; border-radius:6px;" alt="Logo"/>
+              <div style="width:44px; background:rgba(18,24,32,0.96); border-right:1px solid var(--border); border-radius:12px; padding:10px 4px; display:flex; flex-direction:column; align-items:center; justify-content:space-between;">
+                <img src="/logo.svg" style="width:22px; height:22px; border-radius:6px;" alt="Logo"/>
                 <div style="display:flex; flex-direction:column; gap:12px; align-items:center;">
-                  <span style="font-size:16px; padding:6px; border-radius:8px; background:rgba(163,230,53,0.15); border:1px solid rgba(163,230,53,0.3);">💬</span>
-                  <span style="font-size:15px; opacity:0.6;">✦</span>
-                  <span style="font-size:15px; opacity:0.6;">👥</span>
-                  <span style="font-size:15px; opacity:0.6;">⚙</span>
+                  <span style="font-size:15px; padding:6px; border-radius:6px; background:rgba(78,159,134,0.15); border:1px solid rgba(78,159,134,0.3);">💬</span>
+                  <span style="font-size:14px; opacity:0.6;">📍</span>
+                  <span style="font-size:14px; opacity:0.6;">👥</span>
+                  <span style="font-size:14px; opacity:0.6;">⚙</span>
                 </div>
                 <div style="width:6px; height:6px; border-radius:3px; background:var(--primary);"></div>
               </div>
               <!-- Chat Stream -->
               <div style="flex:1; display:flex; flex-direction:column; justify-content:flex-end; gap:8px; padding:6px;">
-                <div style="align-self:flex-start; max-width:85%; background:rgba(22,34,27,0.9); border:1px solid var(--border); padding:8px 12px; border-radius:14px 14px 14px 4px; font-size:11px; line-height:1.4;">
-                  Disappearing in 5m ⏱
+                <div style="align-self:flex-start; max-width:85%; background:var(--bubble-other); border:1px solid var(--bubble-other-border); padding:8px 12px; border-radius:12px 12px 12px 2px; font-size:11px; line-height:1.4;">
+                  The garden is peaceful today. 🌿
                 </div>
-                <div style="align-self:flex-end; max-width:85%; background:var(--bubble-me); color:#07120a; padding:8px 12px; border-radius:14px 14px 4px 14px; font-size:11px; font-weight:600; line-height:1.4;">
-                  Calm & weightless. ✓✓
+                <div style="align-self:flex-end; max-width:85%; background:var(--bubble-me); color:var(--bubble-me-text); padding:8px 12px; border-radius:12px 12px 2px 12px; font-size:11px; font-weight:500; line-height:1.4;">
+                  Meeting you in five minutes. ✓✓
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Web Client Mockup -->
+          <!-- Web Client Description -->
           <div style="display:flex; flex-direction:column; gap:16px; text-align:left; padding:12px 16px;">
-            <div class="stitch-badge" style="width:fit-content; margin-bottom:0;">Desktop & Mobile Parity</div>
-            <h2 style="font-size:28px; font-weight:800; letter-spacing:-0.02em;">Designed for quiet focus.</h2>
-            <p style="color:var(--text-muted); font-size:15px; line-height:1.6;">
-              Haiku Messenger rethinks messaging from the ground up. Both the web client and mobile Android app feature our signature Left Navigation Rail, tactile stitch borders, and instant ephemeral delivery.
+            <div class="haiku-badge" style="width:fit-content; margin-bottom:0;">Cross-Platform Sanctuary</div>
+            <h2 style="font-family:var(--font-serif); font-size:28px; font-weight:400; letter-spacing:-0.01em;">Designed for quiet focus.</h2>
+            <p style="color:var(--text-muted); font-size:14px; line-height:1.65;">
+              Haiku Messenger rethinks communication from the ground up. Both the web client and native Android app provide tactile navigation, thoughtful typography, and instant ephemeral delivery.
             </p>
-            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:8px;">
-              <span style="padding:6px 12px; border-radius:10px; background:rgba(20,32,25,0.7); border:1px solid var(--border); font-size:12px; font-weight:700;">✦ Neon Lakebase Storage</span>
-              <span style="padding:6px 12px; border-radius:10px; background:rgba(20,32,25,0.7); border:1px solid var(--border); font-size:12px; font-weight:700;">✦ Vercel Blob APK Updates</span>
-              <span style="padding:6px 12px; border-radius:10px; background:rgba(20,32,25,0.7); border:1px solid var(--border); font-size:12px; font-weight:700;">✦ Zero Telemetry</span>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;">
+              <span style="padding:6px 12px; border-radius:var(--radius-sm); background:var(--bg-panel); border:1px solid var(--border); font-size:12px; font-weight:500;">✦ Neon Lakebase Postgres</span>
+              <span style="padding:6px 12px; border-radius:var(--radius-sm); background:var(--bg-panel); border:1px solid var(--border); font-size:12px; font-weight:500;">✦ Firebase Cloud Messaging</span>
+              <span style="padding:6px 12px; border-radius:var(--radius-sm); background:var(--bg-panel); border:1px solid var(--border); font-size:12px; font-weight:500;">✦ Zero Telemetry</span>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Feature Stitches -->
+    <!-- Features Section -->
     <section class="feature-cards-grid" id="ephemeral">
-      <div class="stitch-feature-card">
+      <div class="haiku-feature-card">
         <div class="feature-icon-badge">🌿</div>
-        <h3 style="font-size:18px; font-weight:800;">Spatial Architecture</h3>
+        <h3 style="font-size:17px; font-weight:600;">Sumi Spatial Design</h3>
         <p style="color:var(--text-muted); font-size:13px; line-height:1.6;">
-          Deep obsidian velvet canvas (`#070D0A`) layered with translucent glass panels and luminous 1px stitch seams for weightless interaction.
+          Deep sumi ink canvas layered with tranquil basalt containers and tactile micro-borders for distraction-free reading.
         </p>
       </div>
 
-      <div class="stitch-feature-card">
+      <div class="haiku-feature-card">
         <div class="feature-icon-badge">⏱</div>
-        <h3 style="font-size:18px; font-weight:800;">Ephemeral by Default</h3>
+        <h3 style="font-size:17px; font-weight:600;">Ephemeral by Design</h3>
         <p style="color:var(--text-muted); font-size:13px; line-height:1.6;">
-          Messages self-destruct cleanly on timers from 10 seconds to 24 hours. No persistent archives, no digital baggage.
+          Messages self-destruct gracefully on timers from 1 hour to 7 days. No persistent history, no permanent digital baggage.
         </p>
       </div>
 
-      <div class="stitch-feature-card">
-        <div class="feature-icon-badge">📦</div>
-        <h3 style="font-size:18px; font-weight:800;">Split Cloud Storage</h3>
+      <div class="haiku-feature-card">
+        <div class="feature-icon-badge">📍</div>
+        <h3 style="font-size:17px; font-weight:600;">Ambient Friend Radar</h3>
         <p style="color:var(--text-muted); font-size:13px; line-height:1.6;">
-          Neon Object Storage powers encrypted voice notes, images, and stories, while Vercel Blob manages direct APK updates.
+          Opt-in proximity map lets you share live location with mutual friends for a temporary 1-hour window.
         </p>
       </div>
 
-      <div class="stitch-feature-card">
+      <div class="haiku-feature-card">
         <div class="feature-icon-badge">🔒</div>
-        <h3 style="font-size:18px; font-weight:800;">Personal Sanctuary</h3>
+        <h3 style="font-size:17px; font-weight:600;">Personal Sanctuary</h3>
         <p style="color:var(--text-muted); font-size:13px; line-height:1.6;">
-          Zero surveillance algorithms, zero third-party ads, no tracking cookies, and no data selling. Pure private conversations.
+          Zero surveillance algorithms, no third-party trackers, and no ad profiling. Thoughtful, peaceful conversations.
         </p>
       </div>
     </section>
@@ -1921,27 +1920,27 @@
     <div style="padding:0 24px;">
       <section class="download-section" id="download">
         <div style="flex:1; min-width:280px;">
-          <div class="stitch-badge" style="width:fit-content; margin-bottom:12px;">Get Started</div>
-          <h2 style="font-size:30px; font-weight:800; letter-spacing:-0.02em; margin-bottom:10px;">Download for Android</h2>
+          <div class="haiku-badge" style="width:fit-content; margin-bottom:12px;">Get Started</div>
+          <h2 style="font-family:var(--font-serif); font-size:28px; font-weight:400; letter-spacing:-0.01em; margin-bottom:10px;">Download for Android</h2>
           <p style="color:var(--text-muted); font-size:14px; line-height:1.6; margin-bottom:20px;">
-            Install the native Android APK directly on your phone or launch the web version in any modern browser.
+            Install the native Android APK directly on your device or start messaging immediately in your browser.
           </p>
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
             <a id="cardDownloadApkBtn" class="btn-download-apk" href="https://github.com/musabj1917-oss/shh/releases/latest">
-              <span>🤖</span> Download APK
+              <span>⬇</span> Download APK
             </a>
             <button id="cardOpenWebBtn" class="btn-launch-web">
-              <span>🌐</span> Open Web Client
+              <span>Launch Web Client</span>
             </button>
           </div>
         </div>
-        <div style="background:rgba(10,16,12,0.8); border:1px solid var(--border); border-radius:20px; padding:20px; text-align:center;">
-          <div style="width:140px; height:140px; margin:0 auto 12px; background:#fff; border-radius:12px; padding:10px; display:grid; place-items:center;">
+        <div style="background:var(--bg-panel); border:1px solid var(--border); border-radius:var(--radius-md); padding:20px; text-align:center;">
+          <div style="width:130px; height:130px; margin:0 auto 12px; background:#fff; border-radius:10px; padding:10px; display:grid; place-items:center;">
             <!-- SVG QR Code Icon -->
-            <svg viewBox="0 0 100 100" width="120" height="120" fill="#07120a">
-              <rect x="0" y="0" width="30" height="30" rx="4"/>
-              <rect x="70" y="0" width="30" height="30" rx="4"/>
-              <rect x="0" y="70" width="30" height="30" rx="4"/>
+            <svg viewBox="0 0 100 100" width="110" height="110" fill="#0c1015">
+              <rect x="0" y="0" width="30" height="30" rx="3"/>
+              <rect x="70" y="0" width="30" height="30" rx="3"/>
+              <rect x="0" y="70" width="30" height="30" rx="3"/>
               <rect x="6" y="6" width="18" height="18" fill="#fff" rx="2"/>
               <rect x="76" y="6" width="18" height="18" fill="#fff" rx="2"/>
               <rect x="6" y="76" width="18" height="18" fill="#fff" rx="2"/>
@@ -1957,7 +1956,7 @@
               <rect x="85" y="85" width="15" height="15"/>
             </svg>
           </div>
-          <small style="color:var(--text-sub); font-size:11px; font-weight:700;">SCAN TO INSTALL ON ANDROID</small>
+          <small style="color:var(--text-sub); font-size:11px; font-weight:600; letter-spacing:0.04em;">SCAN TO INSTALL</small>
         </div>
       </section>
     </div>
@@ -1966,11 +1965,11 @@
     <footer class="landing-footer">
       <div style="display:flex; align-items:center; gap:8px;">
         <img src="/logo.svg" alt="Logo" style="width:20px; height:20px; border-radius:5px;"/>
-        <strong style="color:var(--text-main);">Haiku Messenger</strong>
+        <strong style="color:var(--text-main); font-weight:600;">Haiku Messenger</strong>
       </div>
-      <p style="margin:0; font-size:12px;">Google Stitch UI · Neon Lakebase Storage · Vercel Blob APK Releases</p>
+      <p style="margin:0; font-size:12px; color:var(--text-sub);">Private, ephemeral communication powered by Neon Lakebase & Firebase FCM.</p>
       <div style="display:flex; gap:16px; margin-top:4px;">
-        <button id="footerLaunchWebBtn" style="background:none; border:none; color:var(--primary); font-size:12px; font-weight:700; cursor:pointer;">Launch Web Version →</button>
+        <button id="footerLaunchWebBtn" style="background:none; border:none; color:var(--primary); font-size:12px; font-weight:600; cursor:pointer;">Launch Web Version →</button>
       </div>
     </footer>
   </div>
@@ -2293,10 +2292,10 @@
         <div class="form-group">
           <label class="form-label">Active Theme</label>
           <select class="form-input" id="settingsThemeSelect">
-            <option value="lime">Lime Velvet (Default)</option>
-            <option value="mint">Classic Mint</option>
-            <option value="noir">Emerald Noir</option>
-            <option value="light">Velvet Moonlight (Light)</option>
+            <option value="lime">Sumi & Rain (Default)</option>
+            <option value="mint">Komorebi (Cedar & Amber)</option>
+            <option value="noir">Sumi Noir (Charcoal)</option>
+            <option value="light">Washi Paper (Daylight)</option>
           </select>
         </div>
         <div class="form-group">
