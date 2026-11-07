@@ -965,9 +965,9 @@ export function ProfileScreen() {
             <View style={{ gap: 8 }}>
               {(
                 [
-                  ['sumi', 'Sumi & Rain (Default)', 'Basalt ink canvas with calm celadon jade accents'],
+                  ['noir', 'Noir & Red Glow (Default)', 'Pitch obsidian black & stark white with incandescent crimson red glow'],
+                  ['sumi', 'Sumi & Rain', 'Basalt ink canvas with calm celadon jade accents'],
                   ['komorebi', 'Komorebi', 'Cedar moss green and warm terracotta amber'],
-                  ['noir', 'Sumi Noir', 'Pure obsidian monochrome with cool slate ink'],
                   ['washi', 'Washi Paper', 'Natural textured daylight paper with deep celadon ink'],
                   ['system', 'Match System', 'Follows iOS/Android system light and dark mode appearance'],
                 ] as [ThemePreference, string, string][]

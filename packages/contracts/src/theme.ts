@@ -209,48 +209,48 @@ export const themes: Record<ThemeId, ThemeDefinition> = {
 
   noir: {
     id: 'noir',
-    name: 'Sumi Noir',
-    description: 'Pure obsidian monochrome with cool slate ink',
+    name: 'Noir & Red Glow',
+    description: 'Pitch obsidian black & stark white with incandescent crimson red glow',
     scheme: 'dark',
     colors: {
-      canvas: '#080A0D',
-      panel: 'rgba(14, 18, 23, 0.94)',
-      panelSolid: '#0E1217',
-      card: 'rgba(20, 26, 33, 0.85)',
-      cardHover: 'rgba(28, 36, 46, 0.95)',
-      inputBg: 'rgba(11, 14, 18, 0.92)',
+      canvas: '#000000',
+      panel: 'rgba(10, 10, 12, 0.96)',
+      panelSolid: '#0A0A0C',
+      card: 'rgba(18, 18, 22, 0.88)',
+      cardHover: 'rgba(28, 28, 34, 0.98)',
+      inputBg: 'rgba(8, 8, 10, 0.94)',
 
-      line: 'rgba(255, 255, 255, 0.07)',
-      stitch: 'rgba(155, 174, 193, 0.20)',
-      stitchGlow: 'rgba(155, 174, 193, 0.25)',
+      line: 'rgba(255, 255, 255, 0.09)',
+      stitch: 'rgba(255, 42, 59, 0.28)',
+      stitchGlow: 'rgba(255, 42, 59, 0.45)',
 
-      ink: '#F5F8FB',
-      body: '#8F9CA8',
-      muted: '#57626E',
+      ink: '#FFFFFF',
+      body: '#A3A3A3',
+      muted: '#62626E',
 
-      mint: '#9BAEC1',
-      mintDark: '#708498',
-      mintAccent: '#B4C6D8',
-      mintContrast: '#0A0E12',
-      mintGlow: 'rgba(155, 174, 193, 0.20)',
-      mintPale: 'rgba(20, 26, 33, 0.85)',
-      mintWash: 'rgba(14, 18, 23, 0.65)',
+      mint: '#FF2A3B',
+      mintDark: '#C91424',
+      mintAccent: '#FF4D5E',
+      mintContrast: '#FFFFFF',
+      mintGlow: 'rgba(255, 42, 59, 0.42)',
+      mintPale: 'rgba(255, 42, 59, 0.12)',
+      mintWash: 'rgba(255, 42, 59, 0.16)',
 
-      red: '#E06C75',
-      redWash: 'rgba(224, 108, 117, 0.16)',
-      amber: '#D48259',
-      amberWash: 'rgba(212, 130, 89, 0.16)',
-      blue: '#61AFEF',
-      blueWash: 'rgba(97, 175, 239, 0.16)',
+      red: '#FF2A3B',
+      redWash: 'rgba(255, 42, 59, 0.20)',
+      amber: '#E5A855',
+      amberWash: 'rgba(229, 168, 85, 0.16)',
+      blue: '#FFFFFF',
+      blueWash: 'rgba(255, 255, 255, 0.10)',
 
-      overlay: 'rgba(8, 10, 13, 0.85)',
-      scrim: 'rgba(0, 0, 0, 0.70)',
+      overlay: 'rgba(0, 0, 0, 0.88)',
+      scrim: 'rgba(0, 0, 0, 0.75)',
 
-      bubbleMe: '#323E4D',
-      bubbleMeText: '#F5F8FB',
-      bubbleOther: 'rgba(20, 26, 33, 0.90)',
-      bubbleOtherText: '#F5F8FB',
-      bubbleOtherBorder: 'rgba(255, 255, 255, 0.05)',
+      bubbleMe: '#C91424',
+      bubbleMeText: '#FFFFFF',
+      bubbleOther: 'rgba(18, 18, 22, 0.92)',
+      bubbleOtherText: '#FFFFFF',
+      bubbleOtherBorder: 'rgba(255, 255, 255, 0.08)',
     },
   },
 
@@ -302,11 +302,11 @@ export const themes: Record<ThemeId, ThemeDefinition> = {
   },
 };
 
-export const defaultThemeId: ThemeId = 'sumi';
+export const defaultThemeId: ThemeId = 'noir';
 
 export function resolveTheme(preference: ThemePreference, systemScheme: 'dark' | 'light' | null = 'dark'): ThemeDefinition {
   if (preference === 'system') {
-    return systemScheme === 'light' ? themes.washi : themes.sumi;
+    return systemScheme === 'light' ? themes.washi : themes.noir;
   }
-  return themes[preference] || themes.sumi;
+  return themes[preference] || themes.noir;
 }

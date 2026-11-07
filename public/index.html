@@ -5,22 +5,22 @@
   <script>
     (function() {
       try {
-        var pref = localStorage.getItem('haiku_theme') || 'sumi';
+        var pref = localStorage.getItem('haiku_theme') || 'noir';
         var resolved = pref;
-        if (pref === 'lime') resolved = 'sumi';
+        if (pref === 'lime') resolved = 'noir';
         if (pref === 'mint') resolved = 'komorebi';
         if (pref === 'light') resolved = 'washi';
         if (pref === 'system') {
           var isLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-          resolved = isLight ? 'washi' : 'sumi';
+          resolved = isLight ? 'washi' : 'noir';
         }
         document.documentElement.setAttribute('data-theme', resolved);
       } catch (e) {}
     })();
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#0c1015" />
-  <title>Haiku Messenger — Calm, Ephemeral, Connected</title>
+  <meta name="theme-color" content="#000000" />
+  <title>Haiku Messenger — Private, Ephemeral, Connected</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
   <link rel="alternate icon" type="image/x-icon" sizes="any" href="/favicon.ico?v=2" />
   <link rel="apple-touch-icon" href="/logo.png?v=2" />
@@ -33,43 +33,43 @@
       --font-serif: 'Newsreader', Georgia, serif;
       --font-mono: 'JetBrains Mono', monospace;
 
-      /* === THEME: SUMI & RAIN (Default Calm Sanctuary) === */
-      --primary: #4e9f86;
-      --primary-glow: rgba(78, 159, 134, 0.22);
-      --primary-dark: #377561;
-      --primary-light: #d6ebe3;
-      --primary-contrast: #071712;
+      /* === THEME: NOIR & CRIMSON GLOW (Black & White + Red Glow Default) === */
+      --primary: #ff2a3b;
+      --primary-glow: rgba(255, 42, 59, 0.42);
+      --primary-dark: #c91424;
+      --primary-light: #ffffff;
+      --primary-contrast: #ffffff;
 
-      --accent: #d48259;
-      --accent-glow: rgba(212, 130, 89, 0.2);
+      --accent: #ff2a3b;
+      --accent-glow: rgba(255, 42, 59, 0.45);
 
-      /* Natural Washi & Basalt Layers */
-      --bg-dark: #0c1015;
-      --bg-panel: rgba(18, 24, 32, 0.88);
-      --bg-card: rgba(24, 33, 44, 0.82);
-      --bg-card-hover: rgba(33, 45, 60, 0.95);
-      --bg-input: rgba(14, 19, 26, 0.92);
-      --bg-hover: rgba(78, 159, 134, 0.08);
+      /* Pure Pitch Obsidian Layers */
+      --bg-dark: #000000;
+      --bg-panel: rgba(10, 10, 12, 0.96);
+      --bg-card: rgba(18, 18, 22, 0.88);
+      --bg-card-hover: rgba(28, 28, 34, 0.98);
+      --bg-input: rgba(8, 8, 10, 0.94);
+      --bg-hover: rgba(255, 42, 59, 0.10);
 
-      --text-main: #edf2f7;
-      --text-muted: #8c9dae;
-      --text-sub: #556778;
+      --text-main: #ffffff;
+      --text-muted: #a3a3a3;
+      --text-sub: #62626e;
 
-      --border: rgba(255, 255, 255, 0.08);
-      --border-light: rgba(255, 255, 255, 0.04);
-      --border-focus: #4e9f86;
-      --border-focus-glow: 0 0 0 2px rgba(78, 159, 134, 0.25);
+      --border: rgba(255, 255, 255, 0.09);
+      --border-light: rgba(255, 255, 255, 0.05);
+      --border-focus: #ff2a3b;
+      --border-focus-glow: 0 0 0 2px rgba(255, 42, 59, 0.35), 0 0 16px rgba(255, 42, 59, 0.45);
 
-      --bubble-me: #377561;
-      --bubble-me-text: #f4faf7;
-      --bubble-other: rgba(26, 36, 48, 0.88);
-      --bubble-other-text: #edf2f7;
-      --bubble-other-border: rgba(255, 255, 255, 0.06);
+      --bubble-me: #c91424;
+      --bubble-me-text: #ffffff;
+      --bubble-other: rgba(18, 18, 22, 0.92);
+      --bubble-other-text: #ffffff;
+      --bubble-other-border: rgba(255, 255, 255, 0.08);
 
-      --online: #4e9f86;
-      --offline: #556778;
-      --danger: #e06c75;
-      --danger-glow: rgba(224, 108, 117, 0.2);
+      --online: #ff2a3b;
+      --offline: #555555;
+      --danger: #ff2a3b;
+      --danger-glow: rgba(255, 42, 59, 0.4);
       --warning: #e5a855;
 
       --radius-xs: 4px;
@@ -78,12 +78,64 @@
       --radius-lg: 20px;
       --radius-full: 9999px;
 
-      /* Gentle Atmospheric Depth */
-      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
-      --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.07);
-      --shadow-float: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.07);
-      --glass-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      /* Volumetric Atmospheric Shadows */
+      --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.7), 0 0 1px rgba(255, 255, 255, 0.12);
+      --shadow-lg: 0 14px 40px rgba(0, 0, 0, 0.85), 0 0 20px rgba(255, 42, 59, 0.18);
+      --shadow-float: 0 18px 48px rgba(0, 0, 0, 0.9), 0 0 24px rgba(255, 42, 59, 0.22);
+      --glass-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    /* === THEME: NOIR CRIMSON (Obsidian Black & White + Red Glow) === */
+    [data-theme="noir"] {
+      --primary: #ff2a3b;
+      --primary-glow: rgba(255, 42, 59, 0.42);
+      --primary-dark: #c91424;
+      --primary-light: #ffffff;
+      --primary-contrast: #ffffff;
+      --accent: #ff2a3b;
+      --accent-glow: rgba(255, 42, 59, 0.45);
+      --bg-dark: #000000;
+      --bg-panel: rgba(10, 10, 12, 0.96);
+      --bg-card: rgba(18, 18, 22, 0.88);
+      --bg-card-hover: rgba(28, 28, 34, 0.98);
+      --bg-input: rgba(8, 8, 10, 0.94);
+      --bg-hover: rgba(255, 42, 59, 0.10);
+      --text-main: #ffffff;
+      --text-muted: #a3a3a3;
+      --text-sub: #62626e;
+      --border: rgba(255, 255, 255, 0.09);
+      --bubble-me: #c91424;
+      --bubble-me-text: #ffffff;
+      --bubble-other: rgba(18, 18, 22, 0.92);
+      --bubble-other-text: #ffffff;
+      --bubble-other-border: rgba(255, 255, 255, 0.08);
+    }
+
+    /* === THEME: SUMI & RAIN (Basalt & Celadon) === */
+    [data-theme="sumi"] {
+      --primary: #4e9f86;
+      --primary-glow: rgba(78, 159, 134, 0.22);
+      --primary-dark: #377561;
+      --primary-light: #d6ebe3;
+      --primary-contrast: #071712;
+      --accent: #d48259;
+      --accent-glow: rgba(212, 130, 89, 0.2);
+      --bg-dark: #0c1015;
+      --bg-panel: rgba(18, 24, 32, 0.88);
+      --bg-card: rgba(24, 33, 44, 0.82);
+      --bg-card-hover: rgba(33, 45, 60, 0.95);
+      --bg-input: rgba(14, 19, 26, 0.92);
+      --bg-hover: rgba(78, 159, 134, 0.08);
+      --text-main: #edf2f7;
+      --text-muted: #8c9dae;
+      --text-sub: #556778;
+      --border: rgba(255, 255, 255, 0.08);
+      --bubble-me: #377561;
+      --bubble-me-text: #f4faf7;
+      --bubble-other: rgba(26, 36, 48, 0.88);
+      --bubble-other-text: #edf2f7;
+      --bubble-other-border: rgba(255, 255, 255, 0.06);
     }
 
     /* === THEME: KOMOREBI (Cedar & Amber) === */
@@ -180,15 +232,15 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* Ambient Spatial Washi & Rain Background */
+    /* Ambient Spatial Noir & Red Glow Background */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(circle at 15% 15%, rgba(78, 159, 134, 0.05) 0%, transparent 45%),
-        radial-gradient(circle at 85% 85%, rgba(212, 130, 89, 0.03) 0%, transparent 45%),
-        radial-gradient(circle at 50% 50%, rgba(55, 117, 97, 0.02) 0%, transparent 60%);
+        radial-gradient(circle at 18% 12%, rgba(255, 42, 59, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 82% 88%, rgba(255, 42, 59, 0.06) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.8) 0%, transparent 60%);
       pointer-events: none;
       z-index: 0;
     }
@@ -305,9 +357,9 @@
     }
 
     .brand-logo:hover {
-      background: #5ab397;
+      background: var(--primary-dark);
       transform: translateY(-1px);
-      box-shadow: var(--shadow-md);
+      box-shadow: 0 0 20px var(--primary-glow);
     }
 
     .rail-nav {
@@ -338,8 +390,8 @@
 
     .rail-btn.active {
       color: var(--primary);
-      background: rgba(78, 159, 134, 0.12);
-      box-shadow: inset 0 0 0 1px rgba(78, 159, 134, 0.3);
+      background: rgba(255, 42, 59, 0.14);
+      box-shadow: inset 0 0 0 1px rgba(255, 42, 59, 0.35), 0 0 14px var(--primary-glow);
     }
 
     .rail-btn.active::before {
@@ -524,10 +576,10 @@
     }
 
     .filter-tab.active {
-      background: rgba(78, 159, 134, 0.12);
-      border-color: rgba(78, 159, 134, 0.30);
+      background: rgba(255, 42, 59, 0.14);
+      border-color: rgba(255, 42, 59, 0.40);
       color: var(--primary);
-      box-shadow: none;
+      box-shadow: 0 0 12px var(--primary-glow);
     }
 
     /* Sidebar Content Sections (Chats, Friends, Groups) */
@@ -565,8 +617,9 @@
     }
 
     .conv-item.active {
-      background: rgba(78, 159, 134, 0.10);
-      border-color: rgba(78, 159, 134, 0.25);
+      background: rgba(255, 42, 59, 0.12);
+      border-color: rgba(255, 42, 59, 0.35);
+      box-shadow: 0 0 14px var(--primary-glow);
     }
 
     .avatar-wrap {
@@ -684,9 +737,9 @@
 
     .contact-card:hover {
       background: var(--bg-card-hover);
-      border-color: rgba(78, 159, 134, 0.3);
+      border-color: var(--primary);
       transform: translateY(-1px);
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 0 14px var(--primary-glow);
     }
 
     /* === 3. MAIN CHAT PANE === */
@@ -2343,10 +2396,10 @@
         <div class="form-group">
           <label class="form-label">Active Theme</label>
           <select class="form-input" id="settingsThemeSelect">
-            <option value="sumi">Sumi &amp; Rain (Default Dark)</option>
-            <option value="komorebi">Komorebi (Cedar &amp; Amber)</option>
-            <option value="noir">Sumi Noir (Obsidian Slate)</option>
-            <option value="washi">Washi Paper (Daylight)</option>
+            <option value="noir">Noir &amp; Red Glow (Default)</option>
+            <option value="sumi">Sumi &amp; Rain</option>
+            <option value="komorebi">Komorebi</option>
+            <option value="washi">Washi Paper</option>
             <option value="system">Match System</option>
           </select>
         </div>
@@ -2388,12 +2441,12 @@
             </linearGradient>
           </defs>
           <circle cx="40" cy="40" r="36" fill="url(#errGlow)"/>
-          <ellipse cx="40" cy="40" rx="34" ry="12" stroke="#4E9F86" stroke-width="2" stroke-dasharray="4 4" transform="rotate(-20 40 40)" opacity="0.6"/>
-          <circle cx="40" cy="40" r="22" fill="url(#errPlanet)" stroke="#4E9F86" stroke-width="1.5"/>
-          <path d="M26 36C30 33 34 44 42 40C46 38 50 41 54 39" stroke="rgba(78, 159, 134, 0.45)" stroke-width="2" stroke-linecap="round"/>
-          <path d="M24 44C32 42 36 48 44 46C48 45 52 48 56 46" stroke="rgba(78, 159, 134, 0.35)" stroke-width="1.5" stroke-linecap="round"/>
-          <circle cx="56" cy="24" r="10" fill="#171717" stroke="#4E9F86" stroke-width="1.5"/>
-          <path d="M57 18L53 24H57L55 30L61 23H57L59 18H57Z" fill="#4E9F86"/>
+          <ellipse cx="40" cy="40" rx="34" ry="12" stroke="#FF2A3B" stroke-width="2" stroke-dasharray="4 4" transform="rotate(-20 40 40)" opacity="0.6"/>
+          <circle cx="40" cy="40" r="22" fill="url(#errPlanet)" stroke="#FF2A3B" stroke-width="1.5"/>
+          <path d="M26 36C30 33 34 44 42 40C46 38 50 41 54 39" stroke="rgba(255, 42, 59, 0.45)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M24 44C32 42 36 48 44 46C48 45 52 48 56 46" stroke="rgba(255, 42, 59, 0.35)" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="56" cy="24" r="10" fill="#171717" stroke="#FF2A3B" stroke-width="1.5"/>
+          <path d="M57 18L53 24H57L55 30L61 23H57L59 18H57Z" fill="#FF2A3B"/>
         </svg>
       </div>
 
@@ -2454,17 +2507,17 @@
       if (themePref === 'light') resolved = 'washi';
       if (themePref === 'system') {
         const isLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-        resolved = isLight ? 'washi' : 'sumi';
+        resolved = isLight ? 'washi' : 'noir';
       }
       document.documentElement.setAttribute('data-theme', resolved);
       document.body.setAttribute('data-theme', resolved);
       const meta = document.querySelector('meta[name="theme-color"]');
       if (meta) {
-        meta.setAttribute('content', resolved === 'washi' ? '#F6F7F5' : '#0C1015');
+        meta.setAttribute('content', resolved === 'washi' ? '#F6F7F5' : '#000000');
       }
     }
 
-    const savedTheme = localStorage.getItem('haiku_theme') || 'sumi';
+    const savedTheme = localStorage.getItem('haiku_theme') || 'noir';
     applyAppTheme(savedTheme);
 
     const STATE = {

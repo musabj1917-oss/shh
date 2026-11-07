@@ -30,7 +30,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemScheme = useColorScheme();
-  const [preference, setPreference] = useState<ThemePreference>('sumi');
+  const [preference, setPreference] = useState<ThemePreference>('noir');
 
   useEffect(() => {
     async function loadSavedTheme() {

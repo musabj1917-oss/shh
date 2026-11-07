@@ -6,13 +6,96 @@
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root,
-html[data-theme="sumi"],
-html[data-theme="lime"] {
+html[data-theme="noir"] {
   --font-sans: 'Instrument Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: 'Newsreader', Georgia, serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* === UNIFIED TOKENS: SUMI & RAIN (Default Sanctuary) === */
+  /* === UNIFIED TOKENS: NOIR & CRIMSON GLOW (Black, White + Red Glow Default) === */
+  --canvas: #000000;
+  --bg-dark: #000000;
+  --panel: rgba(10, 10, 12, 0.96);
+  --bg-panel: rgba(10, 10, 12, 0.96);
+  --panel-solid: #0a0a0c;
+  --card: rgba(18, 18, 22, 0.88);
+  --bg-card: rgba(18, 18, 22, 0.88);
+  --card-hover: rgba(28, 28, 34, 0.98);
+  --bg-card-hover: rgba(28, 28, 34, 0.98);
+  --input-bg: rgba(8, 8, 10, 0.94);
+  --bg-input: rgba(8, 8, 10, 0.94);
+  --bg-hover: rgba(255, 42, 59, 0.10);
+
+  --line: rgba(255, 255, 255, 0.09);
+  --border: rgba(255, 255, 255, 0.09);
+  --stitch-line: rgba(255, 255, 255, 0.09);
+  --border-light: rgba(255, 255, 255, 0.05);
+  --stitch-subtle: rgba(255, 255, 255, 0.05);
+  --border-focus: #ff2a3b;
+  --border-focus-glow: 0 0 0 2px rgba(255, 42, 59, 0.35), 0 0 16px rgba(255, 42, 59, 0.45);
+
+  --accent-primary: #ff2a3b;
+  --primary: #ff2a3b;
+  --primary-glow: rgba(255, 42, 59, 0.42);
+  --stitch-glow: rgba(255, 42, 59, 0.45);
+  --accent-dark: #c91424;
+  --primary-dark: #c91424;
+  --accent-highlight: #ff4d5e;
+  --primary-light: #ffffff;
+  --accent-contrast: #ffffff;
+  --primary-contrast: #ffffff;
+
+  --accent: #ff2a3b;
+  --accent-glow: rgba(255, 42, 59, 0.45);
+  --amber: #e5a855;
+  --amber-bg: rgba(229, 168, 85, 0.12);
+
+  --ink: #ffffff;
+  --text-main: #ffffff;
+  --body: #a3a3a3;
+  --text-muted: #a3a3a3;
+  --muted: #62626e;
+  --text-sub: #62626e;
+
+  --bubble-me: #c91424;
+  --bubble-me-text: #ffffff;
+  --bubble-other: rgba(18, 18, 22, 0.92);
+  --bubble-other-text: #ffffff;
+  --bubble-other-border: rgba(255, 255, 255, 0.08);
+
+  --online: #ff2a3b;
+  --offline: #555555;
+  --danger: #ff2a3b;
+  --danger-glow: rgba(255, 42, 59, 0.4);
+  --danger-bg: rgba(255, 42, 59, 0.16);
+  --danger-border: rgba(255, 42, 59, 0.35);
+  --warning: #e5a855;
+  --blue: #ffffff;
+  --blue-bg: rgba(255, 255, 255, 0.10);
+
+  --overlay: rgba(0, 0, 0, 0.88);
+  --scrim: rgba(0, 0, 0, 0.75);
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 44px;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.7), 0 0 1px rgba(255, 255, 255, 0.12);
+  --shadow-float: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 20px rgba(255, 42, 59, 0.20);
+}
+
+html[data-theme="sumi"],
+html[data-theme="lime"] {
   --canvas: #0c1015;
   --bg-dark: #0c1015;
   --panel: rgba(18, 24, 32, 0.94);
@@ -75,24 +158,6 @@ html[data-theme="lime"] {
 
   --overlay: rgba(12, 16, 21, 0.82);
   --scrim: rgba(0, 0, 0, 0.65);
-
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
-  --space-xxl: 44px;
-
-  --radius-xs: 4px;
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
-  --radius-full: 9999px;
-
-  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
-  --shadow-float: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.07);
 }
 
 /* Alternate Theme: Komorebi (Cedar Moss & Amber) */
@@ -152,60 +217,60 @@ html[data-theme="mint"] {
   --scrim: rgba(0, 0, 0, 0.65);
 }
 
-/* Alternate Theme: Sumi Noir (Pure Monochrome Ink) */
+/* Primary Theme: Noir Crimson (Obsidian Black & White + Red Glow) */
 html[data-theme="noir"] {
-  --canvas: #080a0d;
-  --bg-dark: #080a0d;
-  --panel: rgba(14, 18, 23, 0.94);
-  --bg-panel: rgba(14, 18, 23, 0.94);
-  --panel-solid: #0e1217;
-  --card: rgba(20, 26, 33, 0.85);
-  --bg-card: rgba(20, 26, 33, 0.85);
-  --card-hover: rgba(28, 36, 46, 0.95);
-  --bg-card-hover: rgba(28, 36, 46, 0.95);
-  --input-bg: rgba(11, 14, 18, 0.92);
-  --bg-input: rgba(11, 14, 18, 0.92);
-  --bg-hover: rgba(155, 174, 193, 0.08);
+  --canvas: #000000;
+  --bg-dark: #000000;
+  --panel: rgba(10, 10, 12, 0.96);
+  --bg-panel: rgba(10, 10, 12, 0.96);
+  --panel-solid: #0a0a0c;
+  --card: rgba(18, 18, 22, 0.88);
+  --bg-card: rgba(18, 18, 22, 0.88);
+  --card-hover: rgba(28, 28, 34, 0.98);
+  --bg-card-hover: rgba(28, 28, 34, 0.98);
+  --input-bg: rgba(8, 8, 10, 0.94);
+  --bg-input: rgba(8, 8, 10, 0.94);
+  --bg-hover: rgba(255, 42, 59, 0.10);
 
-  --line: rgba(255, 255, 255, 0.07);
-  --border: rgba(255, 255, 255, 0.07);
-  --stitch-line: rgba(255, 255, 255, 0.07);
-  --border-light: rgba(255, 255, 255, 0.04);
-  --stitch-subtle: rgba(255, 255, 255, 0.04);
-  --border-focus: #9baec1;
-  --border-focus-glow: 0 0 0 2px rgba(155, 174, 193, 0.25);
+  --line: rgba(255, 255, 255, 0.09);
+  --border: rgba(255, 255, 255, 0.09);
+  --stitch-line: rgba(255, 255, 255, 0.09);
+  --border-light: rgba(255, 255, 255, 0.05);
+  --stitch-subtle: rgba(255, 255, 255, 0.05);
+  --border-focus: #ff2a3b;
+  --border-focus-glow: 0 0 0 2px rgba(255, 42, 59, 0.35), 0 0 16px rgba(255, 42, 59, 0.45);
 
-  --accent-primary: #9baec1;
-  --primary: #9baec1;
-  --primary-glow: rgba(155, 174, 193, 0.2);
-  --stitch-glow: rgba(155, 174, 193, 0.2);
-  --accent-dark: #708498;
-  --primary-dark: #708498;
-  --accent-highlight: #b4c6d8;
-  --primary-light: #d6ebe3;
-  --accent-contrast: #0a0e12;
-  --primary-contrast: #0a0e12;
+  --accent-primary: #ff2a3b;
+  --primary: #ff2a3b;
+  --primary-glow: rgba(255, 42, 59, 0.42);
+  --stitch-glow: rgba(255, 42, 59, 0.45);
+  --accent-dark: #c91424;
+  --primary-dark: #c91424;
+  --accent-highlight: #ff4d5e;
+  --primary-light: #ffffff;
+  --accent-contrast: #ffffff;
+  --primary-contrast: #ffffff;
 
-  --accent: #d48259;
-  --accent-glow: rgba(212, 130, 89, 0.2);
-  --amber: #d48259;
-  --amber-bg: rgba(212, 130, 89, 0.12);
+  --accent: #ff2a3b;
+  --accent-glow: rgba(255, 42, 59, 0.45);
+  --amber: #e5a855;
+  --amber-bg: rgba(229, 168, 85, 0.12);
 
-  --ink: #f5f8fb;
-  --text-main: #f5f8fb;
-  --body: #8f9ca8;
-  --text-muted: #8f9ca8;
-  --muted: #57626e;
-  --text-sub: #57626e;
+  --ink: #ffffff;
+  --text-main: #ffffff;
+  --body: #a3a3a3;
+  --text-muted: #a3a3a3;
+  --muted: #62626e;
+  --text-sub: #62626e;
 
-  --bubble-me: #323e4d;
-  --bubble-me-text: #f5f8fb;
-  --bubble-other: rgba(20, 26, 33, 0.90);
-  --bubble-other-text: #f5f8fb;
-  --bubble-other-border: rgba(255, 255, 255, 0.05);
+  --bubble-me: #c91424;
+  --bubble-me-text: #ffffff;
+  --bubble-other: rgba(18, 18, 22, 0.92);
+  --bubble-other-text: #ffffff;
+  --bubble-other-border: rgba(255, 255, 255, 0.08);
 
-  --overlay: rgba(8, 10, 13, 0.85);
-  --scrim: rgba(0, 0, 0, 0.70);
+  --overlay: rgba(0, 0, 0, 0.88);
+  --scrim: rgba(0, 0, 0, 0.75);
 }
 
 /* Alternate Theme: Washi Paper (Quiet Daylight) */
