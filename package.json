@@ -22,6 +22,7 @@
     "android:debug": "npm run android:debug --workspace haiku-mobile",
     "migrate": "node scripts/migrate.mjs",
     "db:test": "node scripts/test-neon.mjs",
+    "verify:services": "node --env-file-if-exists=.env scripts/verify-connected-services.mjs",
     "build:admin": "next build --webpack"
   },
   "dependencies": {

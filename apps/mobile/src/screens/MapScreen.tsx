@@ -26,7 +26,7 @@ export function MapScreen() {
     try {
       const res = await getFriendsLocations();
       setFriends(res.friends || []);
-    } catch (e) {
+    } catch {
       setError('Could not load friend locations.');
     } finally {
       setLoading(false);
@@ -49,9 +49,10 @@ export function MapScreen() {
         setError('Could not stop sharing location.');
       }
     } else {
-      if (typeof navigator !== 'undefined' && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (pos) => {
+      const geo = (globalThis as unknown as { navigator?: { geolocation?: { getCurrentPosition: (s: (pos: any) => void, e: () => void, opt?: any) => void } } })?.navigator?.geolocation;
+      if (geo) {
+        geo.getCurrentPosition(
+          async (pos: { coords: { latitude: number; longitude: number; accuracy?: number } }) => {
             try {
               await updateLiveLocation({
                 latitude: pos.coords.latitude,
@@ -129,7 +130,7 @@ export function MapScreen() {
           <Button
             title={sharing ? 'Stop' : 'Share (1h)'}
             onPress={toggleSharing}
-            variant={sharing ? 'destructive' : 'primary'}
+            kind={sharing ? 'danger' : 'primary'}
           />
         </View>
       </Surface>
@@ -152,7 +153,7 @@ export function MapScreen() {
               title="No friends nearby."
               detail="Mutual friends sharing their live location will appear here."
             />
-          ) : null
+          ) : undefined
         }
       />
     </View>

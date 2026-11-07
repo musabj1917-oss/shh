@@ -92,8 +92,9 @@ export function ChatScreen({route,navigation}:Props){
    {text:'Cancel',style:'cancel'},
    {text:'Share Current Pin',onPress:async()=>{
     try{
-     if(typeof navigator!=='undefined'&&navigator.geolocation){
-      navigator.geolocation.getCurrentPosition(async(pos)=>{
+     const geo = (globalThis as unknown as { navigator?: { geolocation?: { getCurrentPosition: (s: (pos: any) => void, e: () => void) => void } } })?.navigator?.geolocation;
+     if(geo){
+      geo.getCurrentPosition(async(pos: { coords: { latitude: number; longitude: number; accuracy?: number } })=>{
        try{
         await api('/location/pin',{method:'POST',body:JSON.stringify({conversationId,latitude:pos.coords.latitude,longitude:pos.coords.longitude,accuracy:pos.coords.accuracy,title:'Current Location'})});
         await load();
