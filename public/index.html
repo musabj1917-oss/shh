@@ -2,6 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <script>
+    (function() {
+      try {
+        var pref = localStorage.getItem('haiku_theme') || 'sumi';
+        var resolved = pref;
+        if (pref === 'lime') resolved = 'sumi';
+        if (pref === 'mint') resolved = 'komorebi';
+        if (pref === 'light') resolved = 'washi';
+        if (pref === 'system') {
+          var isLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+          resolved = isLight ? 'washi' : 'sumi';
+        }
+        document.documentElement.setAttribute('data-theme', resolved);
+      } catch (e) {}
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#0c1015" />
   <title>Haiku Messenger — Calm, Ephemeral, Connected</title>
@@ -123,7 +139,7 @@
     }
 
     /* === THEME: WASHI PAPER (Warm Daylight Linen) === */
-    [data-theme="light"] {
+    [data-theme="washi"], [data-theme="light"] {
       --primary: #377561;
       --primary-glow: rgba(55, 117, 97, 0.18);
       --primary-dark: #275647;
@@ -1231,7 +1247,7 @@
 
     .btn-secondary:hover {
       background: var(--bg-card-hover);
-      border-color: rgba(163, 230, 53, 0.3);
+      border-color: var(--primary);
       transform: translateY(-1px);
     }
 
@@ -1263,15 +1279,15 @@
 
     /* === ERROR MODAL (ANTI-GRAVITY AESTHETICS) === */
     .error-modal-card {
-      background: rgba(23, 23, 23, 0.94);
+      background: var(--bg-card);
       backdrop-filter: blur(28px) saturate(180%);
       -webkit-backdrop-filter: blur(28px) saturate(180%);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
       border-radius: 24px;
       width: 100%;
       max-width: 430px;
       padding: 28px 24px 22px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 1px var(--border);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -1285,11 +1301,11 @@
       margin-bottom: 16px;
       display: grid;
       place-items: center;
-      filter: drop-shadow(0 6px 16px rgba(153, 227, 36, 0.25));
+      filter: drop-shadow(0 6px 16px var(--primary-glow));
     }
 
     .error-modal-title {
-      color: #ffffff;
+      color: var(--text-main);
       font-size: 18px;
       font-weight: 600;
       letter-spacing: -0.01em;
@@ -1297,7 +1313,7 @@
     }
 
     .error-modal-message {
-      color: #d4d4d4;
+      color: var(--text-muted);
       font-size: 14px;
       line-height: 1.6;
       margin-bottom: 24px;
@@ -1313,20 +1329,20 @@
     .error-btn-primary {
       flex: 1;
       height: 46px;
-      background: #99e324;
-      color: #0d140e;
+      background: var(--primary);
+      color: var(--primary-contrast);
       border-radius: 14px;
       font-weight: 700;
       font-size: 14px;
       display: grid;
       place-items: center;
-      box-shadow: 0 4px 14px rgba(153, 227, 36, 0.25);
+      box-shadow: 0 4px 14px var(--primary-glow);
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .error-btn-primary:hover {
-      background: #bef264;
+      background: var(--primary-light);
       transform: translateY(-2px);
-      box-shadow: 0 6px 18px rgba(153, 227, 36, 0.35);
+      box-shadow: 0 6px 18px var(--primary-glow);
     }
 
     .error-btn-secondary {
@@ -1497,7 +1513,7 @@
       align-items: center;
       text-align: center;
       padding: 72px 24px 50px;
-      background: radial-gradient(ellipse 900px 480px at 50% -40px, rgba(163, 230, 53, 0.14) 0%, transparent 80%);
+      background: radial-gradient(ellipse 900px 480px at 50% -40px, var(--primary-glow) 0%, transparent 80%);
     }
     .stitch-badge {
       display: inline-flex;
@@ -1505,8 +1521,8 @@
       gap: 8px;
       padding: 6px 14px;
       border-radius: 999px;
-      background: rgba(163, 230, 53, 0.08);
-      border: 1px solid rgba(163, 230, 53, 0.25);
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
       color: var(--primary);
       font-size: 11px;
       font-weight: 800;
@@ -1547,12 +1563,12 @@
       font-weight: 800;
       font-size: 15px;
       text-decoration: none;
-      box-shadow: 0 10px 30px rgba(163, 230, 53, 0.32);
+      box-shadow: 0 10px 30px var(--primary-glow);
       transition: transform 0.2s, box-shadow 0.2s;
     }
     .btn-download-apk:hover {
       transform: translateY(-2px);
-      box-shadow: 0 14px 40px rgba(163, 230, 53, 0.45);
+      box-shadow: 0 14px 40px var(--primary-glow);
     }
     .btn-launch-web {
       display: inline-flex;
@@ -1560,8 +1576,8 @@
       gap: 10px;
       padding: 15px 28px;
       border-radius: 16px;
-      background: rgba(20, 32, 25, 0.7);
-      border: 1px solid rgba(163, 230, 53, 0.25);
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
       color: var(--text-main);
       font-weight: 700;
       font-size: 15px;
@@ -1629,8 +1645,8 @@
       width: 48px;
       height: 48px;
       border-radius: 14px;
-      background: rgba(163, 230, 53, 0.12);
-      border: 1px solid rgba(163, 230, 53, 0.24);
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
       display: grid;
       place-items: center;
       font-size: 22px;
@@ -1698,8 +1714,8 @@
       width: 36px;
       height: 36px;
       border-radius: 8px;
-      background: rgba(163, 230, 53, 0.15);
-      border: 1px solid rgba(163, 230, 53, 0.3);
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
     }
     .msg-location-title {
       font-weight: 700;
@@ -1767,14 +1783,14 @@
       background: #070d0a !important;
     }
     .leaflet-popup-content-wrapper {
-      background: rgba(14, 22, 17, 0.95) !important;
-      color: #f4fbf7 !important;
-      border: 1px solid rgba(163, 230, 53, 0.3) !important;
+      background: var(--bg-panel) !important;
+      color: var(--text-main) !important;
+      border: 1px solid var(--border) !important;
       backdrop-filter: blur(12px) !important;
       border-radius: 12px !important;
     }
     .leaflet-popup-tip {
-      background: rgba(14, 22, 17, 0.95) !important;
+      background: var(--bg-panel) !important;
     }
   </style>
   <link rel="stylesheet" href="/app.css" />
@@ -2327,10 +2343,11 @@
         <div class="form-group">
           <label class="form-label">Active Theme</label>
           <select class="form-input" id="settingsThemeSelect">
-            <option value="lime">Sumi & Rain (Default)</option>
-            <option value="mint">Komorebi (Cedar & Amber)</option>
-            <option value="noir">Sumi Noir (Charcoal)</option>
-            <option value="light">Washi Paper (Daylight)</option>
+            <option value="sumi">Sumi &amp; Rain (Default Dark)</option>
+            <option value="komorebi">Komorebi (Cedar &amp; Amber)</option>
+            <option value="noir">Sumi Noir (Obsidian Slate)</option>
+            <option value="washi">Washi Paper (Daylight)</option>
+            <option value="system">Match System</option>
           </select>
         </div>
         <div class="form-group">
@@ -2362,21 +2379,21 @@
         <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <radialGradient id="errGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#99e324" stop-opacity="0.35"/>
-              <stop offset="100%" stop-color="#99e324" stop-opacity="0"/>
+              <stop offset="0%" stop-color="#4E9F86" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#4E9F86" stop-opacity="0"/>
             </radialGradient>
             <linearGradient id="errPlanet" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#2a3821"/>
-              <stop offset="100%" stop-color="#152012"/>
+              <stop offset="0%" stop-color="#1b3027"/>
+              <stop offset="100%" stop-color="#0f1d18"/>
             </linearGradient>
           </defs>
           <circle cx="40" cy="40" r="36" fill="url(#errGlow)"/>
-          <ellipse cx="40" cy="40" rx="34" ry="12" stroke="#99e324" stroke-width="2" stroke-dasharray="4 4" transform="rotate(-20 40 40)" opacity="0.6"/>
-          <circle cx="40" cy="40" r="22" fill="url(#errPlanet)" stroke="#99e324" stroke-width="1.5"/>
-          <path d="M26 36C30 33 34 44 42 40C46 38 50 41 54 39" stroke="rgba(153, 227, 36, 0.45)" stroke-width="2" stroke-linecap="round"/>
-          <path d="M24 44C32 42 36 48 44 46C48 45 52 48 56 46" stroke="rgba(153, 227, 36, 0.35)" stroke-width="1.5" stroke-linecap="round"/>
-          <circle cx="56" cy="24" r="10" fill="#171717" stroke="#99e324" stroke-width="1.5"/>
-          <path d="M57 18L53 24H57L55 30L61 23H57L59 18H57Z" fill="#99e324"/>
+          <ellipse cx="40" cy="40" rx="34" ry="12" stroke="#4E9F86" stroke-width="2" stroke-dasharray="4 4" transform="rotate(-20 40 40)" opacity="0.6"/>
+          <circle cx="40" cy="40" r="22" fill="url(#errPlanet)" stroke="#4E9F86" stroke-width="1.5"/>
+          <path d="M26 36C30 33 34 44 42 40C46 38 50 41 54 39" stroke="rgba(78, 159, 134, 0.45)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M24 44C32 42 36 48 44 46C48 45 52 48 56 46" stroke="rgba(78, 159, 134, 0.35)" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="56" cy="24" r="10" fill="#171717" stroke="#4E9F86" stroke-width="1.5"/>
+          <path d="M57 18L53 24H57L55 30L61 23H57L59 18H57Z" fill="#4E9F86"/>
         </svg>
       </div>
 
@@ -2430,8 +2447,25 @@
       localStorage.removeItem('haiku_user');
     }
 
-    const savedTheme = localStorage.getItem('haiku_theme') || 'lime';
-    document.body.setAttribute('data-theme', savedTheme);
+    function applyAppTheme(themePref) {
+      let resolved = themePref;
+      if (themePref === 'lime') resolved = 'sumi';
+      if (themePref === 'mint') resolved = 'komorebi';
+      if (themePref === 'light') resolved = 'washi';
+      if (themePref === 'system') {
+        const isLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+        resolved = isLight ? 'washi' : 'sumi';
+      }
+      document.documentElement.setAttribute('data-theme', resolved);
+      document.body.setAttribute('data-theme', resolved);
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) {
+        meta.setAttribute('content', resolved === 'washi' ? '#F6F7F5' : '#0C1015');
+      }
+    }
+
+    const savedTheme = localStorage.getItem('haiku_theme') || 'sumi';
+    applyAppTheme(savedTheme);
 
     const STATE = {
       apiUrl: localStorage.getItem('haiku_api_url') || (window.location.port === '3002' ? 'http://localhost:3001/v1' : (window.location.origin + '/v1')),
@@ -3536,12 +3570,22 @@
     el('closeDetailsBtn').addEventListener('click', () => el('detailsDrawer').classList.remove('open'));
 
     // Theme selector
-    el('settingsThemeSelect').value = savedTheme;
-    el('settingsThemeSelect').addEventListener('change', (e) => {
-      const val = e.target.value;
-      document.body.setAttribute('data-theme', val);
-      localStorage.setItem('haiku_theme', val);
-    });
+    if (el('settingsThemeSelect')) {
+      el('settingsThemeSelect').value = savedTheme;
+      el('settingsThemeSelect').addEventListener('change', (e) => {
+        const val = e.target.value;
+        localStorage.setItem('haiku_theme', val);
+        applyAppTheme(val);
+      });
+    }
+
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+        if (localStorage.getItem('haiku_theme') === 'system') {
+          applyAppTheme('system');
+        }
+      });
+    }
 
     // Server health check
     async function checkServerHealth() {
@@ -3706,7 +3750,7 @@
           const lng = Number(STATE.selfLocation.longitude);
           const selfMarker = L.circleMarker([lat, lng], {
             radius: 9,
-            fillColor: '#a3e635',
+            fillColor: '#4E9F86',
             color: '#f4fbf7',
             weight: 2,
             opacity: 1,

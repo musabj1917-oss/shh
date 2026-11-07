@@ -96,7 +96,7 @@ export default function AdminPanel(){
           <div style={{display:'flex',flexDirection:'column',gap:'14px',marginTop:'14px'}}>
             <div><small style={{color:'var(--muted)',display:'block',marginBottom:'3px'}}>VERSION</small><strong>{release?.version||'1.0.0'} (Code {release?.versionCode||1})</strong></div>
             <div><small style={{color:'var(--muted)',display:'block',marginBottom:'3px'}}>STORAGE BACKEND</small><span style={{color:'var(--mint)',fontWeight:'800'}}>Vercel Blob Storage</span></div>
-            <div><small style={{color:'var(--muted)',display:'block',marginBottom:'3px'}}>DOWNLOAD URL</small><code style={{wordBreak:'break-all',fontSize:'12px',padding:'8px',background:'rgba(0,0,0,0.3)',borderRadius:'6px',display:'block',marginTop:'4px'}}>{release?.downloadUrl||'Default'}</code></div>
+            <div><small style={{color:'var(--muted)',display:'block',marginBottom:'3px'}}>DOWNLOAD URL</small><code style={{wordBreak:'break-all',fontSize:'12px',padding:'8px',background:'var(--input-bg)',borderRadius:'6px',display:'block',marginTop:'4px'}}>{release?.downloadUrl||'Default'}</code></div>
             <div><small style={{color:'var(--muted)',display:'block',marginBottom:'3px'}}>LAST UPDATED</small><span>{date(release?.uploadedAt)}</span></div>
             {release?.downloadUrl&&(
               <a href={release.downloadUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{width:'fit-content',marginTop:'8px',textDecoration:'none'}}>
@@ -121,7 +121,7 @@ export default function AdminPanel(){
               <input type="url" value={apkUrl} onChange={e=>setApkUrl(e.target.value)} placeholder="https://...blob.vercel-storage.com/...apk" required />
             </label>
             <label>Release Notes
-              <textarea value={apkNotes} onChange={e=>setApkNotes(e.target.value)} placeholder="Changelog and release notes..." style={{minHeight:'80px',padding:'10px',borderRadius:'8px',background:'rgba(10,16,12,0.6)',border:'1px solid var(--border)',color:'#fff'}} />
+              <textarea value={apkNotes} onChange={e=>setApkNotes(e.target.value)} placeholder="Changelog and release notes..." style={{minHeight:'80px',padding:'10px',borderRadius:'8px',background:'var(--input-bg)',border:'1px solid var(--border)',color:'var(--ink)'}} />
             </label>
             <button type="submit" className="btn btn-primary" disabled={busy==='save-apk'}>
               {busy==='save-apk'?'Updating...':'Save Release Configuration'}
