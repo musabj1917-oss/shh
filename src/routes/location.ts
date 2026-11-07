@@ -187,6 +187,12 @@ locationRoutes.post('/pin', async (c) => {
     await publishMessageCreated(conversationId, id);
   } catch {}
 
+  // Create message receipts for participants
+  try {
+    await getDb()`INSERT INTO message_receipts(message_id, user_id)
+      SELECT ${message.id}, cm.user_id FROM conversation_members cm WHERE cm.conversation_id=${conversationId} AND cm.user_id<>${user.id} AND cm.left_at IS NULL ON CONFLICT DO NOTHING`;
+  } catch {}
+
   // Trigger push notification to other conversation members
   const recipients = await getDb()`
     SELECT user_id FROM conversation_members WHERE conversation_id = ${conversationId} AND user_id <> ${user.id} AND left_at IS NULL LIMIT 100
@@ -195,7 +201,7 @@ locationRoutes.post('/pin', async (c) => {
     try {
       await createNotification(r.user_id, 'message', user.id, id, {
         conversationId,
-        preview: '📍 Shared a location pin',
+        preview: 'Shared a location pin',
       });
     } catch {}
   }

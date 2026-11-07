@@ -104,7 +104,7 @@ export function MapScreen() {
           <Text style={{ fontSize: 14, fontWeight: '800', color: colors.ink }}>{item.display_name}</Text>
           <Text style={{ fontSize: 11, color: colors.muted }}>@{item.username}</Text>
           <Text style={{ fontSize: 10, color: colors.mint, marginTop: 4 }}>
-            📍 {lat}, {lng} · {time}
+            ⌖ {lat}, {lng} · {time}
           </Text>
         </View>
         <Pressable

@@ -3764,6 +3764,11 @@
           return;
         }
 
+        if (window.isSecureContext === false && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+          showToast('Location requires HTTPS or localhost in modern browsers.', 'error');
+          return;
+        }
+
         showToast('Acquiring location...');
         navigator.geolocation.getCurrentPosition(async (pos) => {
           const { latitude, longitude, accuracy, heading, speed } = pos.coords;
@@ -3802,11 +3807,15 @@
               }, null, { enableHighAccuracy: true, maximumAge: 10000 });
             }
           } catch (err) {
-            showToast('Could not save live location.');
+            showToast(err?.message || 'Could not save live location.', 'error');
           }
         }, (err) => {
-          showToast('Location permission denied or unavailable.', 'error');
-        }, { enableHighAccuracy: true });
+          let msg = 'Location permission denied or unavailable.';
+          if (err.code === 1) msg = 'Location access denied. Please allow location permissions in your browser.';
+          else if (err.code === 2) msg = 'Location coordinates unavailable. Check GPS/network.';
+          else if (err.code === 3) msg = 'Location acquisition timed out.';
+          showToast(msg, 'error');
+        }, { enableHighAccuracy: true, timeout: 10000 });
       }
     });
 
@@ -3819,7 +3828,11 @@
         return;
       }
       if (!navigator.geolocation) {
-        showToast('Geolocation not available in this browser.');
+        showToast('Geolocation not available in this browser.', 'error');
+        return;
+      }
+      if (window.isSecureContext === false && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+        showToast('Location requires HTTPS or localhost in modern browsers.', 'error');
         return;
       }
 
@@ -3841,11 +3854,15 @@
           await loadConversations();
           showToast('Location pin sent.');
         } catch (err) {
-          showToast('Failed to send location pin.');
+          showToast(err?.message || 'Failed to send location pin.', 'error');
         }
       }, (err) => {
-        showToast('Location permission denied.');
-      }, { enableHighAccuracy: true });
+        let msg = 'Location permission denied.';
+        if (err.code === 1) msg = 'Location access denied. Please allow location permissions in your browser.';
+        else if (err.code === 2) msg = 'Location coordinates unavailable. Check GPS/network.';
+        else if (err.code === 3) msg = 'Location acquisition timed out.';
+        showToast(msg, 'error');
+      }, { enableHighAccuracy: true, timeout: 10000 });
     });
 
     // === WEB PUSH NOTIFICATIONS (FCM) ===
