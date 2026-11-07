@@ -7,6 +7,7 @@ import {
   View,
 } from 'react-native';
 import { mapErrorToUserFriendly, UserFriendlyError } from '@haiku/contracts';
+import { useTheme } from '../theme/ThemeContext';
 
 export interface ErrorModalProps {
   visible: boolean;
@@ -27,6 +28,7 @@ export function ErrorModal({
   retryLabel = 'Try Again',
   dismissLabel = 'Dismiss',
 }: ErrorModalProps) {
+  const { colors, typography, radii, controls } = useTheme();
   const [showDetails, setShowDetails] = useState(false);
 
   if (!visible) return null;
@@ -40,69 +42,112 @@ export function ErrorModal({
       visible={visible}
       onRequestClose={onDismiss}
     >
-      <View style={styles.overlay}>
-        <Pressable style={styles.backdrop} onPress={onDismiss} />
+      <View style={[styles.overlay, { backgroundColor: colors.scrim }]}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={onDismiss} />
 
-        <View style={styles.card}>
-          {/* Custom Weightless Illustration */}
-          <View style={styles.illustrationContainer}>
-            <View style={styles.illustrationOrb}>
-              <View style={styles.illustrationPlanet}>
-                <Text style={styles.illustrationEmoji}>🪐</Text>
-              </View>
-              <View style={styles.illustrationSignal}>
-                <Text style={styles.illustrationSignalEmoji}>⚡</Text>
-              </View>
-            </View>
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.line,
+              borderRadius: radii.xxl,
+            },
+          ]}
+        >
+          {/* Signal Indicator Badge (Zero Emojis) */}
+          <View
+            style={[
+              styles.illustrationOrb,
+              {
+                backgroundColor: colors.mintWash,
+                borderColor: colors.stitchGlow,
+              },
+            ]}
+          >
+            <Text style={{ fontSize: 24, color: colors.mint, fontWeight: '800' }}>!</Text>
           </View>
 
           {/* Typography */}
-          <Text style={styles.title}>{data.title}</Text>
-          <Text style={styles.message}>{data.message}</Text>
+          <Text style={[styles.title, { color: colors.ink }]}>{data.title}</Text>
+          <Text style={[styles.message, { color: colors.body }]}>{data.message}</Text>
 
           {/* Action Buttons */}
           <View style={styles.buttonRow}>
             <Pressable
               style={({ pressed }) => [
-                styles.secondaryButton,
-                pressed && styles.buttonPressed,
+                styles.button,
+                {
+                  backgroundColor: colors.inputBg,
+                  borderWidth: 1,
+                  borderColor: colors.line,
+                  borderRadius: radii.md,
+                  height: controls.heights.md,
+                  opacity: pressed ? 0.8 : 1,
+                },
               ]}
               onPress={onDismiss}
+              accessibilityRole="button"
             >
-              <Text style={styles.secondaryButtonText}>{dismissLabel}</Text>
+              <Text style={[styles.buttonText, { color: colors.ink }]}>{dismissLabel}</Text>
             </Pressable>
 
             {onRetry ? (
               <Pressable
                 style={({ pressed }) => [
-                  styles.primaryButton,
-                  pressed && styles.buttonPressed,
+                  styles.button,
+                  {
+                    backgroundColor: colors.mint,
+                    borderRadius: radii.md,
+                    height: controls.heights.md,
+                    opacity: pressed ? 0.8 : 1,
+                  },
                 ]}
                 onPress={() => {
                   onRetry();
                   onDismiss();
                 }}
+                accessibilityRole="button"
               >
-                <Text style={styles.primaryButtonText}>{retryLabel}</Text>
+                <Text style={[styles.buttonText, { color: colors.mintContrast }]}>{retryLabel}</Text>
               </Pressable>
             ) : null}
           </View>
 
           {/* Technical Details Accordion */}
           {data.technicalDetails ? (
-            <View style={styles.accordionContainer}>
+            <View style={[styles.accordionContainer, { borderTopColor: colors.line }]}>
               <Pressable
                 style={styles.accordionToggle}
                 onPress={() => setShowDetails(!showDetails)}
+                accessibilityRole="button"
               >
-                <Text style={styles.accordionToggleText}>
+                <Text style={[styles.accordionToggleText, { color: colors.muted }]}>
                   {showDetails ? 'Hide technical details ▲' : 'Technical details ▼'}
                 </Text>
               </Pressable>
 
               {showDetails ? (
-                <View style={styles.accordionContent}>
-                  <Text style={styles.detailsText} selectable>
+                <View
+                  style={[
+                    styles.accordionContent,
+                    {
+                      backgroundColor: colors.inputBg,
+                      borderColor: colors.line,
+                      borderRadius: radii.sm,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.detailsText,
+                      {
+                        color: colors.body,
+                        fontFamily: typography.fonts.mono,
+                      },
+                    ]}
+                    selectable
+                  >
                     {data.technicalDetails}
                   </Text>
                 </View>
@@ -118,159 +163,77 @@ export function ErrorModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
   },
-  backdrop: {
-    ...StyleSheet.absoluteFill,
-  },
   card: {
     width: '100%',
-    maxWidth: 420,
-    backgroundColor: 'rgba(23, 23, 23, 0.94)',
+    maxWidth: 400,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 24,
     padding: 24,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.6,
-    shadowRadius: 50,
-    elevation: 16,
+    elevation: 12,
   },
-  illustrationContainer: {
-    width: 80,
-    height: 80,
+  illustrationOrb: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
   },
-  illustrationOrb: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: 'rgba(153, 227, 36, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(153, 227, 36, 0.25)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  illustrationPlanet: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  illustrationEmoji: {
-    fontSize: 34,
-  },
-  illustrationSignal: {
-    position: 'absolute',
-    top: 2,
-    right: 2,
-    backgroundColor: '#99e324',
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#99e324',
-    shadowOpacity: 0.5,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  illustrationSignalEmoji: {
-    fontSize: 10,
-  },
   title: {
-    color: '#ffffff',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
     textAlign: 'center',
     marginBottom: 8,
     letterSpacing: -0.3,
   },
   message: {
-    color: '#d4d4d4',
-    fontSize: 14,
-    lineHeight: 22,
+    fontSize: 13,
+    lineHeight: 20,
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   buttonRow: {
     flexDirection: 'row',
     gap: 12,
     width: '100%',
   },
-  primaryButton: {
+  button: {
     flex: 1,
-    height: 48,
-    backgroundColor: '#99e324',
-    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#99e324',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 4,
+    paddingHorizontal: 16,
   },
-  primaryButtonText: {
-    color: '#0d140e',
+  buttonText: {
     fontSize: 14,
     fontWeight: '700',
-  },
-  secondaryButton: {
-    flex: 1,
-    height: 48,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  secondaryButtonText: {
-    color: '#ffffff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  buttonPressed: {
-    opacity: 0.8,
-    transform: [{ scale: 0.98 }],
   },
   accordionContainer: {
     width: '100%',
     marginTop: 16,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.08)',
     paddingTop: 12,
     alignItems: 'center',
   },
   accordionToggle: {
     paddingVertical: 4,
-    paddingHorizontal: 8,
   },
   accordionToggleText: {
-    color: '#737373',
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 11,
+    fontWeight: '600',
   },
   accordionContent: {
     width: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.06)',
-    borderRadius: 8,
     padding: 10,
     marginTop: 8,
   },
   detailsText: {
-    color: '#a3a3a3',
     fontSize: 11,
-    fontFamily: 'monospace',
     lineHeight: 16,
   },
 });
