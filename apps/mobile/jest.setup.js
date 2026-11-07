@@ -64,3 +64,25 @@ jest.mock('expo-haptics', () => ({
   ImpactFeedbackStyle: { Light: 'light', Medium: 'medium', Heavy: 'heavy' },
 }));
 
+jest.mock('expo-secure-store', () => {
+  const store = new Map();
+  return {
+    getItemAsync: jest.fn((key) => Promise.resolve(store.get(key) ?? null)),
+    setItemAsync: jest.fn((key, value) => {
+      store.set(key, String(value));
+      return Promise.resolve();
+    }),
+    deleteItemAsync: jest.fn((key) => {
+      store.delete(key);
+      return Promise.resolve();
+    }),
+    isAvailableAsync: jest.fn(() => Promise.resolve(true)),
+  };
+});
+
+jest.mock('expo-dynamic-app-icon', () => ({
+  setAppIcon: jest.fn(() => Promise.resolve('haiku')),
+  getAppIcon: jest.fn(() => Promise.resolve('haiku')),
+  supportsDynamicAppIcon: jest.fn(() => true),
+}));
+

@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { useColorScheme } from 'react-native';
+import { Platform, useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
+import * as DynamicAppIcon from 'expo-dynamic-app-icon';
 import {
   ThemeColors,
   ThemeDefinition,
@@ -30,12 +33,20 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemScheme = useColorScheme();
-  const [preference, setPreference] = useState<ThemePreference>('noir');
+  const [preference, setPreference] = useState<ThemePreference>('haiku');
 
   useEffect(() => {
     async function loadSavedTheme() {
       try {
-        const saved = await AsyncStorage.getItem(THEME_STORAGE_KEY);
+        let saved: string | null = null;
+        if (Platform.OS !== 'web') {
+          try {
+            saved = await SecureStore.getItemAsync(THEME_STORAGE_KEY);
+          } catch {}
+        }
+        if (!saved) {
+          saved = await AsyncStorage.getItem(THEME_STORAGE_KEY);
+        }
         if (saved && (saved in themes || saved === 'system')) {
           setPreference(saved as ThemePreference);
         }
@@ -49,7 +60,26 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const handleSetPreference = async (newPref: ThemePreference) => {
     setPreference(newPref);
     try {
+      if (Platform.OS !== 'web') {
+        try {
+          await SecureStore.setItemAsync(THEME_STORAGE_KEY, newPref);
+        } catch {}
+      }
       await AsyncStorage.setItem(THEME_STORAGE_KEY, newPref);
+
+      // Attempt to change native launcher icon (dev/prod native builds only, skip in Expo Go)
+      if (Platform.OS !== 'web' && newPref !== 'system') {
+        const isExpoGo =
+          Constants.appOwnership === 'expo' ||
+          Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+        if (!isExpoGo && typeof DynamicAppIcon.setAppIcon === 'function') {
+          try {
+            DynamicAppIcon.setAppIcon(newPref);
+          } catch (iconErr) {
+            console.warn('Could not update launcher icon:', iconErr);
+          }
+        }
+      }
     } catch (err) {
       console.warn('Could not persist theme preference:', err);
     }

@@ -16,7 +16,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@haiku/contracts": "0.1.0",
+    "@haiku/contracts": "file:../../packages/contracts",
     "@react-native-async-storage/async-storage": "^3.1.1",
     "@react-native-community/netinfo": "12.0.1",
     "@react-native/new-app-screen": "0.88.0",
@@ -27,11 +27,13 @@
     "expo": "~52.0.0",
     "expo-camera": "~16.0.0",
     "expo-constants": "~17.0.0",
+    "expo-dynamic-app-icon": "^1.2.0",
     "expo-file-system": "~18.0.0",
     "expo-haptics": "~14.0.0",
     "expo-image": "~2.0.0",
     "expo-image-manipulator": "~13.0.0",
     "expo-media-library": "~17.0.0",
+    "expo-secure-store": "~14.0.0",
     "react": "19.3.0",
     "react-native": "0.88.0",
     "react-native-image-picker": "8.3.0",

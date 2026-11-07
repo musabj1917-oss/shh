@@ -3,6 +3,12 @@
     "name": "HaikuMessenger",
     "slug": "haiku-messenger",
     "version": "0.1.0",
+    "icon": "./assets/icons/haiku/icon-haiku.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0A0A"
+    },
     "plugins": [
       [
         "expo-camera",
@@ -17,10 +23,44 @@
           "photosPermission": "Allow Haiku Messenger to access your photos to share media.",
           "savePhotosPermission": "Allow Haiku Messenger to save photos and videos to your library."
         }
+      ],
+      [
+        "expo-dynamic-app-icon",
+        {
+          "haiku": {
+            "image": "./assets/icons/haiku/icon-haiku.png",
+            "prerendered": true
+          },
+          "sakura": {
+            "image": "./assets/icons/sakura/icon-sakura.png",
+            "prerendered": true
+          },
+          "matcha": {
+            "image": "./assets/icons/matcha/icon-matcha.png",
+            "prerendered": true
+          },
+          "ocean": {
+            "image": "./assets/icons/ocean/icon-ocean.png",
+            "prerendered": true
+          },
+          "ember": {
+            "image": "./assets/icons/ember/icon-ember.png",
+            "prerendered": true
+          },
+          "paper": {
+            "image": "./assets/icons/paper/icon-paper.png",
+            "prerendered": true
+          }
+        }
       ]
     ],
     "android": {
       "softwareKeyboardLayoutMode": "resize",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icons/haiku/adaptive-foreground-haiku.png",
+        "backgroundColor": "#0A0A0A",
+        "monochromeImage": "./assets/icons/monochrome.png"
+      },
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO",

@@ -1067,25 +1067,27 @@ export function ProfileScreen() {
       {/* TAB 4: CLOUD & SYSTEM */}
       {activeTab === 'cloud' && (
         <>
-          {/* Interactive Theme Selector */}
+          {/* Appearance & Theme Selector */}
           <Surface style={{ marginBottom: 14, padding: 18, borderRadius: radii.xl }}>
             <Text style={{ fontSize: 11, fontWeight: '800', letterSpacing: 0.8, color: colors.mint, marginBottom: 4 }}>
-              THEME & AESTHETIC
+              APPEARANCE & APP THEME
             </Text>
             <Text style={{ fontSize: 12, color: colors.muted, marginBottom: 12 }}>
-              Choose your visual sanctuary. Switches live across all screens and persists across launches.
+              Choose your visual sanctuary. Changes live across all screens and updates your launcher icon.
             </Text>
 
             <View style={{ gap: 8 }}>
               {(
                 [
-                  ['noir', 'Noir & Red Glow (Default)', 'Pitch obsidian black & stark white with incandescent crimson red glow'],
-                  ['sumi', 'Sumi & Rain', 'Basalt ink canvas with calm celadon jade accents'],
-                  ['komorebi', 'Komorebi', 'Cedar moss green and warm terracotta amber'],
-                  ['washi', 'Washi Paper', 'Natural textured daylight paper with deep celadon ink'],
-                  ['system', 'Match System', 'Follows iOS/Android system light and dark mode appearance'],
-                ] as [ThemePreference, string, string][]
-              ).map(([themeKey, name, desc]) => {
+                  ['haiku', 'Haiku (Default)', 'Pitch obsidian black with signature warm gold accent', '#FFD60A'],
+                  ['sakura', 'Sakura', 'Deep plum obsidian with radiant sakura petal pink', '#FF8FB8'],
+                  ['matcha', 'Matcha', 'Basalt forest canvas with energetic matcha lime green', '#8FD16A'],
+                  ['ocean', 'Ocean', 'Deep abyss navy with luminous ocean cyan blue', '#4DB8FF'],
+                  ['ember', 'Ember', 'Charred charcoal canvas with incandescent terracotta ember', '#FF6B3D'],
+                  ['paper', 'Paper', 'Natural textured washi paper with deep contrast ink black', '#0A0A0A'],
+                  ['system', 'Match System', 'Follows iOS/Android system light and dark mode appearance', colors.ink],
+                ] as [ThemePreference, string, string, string][]
+              ).map(([themeKey, name, desc, accentColor]) => {
                 const isSelected = preference === themeKey;
                 return (
                   <Pressable
@@ -1104,9 +1106,21 @@ export function ProfileScreen() {
                       borderColor: isSelected ? colors.mint : colors.line,
                     }}
                   >
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 13, fontWeight: '700', color: colors.ink }}>{name}</Text>
-                      <Text style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>{desc}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
+                      <View
+                        style={{
+                          width: 24,
+                          height: 24,
+                          borderRadius: 12,
+                          backgroundColor: accentColor,
+                          borderWidth: 2,
+                          borderColor: isSelected ? colors.mint : colors.line,
+                        }}
+                      />
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: colors.ink }}>{name}</Text>
+                        <Text style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>{desc}</Text>
+                      </View>
                     </View>
                     <View
                       style={{
