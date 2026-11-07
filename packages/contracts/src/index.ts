@@ -261,3 +261,6 @@ export function mapErrorToUserFriendly(err: unknown): UserFriendlyError {
   };
 }
 
+export * from './theme';
+
+
