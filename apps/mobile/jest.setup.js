@@ -42,6 +42,12 @@ jest.mock('expo-camera', () => {
     CameraView: (props) => React.createElement(View, props),
     useCameraPermissions: jest.fn(() => [{ granted: true, canAskAgain: true }, jest.fn()]),
     useMicrophonePermissions: jest.fn(() => [{ granted: true, canAskAgain: true }, jest.fn()]),
+    Camera: {
+      getCameraPermissionsAsync: jest.fn(() => Promise.resolve({ granted: true, canAskAgain: true, status: 'granted' })),
+      requestCameraPermissionsAsync: jest.fn(() => Promise.resolve({ granted: true, canAskAgain: true, status: 'granted' })),
+      getMicrophonePermissionsAsync: jest.fn(() => Promise.resolve({ granted: true, canAskAgain: true, status: 'granted' })),
+      requestMicrophonePermissionsAsync: jest.fn(() => Promise.resolve({ granted: true, canAskAgain: true, status: 'granted' })),
+    },
   };
 });
 

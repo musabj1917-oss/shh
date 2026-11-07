@@ -1,5 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
+  Linking,
   Pressable,
   ScrollView,
   Share,
@@ -27,6 +28,7 @@ import {
 import { MapPinIcon, PlusIcon } from '../components/Icons';
 import { useTheme } from '../theme/ThemeContext';
 import { useImmersive } from '../system/immersive';
+import { checkAllPermissions, requestPermission, PermissionKind, PermissionState } from '../permissions';
 import { ThemePreference } from '@haiku/contracts';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -85,7 +87,7 @@ type Deletion = {
   scheduled_for: string;
 };
 
-type SettingsTab = 'profile' | 'privacy' | 'security' | 'cloud';
+type SettingsTab = 'profile' | 'privacy' | 'security' | 'permissions' | 'cloud';
 
 const defaultSettings: Settings = {
   quietMode: true,
@@ -112,6 +114,24 @@ export function ProfileScreen() {
   const { immersive, updatePersisted } = useImmersive();
 
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  const [permStatuses, setPermStatuses] = useState<Record<PermissionKind, PermissionState>>({
+    camera: 'denied',
+    microphone: 'denied',
+    photos: 'denied',
+    location: 'denied',
+    notifications: 'denied',
+  });
+
+  const refreshPerms = useCallback(async () => {
+    const res = await checkAllPermissions();
+    setPermStatuses(res);
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'permissions') {
+      void refreshPerms();
+    }
+  }, [activeTab, refreshPerms]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [settings, setSettings] = useState<Settings>(defaultSettings);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -567,6 +587,7 @@ export function ProfileScreen() {
             ['profile', 'Profile'],
             ['privacy', 'Privacy'],
             ['security', 'Security'],
+            ['permissions', 'Perms'],
             ['cloud', 'System'],
           ] as [SettingsTab, string][]
         ).map(([tabKey, label]) => {
@@ -946,6 +967,99 @@ export function ProfileScreen() {
                 </View>
               ))
             )}
+          </Surface>
+        </>
+      )}
+
+      {/* TAB: PERMISSIONS */}
+      {activeTab === 'permissions' && (
+        <>
+          <Surface style={{ marginBottom: 14, padding: 18, borderRadius: radii.xl }}>
+            <Text style={{ fontSize: 11, fontWeight: '800', letterSpacing: 0.8, color: colors.mint, marginBottom: 4 }}>
+              SYSTEM PERMISSIONS
+            </Text>
+            <Text style={{ fontSize: 12, color: colors.muted, lineHeight: 18, marginBottom: 16 }}>
+              Review device permissions granted to Haiku Messenger. Denying a permission never locks you out; each feature prompts contextually.
+            </Text>
+
+            <View style={{ gap: 12 }}>
+              {(
+                [
+                  ['camera', 'Camera', 'Capture photos and record videos for chats and stories.', '📷'],
+                  ['microphone', 'Microphone', 'Audio recording for videos and voice notes.', '🎙️'],
+                  ['photos', 'Photos & Media Library', 'Save received media and share gallery pictures.', '🖼️'],
+                  ['location', 'Location (Foreground)', 'Share location pins with peers on demand.', '📍'],
+                  ['notifications', 'Notifications', 'Real-time alerts for incoming messages and mentions.', '🔔'],
+                ] as const
+              ).map(([kind, title, desc, icon]) => {
+                const state = permStatuses[kind];
+                const isGranted = state === 'granted';
+                const isBlocked = state === 'blocked';
+
+                return (
+                  <View
+                    key={kind}
+                    style={{
+                      padding: 12,
+                      borderRadius: radii.lg,
+                      borderWidth: 1,
+                      borderColor: isGranted ? colors.mint : colors.line,
+                      backgroundColor: colors.card,
+                    }}
+                  >
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
+                        <Text style={{ fontSize: 20 }}>{icon}</Text>
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ fontSize: 14, fontWeight: '700', color: colors.ink }}>
+                            {title}
+                          </Text>
+                          <Text style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                            {desc}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={{ alignItems: 'flex-end', marginLeft: 10 }}>
+                        <Text
+                          style={{
+                            fontSize: 11,
+                            fontWeight: '700',
+                            color: isGranted ? colors.mint : isBlocked ? colors.red : colors.muted,
+                            textTransform: 'capitalize',
+                            marginBottom: 4,
+                          }}
+                        >
+                          {state}
+                        </Text>
+                        <Pressable
+                          onPress={async () => {
+                            if (isBlocked) {
+                              await Linking.openSettings();
+                            } else {
+                              const next = await requestPermission(kind);
+                              setPermStatuses((prev) => ({ ...prev, [kind]: next }));
+                            }
+                          }}
+                          style={{
+                            paddingHorizontal: 10,
+                            paddingVertical: 4,
+                            borderRadius: radii.sm,
+                            borderWidth: 1,
+                            borderColor: isBlocked ? colors.line : colors.mint,
+                            backgroundColor: isBlocked ? colors.panel : colors.mintWash,
+                          }}
+                        >
+                          <Text style={{ fontSize: 11, fontWeight: '700', color: isBlocked ? colors.ink : colors.mint }}>
+                            {isBlocked ? 'Settings' : isGranted ? 'Re-check' : 'Enable'}
+                          </Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
           </Surface>
         </>
       )}

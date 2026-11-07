@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View, useWindowDimensions } from 'react-native';
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import type { LinkingOptions, Theme as NavTheme } from '@react-navigation/native';
@@ -26,6 +26,8 @@ import { BrandMark } from '../components/UI';
 import { CameraIcon, ChatsIcon, MomentsIcon, PeopleIcon, SettingsIcon } from '../components/Icons';
 import { CameraScreen } from '../screens/CameraScreen';
 import { CameraPreviewScreen } from '../screens/CameraPreviewScreen';
+import { PermissionsScreen } from '../screens/PermissionsScreen';
+import { hasCompletedPermissionsFlow } from '../permissions';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tabs = createBottomTabNavigator<MainTabParamList>();
@@ -273,6 +275,15 @@ export function AppNavigator() {
   const { user, loading } = useAuth();
   const { colors, isDark } = useTheme();
   const navigationRef = useNavigationContainerRef<RootStackParamList>();
+  const [permissionsCompleted, setPermissionsCompleted] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      void hasCompletedPermissionsFlow().then(setPermissionsCompleted);
+    } else {
+      setPermissionsCompleted(null);
+    }
+  }, [user]);
 
   const openPendingInvite = useCallback(() => {
     const token = takePendingInvite();
@@ -334,9 +345,35 @@ export function AppNavigator() {
             <Stack.Screen name="Auth" component={AuthScreen} />
             <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
           </>
+        ) : permissionsCompleted === false ? (
+          <>
+            <Stack.Screen name="Permissions" component={PermissionsScreen} />
+            <Stack.Screen name="Main" component={MainTabs} />
+            <Stack.Screen
+              name="CameraPreview"
+              component={CameraPreviewScreen}
+              options={{ animation: 'fade' }}
+            />
+            <Stack.Screen
+              name="Chat"
+              component={ChatScreen}
+              options={{ animation: 'slide_from_right' }}
+            />
+            <Stack.Screen name="Groups" component={GroupsScreen} />
+            <Stack.Screen name="GroupDetail" component={GroupDetailScreen} />
+            <Stack.Screen
+              name="StoryView"
+              component={StoryViewScreen}
+              options={{ animation: 'fade' }}
+            />
+            <Stack.Screen name="Notifications" component={NotificationsScreen} />
+            <Stack.Screen name="PublicProfile" component={PublicProfileScreen} />
+            <Stack.Screen name="JoinGroup" component={JoinGroupScreen} />
+          </>
         ) : (
           <>
             <Stack.Screen name="Main" component={MainTabs} />
+            <Stack.Screen name="Permissions" component={PermissionsScreen} />
             <Stack.Screen
               name="CameraPreview"
               component={CameraPreviewScreen}
