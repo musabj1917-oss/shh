@@ -2,7 +2,9 @@
   "name": "haiku-mobile",
   "version": "0.1.0",
   "private": true,
-  "engines": { "node": ">=22.13.0" },
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "scripts": {
     "configure": "node --env-file-if-exists=.env ../../scripts/write-mobile-config.mjs",
     "start": "npm run configure && react-native start",
@@ -15,6 +17,7 @@
   },
   "dependencies": {
     "@haiku/contracts": "0.1.0",
+    "@react-native-async-storage/async-storage": "^3.1.1",
     "@react-native-community/netinfo": "12.0.1",
     "@react-native/new-app-screen": "0.88.0",
     "@react-navigation/bottom-tabs": "7.21.0",
