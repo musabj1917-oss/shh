@@ -1,109 +1,1087 @@
-import React,{useCallback,useState} from 'react';
-import {Alert,Pressable,ScrollView,Share,Switch,Text,View} from 'react-native';
-import {launchImageLibrary} from 'react-native-image-picker';
-import {useFocusEffect} from '@react-navigation/native';
-import {api,messageForError} from '../api/client';
-import {useAuth} from '../auth/AuthContext';
-import {Avatar,Button,Field,LoadingState,Notice,RemoteAvatar,Surface} from '../components/UI';
-import {colors} from '../theme/colors';
+import React, { useCallback, useState } from 'react';
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  Share,
+  Switch,
+  Text,
+  View,
+} from 'react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/types';
+import { api, messageForError } from '../api/client';
+import { useAuth } from '../auth/AuthContext';
+import {
+  Avatar,
+  Button,
+  Field,
+  LoadingState,
+  Notice,
+  RemoteAvatar,
+  Surface,
+} from '../components/UI';
+import { colors } from '../theme/colors';
 
-type Profile={email:string;username:string;display_name:string;bio:string|null;location:string|null;avatar_object_key:string|null;username_changed_at:string|null};
-type Settings={quietMode:boolean;notificationsEnabled:boolean;senderPreviews:boolean;presenceVisible:boolean;readReceiptsEnabled:boolean;typingIndicatorsEnabled:boolean};
-type RawSettings={quiet_mode:boolean;notifications_enabled:boolean;sender_previews:boolean;presence_visible:boolean;read_receipts_enabled:boolean;typing_indicators_enabled:boolean};
-type Session={id:string;user_agent:string|null;created_at:string;last_seen_at:string;expires_at:string};
-type Blocked={id:string;username:string;display_name:string};
-type Report={id:string;category:string;status:string;created_at:string};
-type Deletion={id:string;scheduled_for:string};
-const defaultSettings:Settings={quietMode:true,notificationsEnabled:true,senderPreviews:true,presenceVisible:true,readReceiptsEnabled:true,typingIndicatorsEnabled:true};
-const mapSettings=(value:RawSettings):Settings=>({quietMode:value.quiet_mode,notificationsEnabled:value.notifications_enabled,senderPreviews:value.sender_previews,presenceVisible:value.presence_visible,readReceiptsEnabled:value.read_receipts_enabled,typingIndicatorsEnabled:value.typing_indicators_enabled});
-const settingRows:[keyof Settings,string,string][]=[['quietMode','Quiet mode','Preference is saved; quiet-hour scheduling is not implemented yet.'],['notificationsEnabled','Notifications','In-app history is available; push delivery is not connected yet.'],['senderPreviews','Message previews','Preference is saved; the current app does not send push previews.'],['presenceVisible','Show my presence','Allow presence signals in supported live conversations.'],['readReceiptsEnabled','Read receipts','Share when you have read a message.'],['typingIndicatorsEnabled','Typing indicators','Share when you are composing a message.']];
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-export function ProfileScreen(){
- const {user,signOut,refresh}=useAuth();
- const [profile,setProfile]=useState<Profile|null>(null),[settings,setSettings]=useState(defaultSettings),[sessions,setSessions]=useState<Session[]>([]),[blocked,setBlocked]=useState<Blocked[]>([]),[reports,setReports]=useState<Report[]>([]),[deletion,setDeletion]=useState<Deletion|null>(null),[avatarUrl,setAvatarUrl]=useState(''),[serverHealth,setServerHealth]=useState<{status:string;databaseConnected:boolean;databaseConfigured:boolean}|null>(null);
- const [displayName,setDisplayName]=useState(''),[username,setUsername]=useState(''),[bio,setBio]=useState(''),[location,setLocation]=useState(''),[currentPassword,setCurrentPassword]=useState(''),[newPassword,setNewPassword]=useState(''),[confirmPassword,setConfirmPassword]=useState(''),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[passwordBusy,setPasswordBusy]=useState(false),[,setUploading]=useState(false),[error,setError]=useState(''),[success,setSuccess]=useState('');
- const load=useCallback(async()=>{
-  if(!user)return;setError('');
-  try{
-   const [p,s,ss,b,r,d,h]=await Promise.all([
-    api<{profile:Profile}>('/profile/me'),api<{settings:RawSettings}>('/profile/settings'),api<{sessions:Session[]}>('/account/sessions'),api<{blockedUsers:Blocked[]}>('/friends/blocks'),api<{reports:Report[]}>('/reports/mine'),api<{request:Deletion|null}>('/account/deletion'),api<{status:string;databaseConnected:boolean;databaseConfigured:boolean}>('/health',{anonymous:true}).catch(()=>null)
-   ]);
-   setProfile(p.profile);setDisplayName(p.profile?.display_name||user.displayName);setUsername(p.profile?.username||user.username);setBio(p.profile?.bio||'');setLocation(p.profile?.location||'');setSettings(mapSettings(s.settings));setSessions(ss.sessions||[]);setBlocked(b.blockedUsers||[]);setReports(r.reports||[]);setDeletion(d.request||null);if(h)setServerHealth(h);
-   if(user.id){try{const avatar=await api<{url:string}>(`/media/avatars/${user.id}`);setAvatarUrl(avatar.url);}catch{setAvatarUrl('');}}
-  }catch(e){setError(messageForError(e));}finally{setLoading(false);}
- },[user]);
- useFocusEffect(useCallback(()=>{load();},[load]));
- const saveProfile=async()=>{
-  setSaving(true);setError('');setSuccess('');
-  try{
-   const patch:{displayName:string;bio:string|null;location:string|null;username?:string}={displayName:displayName.trim(),bio:bio.trim()||null,location:location.trim()||null};
-   if(username.trim()!==profile?.username)patch.username=username.trim();
-   await api('/profile/me',{method:'PATCH',body:JSON.stringify(patch)});setSuccess('Your profile has been saved.');await refresh();await load();
-  }catch(e){setError(messageForError(e));}finally{setSaving(false);}
- };
- const savePassword=async()=>{setError('');setSuccess('');if(newPassword.length<12){setError('Use at least 12 characters for your new password.');return;}if(newPassword!==confirmPassword){setError('The new passwords do not match.');return;}setPasswordBusy(true);try{await api('/auth/change-password',{method:'POST',body:JSON.stringify({currentPassword,newPassword})});setCurrentPassword('');setNewPassword('');setConfirmPassword('');setSuccess('Password changed. Other sessions have been signed out.');await load();}catch(e){setError(messageForError(e));}finally{setPasswordBusy(false);}};
- const updateSetting=async(key:keyof Settings,value:boolean)=>{
-  const previous=settings;const next={...settings,[key]:value};setSettings(next);setError('');
-  const apiKey:Record<keyof Settings,string>={quietMode:'quietMode',notificationsEnabled:'notificationsEnabled',senderPreviews:'senderPreviews',presenceVisible:'presenceVisible',readReceiptsEnabled:'readReceiptsEnabled',typingIndicatorsEnabled:'typingIndicatorsEnabled'};
-  try{await api('/profile/settings',{method:'PATCH',body:JSON.stringify({[apiKey[key]]:value})});}
-  catch(e){setSettings(previous);setError(messageForError(e));}
- };
- const changeAvatar=async()=>{
-  setError('');const picked=await launchImageLibrary({mediaType:'photo',selectionLimit:1,quality:.8});if(picked.didCancel)return;if(picked.errorCode){setError(picked.errorMessage||'Could not open your photo library.');return;}
-  const asset=picked.assets?.[0];if(!asset?.uri){setError('The selected image could not be opened.');return;}const mimeType=(asset.type||'image/jpeg').toLowerCase(),byteSize=asset.fileSize||0;if(!byteSize){setError('Could not determine this image’s size.');return;}
-  setUploading(true);try{
-   const intent=await api<{attachmentId:string;upload:{url:string;method:'PUT';headers:Record<string,string>;mode:'proxy'|'signed'}}>('/media/upload-intents',{method:'POST',body:JSON.stringify({purpose:'avatar',mediaType:'image',mimeType,byteSize})});
-   const blob=await (await fetch(asset.uri)).blob();const result=await fetch(intent.upload.url,{method:intent.upload.method,headers:intent.upload.headers,body:blob});if(!result.ok)throw new Error(`Upload failed (${result.status}).`);
-   if(intent.upload.mode==='signed')await api(`/media/${intent.attachmentId}/complete`,{method:'POST'});
-   await api('/profile/me',{method:'PATCH',body:JSON.stringify({avatarAttachmentId:intent.attachmentId})});await load();
-  }catch(e){setError(messageForError(e));}finally{setUploading(false);}
- };
- const revokeSession=(id:string)=>Alert.alert('Sign out this device?', 'This session will no longer be able to access your Haiku account.',[{text:'Cancel',style:'cancel'},{text:'Sign out',style:'destructive',onPress:async()=>{try{await api(`/account/sessions/${id}`,{method:'DELETE'});await load();}catch(e){setError(messageForError(e));}}}]);
- const revokeOthers=()=>Alert.alert('Sign out other devices?', 'Your current device stays signed in. All other active sessions will be revoked.',[{text:'Cancel',style:'cancel'},{text:'Sign out others',style:'destructive',onPress:async()=>{try{await api('/account/sessions',{method:'DELETE'});await load();}catch(e){setError(messageForError(e));}}}]);
- const toggleBlock=async(item:Blocked)=>{try{await api(`/friends/blocks/${item.id}`,{method:'DELETE'});await load();}catch(e){setError(messageForError(e));}};
- const exportData=async()=>{try{const result=await api('/account/export');await Share.share({title:'Haiku Messenger data export',message:JSON.stringify(result,null,2)});}catch(e){setError(messageForError(e));}};
- const scheduleDeletion=()=>Alert.alert('Schedule account deletion?', 'Your account is scheduled for deletion after a grace period. You can cancel before it completes. Some copies such as other people’s screenshots or backups cannot be guaranteed erased.',[{text:'Keep account',style:'cancel'},{text:'Schedule deletion',style:'destructive',onPress:async()=>{try{const result=await api<{request:Deletion}>('/account/deletion',{method:'POST'});setDeletion(result.request);Alert.alert('Deletion scheduled',`Current scheduled date: ${new Date(result.request.scheduled_for).toLocaleString()}.`);}catch(e){setError(messageForError(e));}}}]);
- const cancelDeletion=()=>Alert.alert('Cancel account deletion?', 'Your account will remain active.',[{text:'Keep deletion scheduled',style:'cancel'},{text:'Cancel deletion',onPress:async()=>{try{await api('/account/deletion',{method:'DELETE'});setDeletion(null);}catch(e){setError(messageForError(e));}}}]);
- const doSignOut=()=>Alert.alert('Sign out?', 'You can sign back in at any time.',[{text:'Cancel',style:'cancel'},{text:'Sign out',style:'destructive',onPress:()=>{void signOut();}}]);
- if(loading)return <LoadingState message="Loading your profile…"/>;
- return <ScrollView style={{flex:1,backgroundColor:colors.canvas}} contentContainerStyle={{padding:18,paddingTop:20,paddingBottom:34}} keyboardShouldPersistTaps="handled">
-  <View style={{flexDirection:'row',alignItems:'center',gap:13,marginBottom:17}}><Pressable onPress={changeAvatar} accessibilityRole="button" accessibilityLabel="Change profile photo" style={{position:'relative'}}><RemoteAvatar name={displayName||user?.displayName||'Haiku'} uri={avatarUrl} large/><View style={{position:'absolute',bottom:-2,right:-2,width:23,height:23,borderRadius:9,backgroundColor:colors.mint,borderWidth:2,borderColor:colors.canvas,alignItems:'center',justifyContent:'center'}}><Text style={{fontSize:14,color:colors.mintContrast,fontWeight:'800'}}>＋</Text></View></Pressable><View style={{flex:1}}><Text style={{fontSize:10,fontWeight:'800',letterSpacing:1.3,color:colors.mint}}>YOUR SPACE</Text><Text style={{fontSize:25,fontWeight:'800',letterSpacing:-.7,color:colors.ink,marginTop:3}}>{displayName||user?.displayName}</Text><Text style={{fontSize:11,color:colors.muted,marginTop:3}}>@{username||user?.username} · {user?.emailVerified?'Verified email':'Email not verified'}</Text></View></View>
-  {error?<Notice tone="error">{error}</Notice>:null}{success?<Notice tone="success">{success}</Notice>:null}
-  {user&&!user.emailVerified?<Surface style={{marginBottom:13,padding:13}}><Text style={{fontSize:12,fontWeight:'800',color:colors.ink}}>Verify your email</Text><Text style={{fontSize:10,color:colors.muted,marginTop:4}}>A verified email helps secure your account and is required for messaging.</Text><Button title="Resend verification email" kind="secondary" small style={{marginTop:10}} onPress={async()=>{try{await api('/auth/resend-verification',{method:'POST',anonymous:true,body:JSON.stringify(user.email)});setSuccess('If verification is pending, instructions have been sent.');}catch(e){setError(messageForError(e));}}}/></Surface>:null}
-  <Surface style={{marginBottom:12}}><Text style={{fontSize:14,fontWeight:'800',color:colors.ink,marginBottom:12}}>Profile details</Text><Field label="Display name" value={displayName} onChangeText={setDisplayName} maxLength={60} autoCapitalize="words"/><Field label="Username" value={username} onChangeText={setUsername} maxLength={24} autoCapitalize="none" autoCorrect={false}/><Field label="About you" value={bio} onChangeText={setBio} maxLength={280} multiline style={{height:82}}/><Field label="Location (optional)" value={location} onChangeText={setLocation} maxLength={80}/><Button title="Save profile" onPress={saveProfile} loading={saving}/></Surface>
-  <Surface style={{marginBottom:12}}><Text style={{fontSize:14,fontWeight:'800',color:colors.ink,marginBottom:5}}>Change password</Text><Text style={{fontSize:10,color:colors.muted,lineHeight:15,marginBottom:11}}>Changing your password signs out other devices. If you signed in with Google and have no password yet, use account recovery to set one.</Text><Field label="Current password" value={currentPassword} onChangeText={setCurrentPassword} secureTextEntry autoComplete="current-password"/><Field label="New password" value={newPassword} onChangeText={setNewPassword} secureTextEntry autoComplete="new-password"/><Field label="Confirm new password" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry autoComplete="new-password"/><Button title="Update password" kind="secondary" onPress={savePassword} loading={passwordBusy}/></Surface>
-  <Surface style={{marginBottom:12}}><Text style={{fontSize:14,fontWeight:'800',color:colors.ink}}>Privacy & notifications</Text><Text style={{fontSize:10,color:colors.muted,marginTop:3,marginBottom:6}}>Preferences are stored server-side. Some delivery features still require provider setup.</Text>{settingRows.map(([key,label,detail])=><View key={key} style={{minHeight:54,flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12,borderTopWidth:1,borderTopColor:colors.line,paddingVertical:9}}><View style={{flex:1}}><Text style={{fontSize:11,fontWeight:'700',color:colors.ink}}>{label}</Text><Text style={{fontSize:9,color:colors.muted,marginTop:3}}>{detail}</Text></View><Switch value={settings[key]} onValueChange={value=>updateSetting(key,value)} trackColor={{false:'rgba(255,255,255,0.12)',true:colors.mintWash}} thumbColor={settings[key]?colors.mint:colors.muted} accessibilityLabel={label}/></View>)}</Surface>
-  <Surface style={{marginBottom:12}}>
-    <Text style={{fontSize:14,fontWeight:'800',color:colors.ink,marginBottom:4}}>Theme & Appearance</Text>
-    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingVertical:9}}>
-      <View>
-        <Text style={{fontSize:12,fontWeight:'700',color:colors.ink}}>Lime Velvet</Text>
-        <Text style={{fontSize:10,color:colors.muted,marginTop:2}}>Obsidian dark canvas with radiant lime accents</Text>
+type Profile = {
+  email: string;
+  username: string;
+  display_name: string;
+  bio: string | null;
+  location: string | null;
+  avatar_object_key: string | null;
+  username_changed_at: string | null;
+};
+
+type Settings = {
+  quietMode: boolean;
+  notificationsEnabled: boolean;
+  senderPreviews: boolean;
+  presenceVisible: boolean;
+  readReceiptsEnabled: boolean;
+  typingIndicatorsEnabled: boolean;
+};
+
+type RawSettings = {
+  quiet_mode: boolean;
+  notifications_enabled: boolean;
+  sender_previews: boolean;
+  presence_visible: boolean;
+  read_receipts_enabled: boolean;
+  typing_indicators_enabled: boolean;
+};
+
+type Session = {
+  id: string;
+  user_agent: string | null;
+  created_at: string;
+  last_seen_at: string;
+  expires_at: string;
+};
+
+type Blocked = {
+  id: string;
+  username: string;
+  display_name: string;
+};
+
+type Report = {
+  id: string;
+  category: string;
+  status: string;
+  created_at: string;
+};
+
+type Deletion = {
+  id: string;
+  scheduled_for: string;
+};
+
+type SettingsTab = 'profile' | 'privacy' | 'security' | 'cloud';
+
+const defaultSettings: Settings = {
+  quietMode: true,
+  notificationsEnabled: true,
+  senderPreviews: true,
+  presenceVisible: true,
+  readReceiptsEnabled: true,
+  typingIndicatorsEnabled: true,
+};
+
+const mapSettings = (value: RawSettings): Settings => ({
+  quietMode: value.quiet_mode,
+  notificationsEnabled: value.notifications_enabled,
+  senderPreviews: value.sender_previews,
+  presenceVisible: value.presence_visible,
+  readReceiptsEnabled: value.read_receipts_enabled,
+  typingIndicatorsEnabled: value.typing_indicators_enabled,
+});
+
+export function ProfileScreen() {
+  const navigation = useNavigation<NavigationProp>();
+  const { user, signOut, refresh } = useAuth();
+
+  const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [settings, setSettings] = useState<Settings>(defaultSettings);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [blocked, setBlocked] = useState<Blocked[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
+  const [deletion, setDeletion] = useState<Deletion | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [serverHealth, setServerHealth] = useState<{
+    status: string;
+    databaseConnected: boolean;
+    databaseConfigured: boolean;
+  } | null>(null);
+
+  // Form states
+  const [displayName, setDisplayName] = useState('');
+  const [username, setUsername] = useState('');
+  const [bio, setBio] = useState('');
+  const [location, setLocation] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+
+  // Status flags
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [passwordBusy, setPasswordBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const load = useCallback(async () => {
+    if (!user) return;
+    setError('');
+    try {
+      const [p, s, ss, b, r, d, h] = await Promise.all([
+        api<{ profile: Profile }>('/profile/me'),
+        api<{ settings: RawSettings }>('/profile/settings'),
+        api<{ sessions: Session[] }>('/account/sessions'),
+        api<{ blockedUsers: Blocked[] }>('/friends/blocks'),
+        api<{ reports: Report[] }>('/reports/mine'),
+        api<{ request: Deletion | null }>('/account/deletion'),
+        api<{ status: string; databaseConnected: boolean; databaseConfigured: boolean }>('/health', {
+          anonymous: true,
+        }).catch(() => null),
+      ]);
+
+      setProfile(p.profile);
+      setDisplayName(p.profile?.display_name || user.displayName);
+      setUsername(p.profile?.username || user.username);
+      setBio(p.profile?.bio || '');
+      setLocation(p.profile?.location || '');
+      setSettings(mapSettings(s.settings));
+      setSessions(ss.sessions || []);
+      setBlocked(b.blockedUsers || []);
+      setReports(r.reports || []);
+      setDeletion(d.request || null);
+      if (h) setServerHealth(h);
+
+      if (user.id) {
+        try {
+          const avatar = await api<{ url: string }>(`/media/avatars/${user.id}`);
+          setAvatarUrl(avatar.url);
+        } catch {
+          setAvatarUrl('');
+        }
+      }
+    } catch (e) {
+      setError(messageForError(e));
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
+
+  const saveProfile = async () => {
+    setSaving(true);
+    setError('');
+    setSuccess('');
+    try {
+      const patch: { displayName: string; bio: string | null; location: string | null; username?: string } = {
+        displayName: displayName.trim(),
+        bio: bio.trim() || null,
+        location: location.trim() || null,
+      };
+      if (username.trim() !== profile?.username) patch.username = username.trim();
+      await api('/profile/me', { method: 'PATCH', body: JSON.stringify(patch) });
+      setSuccess('Profile details successfully saved.');
+      await refresh();
+      await load();
+    } catch (e) {
+      setError(messageForError(e));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const savePassword = async () => {
+    setError('');
+    setSuccess('');
+    if (newPassword.length < 12) {
+      setError('Use at least 12 characters for your new password.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError('The new passwords do not match.');
+      return;
+    }
+    setPasswordBusy(true);
+    try {
+      await api('/auth/change-password', {
+        method: 'POST',
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setShowPasswordForm(false);
+      setSuccess('Password updated. Other active sessions have been signed out.');
+      await load();
+    } catch (e) {
+      setError(messageForError(e));
+    } finally {
+      setPasswordBusy(false);
+    }
+  };
+
+  const updateSetting = async (key: keyof Settings, value: boolean) => {
+    const previous = settings;
+    const next = { ...settings, [key]: value };
+    setSettings(next);
+    setError('');
+    const apiKey: Record<keyof Settings, string> = {
+      quietMode: 'quietMode',
+      notificationsEnabled: 'notificationsEnabled',
+      senderPreviews: 'senderPreviews',
+      presenceVisible: 'presenceVisible',
+      readReceiptsEnabled: 'readReceiptsEnabled',
+      typingIndicatorsEnabled: 'typingIndicatorsEnabled',
+    };
+    try {
+      await api('/profile/settings', {
+        method: 'PATCH',
+        body: JSON.stringify({ [apiKey[key]]: value }),
+      });
+    } catch (e) {
+      setSettings(previous);
+      setError(messageForError(e));
+    }
+  };
+
+  const changeAvatar = async () => {
+    setError('');
+    const picked = await launchImageLibrary({ mediaType: 'photo', selectionLimit: 1, quality: 0.8 });
+    if (picked.didCancel) return;
+    if (picked.errorCode) {
+      setError(picked.errorMessage || 'Could not open your photo library.');
+      return;
+    }
+    const asset = picked.assets?.[0];
+    if (!asset?.uri) {
+      setError('The selected image could not be opened.');
+      return;
+    }
+    const mimeType = (asset.type || 'image/jpeg').toLowerCase();
+    const byteSize = asset.fileSize || 0;
+    if (!byteSize) {
+      setError('Could not determine this image’s size.');
+      return;
+    }
+    setUploading(true);
+    try {
+      const intent = await api<{
+        attachmentId: string;
+        upload: { url: string; method: 'PUT'; headers: Record<string, string>; mode: 'proxy' | 'signed' };
+      }>('/media/upload-intents', {
+        method: 'POST',
+        body: JSON.stringify({ purpose: 'avatar', mediaType: 'image', mimeType, byteSize }),
+      });
+      const blob = await (await fetch(asset.uri)).blob();
+      const result = await fetch(intent.upload.url, {
+        method: intent.upload.method,
+        headers: intent.upload.headers,
+        body: blob,
+      });
+      if (!result.ok) throw new Error(`Upload failed (${result.status}).`);
+      if (intent.upload.mode === 'signed') {
+        await api(`/media/${intent.attachmentId}/complete`, { method: 'POST' });
+      }
+      await api('/profile/me', { method: 'PATCH', body: JSON.stringify({ avatarAttachmentId: intent.attachmentId }) });
+      setSuccess('Profile photo updated.');
+      await load();
+    } catch (e) {
+      setError(messageForError(e));
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const revokeSession = (id: string) =>
+    Alert.alert('Sign out this device?', 'This session will no longer be able to access your Haiku account.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign out',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await api(`/account/sessions/${id}`, { method: 'DELETE' });
+            await load();
+          } catch (e) {
+            setError(messageForError(e));
+          }
+        },
+      },
+    ]);
+
+  const revokeOthers = () =>
+    Alert.alert(
+      'Sign out other devices?',
+      'Your current device stays signed in. All other active sessions will be revoked.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Sign out others',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await api('/account/sessions', { method: 'DELETE' });
+              await load();
+            } catch (e) {
+              setError(messageForError(e));
+            }
+          },
+        },
+      ]
+    );
+
+  const toggleBlock = async (item: Blocked) => {
+    try {
+      await api(`/friends/blocks/${item.id}`, { method: 'DELETE' });
+      await load();
+    } catch (e) {
+      setError(messageForError(e));
+    }
+  };
+
+  const exportData = async () => {
+    try {
+      const result = await api('/account/export');
+      await Share.share({
+        title: 'Haiku Messenger data export',
+        message: JSON.stringify(result, null, 2),
+      });
+    } catch (e) {
+      setError(messageForError(e));
+    }
+  };
+
+  const scheduleDeletion = () =>
+    Alert.alert(
+      'Schedule account deletion?',
+      'Your account is scheduled for deletion after a grace period. You can cancel before it completes. Some local cached content or peer screenshots cannot be guaranteed erased.',
+      [
+        { text: 'Keep account', style: 'cancel' },
+        {
+          text: 'Schedule deletion',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const result = await api<{ request: Deletion }>('/account/deletion', { method: 'POST' });
+              setDeletion(result.request);
+              Alert.alert(
+                'Deletion scheduled',
+                `Current scheduled date: ${new Date(result.request.scheduled_for).toLocaleString()}.`
+              );
+            } catch (e) {
+              setError(messageForError(e));
+            }
+          },
+        },
+      ]
+    );
+
+  const cancelDeletion = () =>
+    Alert.alert('Cancel account deletion?', 'Your account will remain active and protected.', [
+      { text: 'Keep scheduled', style: 'cancel' },
+      {
+        text: 'Cancel deletion',
+        onPress: async () => {
+          try {
+            await api('/account/deletion', { method: 'DELETE' });
+            setDeletion(null);
+            setSuccess('Account deletion cancelled.');
+          } catch (e) {
+            setError(messageForError(e));
+          }
+        },
+      },
+    ]);
+
+  const doSignOut = () =>
+    Alert.alert('Sign out of Haiku?', 'You can sign back in anytime with your credentials.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Sign out', style: 'destructive', onPress: () => void signOut() },
+    ]);
+
+  if (loading) return <LoadingState message="Opening your settings…" />;
+
+  return (
+    <ScrollView
+      style={{ flex: 1, backgroundColor: colors.canvas }}
+      contentContainerStyle={{ padding: 16, paddingTop: 16, paddingBottom: 40 }}
+      keyboardShouldPersistTaps="handled"
+    >
+      {/* Hero Profile Overview Card */}
+      <Surface style={{ padding: 18, borderRadius: 24, marginBottom: 16 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          <Pressable
+            onPress={changeAvatar}
+            disabled={uploading}
+            accessibilityRole="button"
+            accessibilityLabel="Change profile picture"
+            style={{ position: 'relative' }}
+          >
+            <RemoteAvatar name={displayName || user?.displayName || 'Haiku'} uri={avatarUrl} large />
+            <View
+              style={{
+                position: 'absolute',
+                bottom: -2,
+                right: -2,
+                width: 24,
+                height: 24,
+                borderRadius: 12,
+                backgroundColor: colors.mint,
+                borderWidth: 2,
+                borderColor: colors.canvas,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text style={{ fontSize: 13, color: colors.mintContrast, fontWeight: '800' }}>
+                {uploading ? '…' : '+'}
+              </Text>
+            </View>
+          </Pressable>
+
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={{ fontSize: 20, fontWeight: '800', letterSpacing: -0.4, color: colors.ink }}>
+                {displayName || user?.displayName}
+              </Text>
+            </View>
+
+            <Text style={{ fontSize: 12, color: colors.body, marginTop: 2 }}>
+              @{username || user?.username}
+            </Text>
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 }}>
+              <View
+                style={{
+                  paddingHorizontal: 8,
+                  paddingVertical: 2,
+                  borderRadius: 8,
+                  backgroundColor: user?.emailVerified ? 'rgba(78, 159, 134, 0.15)' : 'rgba(212, 130, 89, 0.15)',
+                  borderWidth: 1,
+                  borderColor: user?.emailVerified ? 'rgba(78, 159, 134, 0.3)' : 'rgba(212, 130, 89, 0.3)',
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 9,
+                    fontWeight: '700',
+                    color: user?.emailVerified ? colors.mint : colors.amber,
+                  }}
+                >
+                  {user?.emailVerified ? 'Verified Account' : 'Unverified Email'}
+                </Text>
+              </View>
+
+              {profile?.location ? (
+                <Text style={{ fontSize: 10, color: colors.muted }}>
+                  ⌖ {profile.location}
+                </Text>
+              ) : null}
+            </View>
+          </View>
+        </View>
+
+        {user?.id ? (
+          <View style={{ marginTop: 14, paddingTop: 14, borderTopWidth: 1, borderTopColor: colors.line }}>
+            <Button
+              title="Preview Public Profile"
+              kind="secondary"
+              small
+              onPress={() => navigation.navigate('PublicProfile', { userId: user.id })}
+            />
+          </View>
+        ) : null}
+      </Surface>
+
+      {/* Segmented Category Navigation */}
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: 6,
+          backgroundColor: colors.card,
+          padding: 4,
+          borderRadius: 16,
+          marginBottom: 16,
+          borderWidth: 1,
+          borderColor: colors.line,
+        }}
+      >
+        {(
+          [
+            ['profile', 'Profile'],
+            ['privacy', 'Privacy'],
+            ['security', 'Security'],
+            ['cloud', 'System'],
+          ] as [SettingsTab, string][]
+        ).map(([tabKey, label]) => {
+          const isActive = activeTab === tabKey;
+          return (
+            <Pressable
+              key={tabKey}
+              onPress={() => setActiveTab(tabKey)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isActive }}
+              style={{
+                flex: 1,
+                minHeight: 36,
+                borderRadius: 12,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: isActive ? colors.mint : 'transparent',
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 11,
+                  fontWeight: '700',
+                  color: isActive ? colors.mintContrast : colors.body,
+                }}
+              >
+                {label}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
-      <View style={{paddingHorizontal:10,paddingVertical:4,borderRadius:12,backgroundColor:colors.mintWash,borderWidth:1,borderColor:colors.mint}}>
-        <Text style={{fontSize:10,fontWeight:'800',color:colors.mint}}>ACTIVE</Text>
-      </View>
-    </View>
-  </Surface>
-  <Surface style={{marginBottom:12}}>
-    <Text style={{fontSize:14,fontWeight:'800',color:colors.ink,marginBottom:4}}>Neon PostgreSQL & Server Status</Text>
-    <Text style={{fontSize:10,color:colors.muted,marginBottom:10}}>Real-time connectivity to backend server and database cluster.</Text>
-    <View style={{backgroundColor:colors.canvas,padding:12,borderRadius:12,borderWidth:1,borderColor:colors.line}}>
-      <View style={{flexDirection:'row',alignItems:'center',gap:7,marginBottom:6}}>
-        <View style={{width:8,height:8,borderRadius:4,backgroundColor:serverHealth?.databaseConnected?colors.mint:colors.red}}/>
-        <Text style={{fontSize:11,fontWeight:'700',color:colors.ink}}>
-          API Status: {serverHealth?.status ? serverHealth.status.toUpperCase() : 'CHECKING...'}
-        </Text>
-      </View>
-      <Text style={{fontSize:10,color:colors.muted}}>
-        🐘 Neon DB: {serverHealth?.databaseConnected ? 'Connected & Ready (Lakebase Postgres)' : serverHealth?.databaseConfigured ? 'Configured (Idle)' : 'Connecting or Unavailable'}
+
+      {/* Global Alerts */}
+      {error ? <Notice tone="error">{error}</Notice> : null}
+      {success ? <Notice tone="success">{success}</Notice> : null}
+
+      {/* TAB 1: PROFILE DETAILS */}
+      {activeTab === 'profile' && (
+        <>
+          {user && !user.emailVerified ? (
+            <Surface style={{ marginBottom: 14, padding: 14, borderRadius: 18 }}>
+              <Text style={{ fontSize: 13, fontWeight: '800', color: colors.ink }}>
+                Verify your email address
+              </Text>
+              <Text style={{ fontSize: 11, color: colors.body, marginTop: 4, lineHeight: 16 }}>
+                A verified email secures your account and ensures reliable recovery.
+              </Text>
+              <Button
+                title="Resend verification email"
+                kind="secondary"
+                small
+                style={{ marginTop: 10 }}
+                onPress={async () => {
+                  try {
+                    await api('/auth/resend-verification', {
+                      method: 'POST',
+                      anonymous: true,
+                      body: JSON.stringify(user.email),
+                    });
+                    setSuccess('Verification instructions have been dispatched.');
+                  } catch (e) {
+                    setError(messageForError(e));
+                  }
+                }}
+              />
+            </Surface>
+          ) : null}
+
+          <Surface style={{ marginBottom: 14, padding: 18, borderRadius: 20 }}>
+            <Text style={{ fontSize: 11, fontWeight: '800', letterSpacing: 0.8, color: colors.mint, marginBottom: 12 }}>
+              PROFILE DETAILS
+            </Text>
+
+            <Field
+              label="Display Name"
+              value={displayName}
+              onChangeText={setDisplayName}
+              maxLength={60}
+              autoCapitalize="words"
+              placeholder="Your name"
+            />
+
+            <Field
+              label="Username"
+              value={username}
+              onChangeText={setUsername}
+              maxLength={24}
+              autoCapitalize="none"
+              autoCorrect={false}
+              placeholder="handle"
+            />
+
+            <Field
+              label="About You (Bio)"
+              value={bio}
+              onChangeText={setBio}
+              maxLength={280}
+              multiline
+              style={{ minHeight: 80 }}
+              placeholder="A few words of quiet reflection…"
+            />
+
+            <Field
+              label="Location"
+              value={location}
+              onChangeText={setLocation}
+              maxLength={80}
+              placeholder="e.g. Kyoto, Japan or Remote"
+            />
+
+            <Button
+              title="Save Changes"
+              onPress={saveProfile}
+              loading={saving}
+              style={{ marginTop: 6 }}
+            />
+          </Surface>
+        </>
+      )}
+
+      {/* TAB 2: PRIVACY & NOTIFICATIONS */}
+      {activeTab === 'privacy' && (
+        <>
+          <Surface style={{ marginBottom: 14, padding: 18, borderRadius: 20 }}>
+            <Text style={{ fontSize: 11, fontWeight: '800', letterSpacing: 0.8, color: colors.mint, marginBottom: 6 }}>
+              REAL-TIME INTERACTION SIGNALS
+            </Text>
+            <Text style={{ fontSize: 11, color: colors.muted, marginBottom: 12 }}>
+              Control real-time presence indicators visible to your friends and peers.
+            </Text>
+
+            {(
+              [
+                ['presenceVisible', 'Live Presence Indicator', 'Share active online presence in supported chats.'],
+                ['readReceiptsEnabled', 'Read Receipts', 'Notify friends when you have read their messages.'],
+                ['typingIndicatorsEnabled', 'Composing State', 'Show when you are actively drafting a response.'],
+              ] as [keyof Settings, string, string][]
+            ).map(([key, label, detail], index) => (
+              <View
+                key={key}
+                style={{
+                  minHeight: 52,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 12,
+                  borderTopWidth: index ? 1 : 0,
+                  borderTopColor: colors.line,
+                  paddingVertical: 10,
+                }}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: colors.ink }}>{label}</Text>
+                  <Text style={{ fontSize: 10, color: colors.muted, marginTop: 2 }}>{detail}</Text>
+                </View>
+                <Switch
+                  value={settings[key]}
+                  onValueChange={(val) => updateSetting(key, val)}
+                  trackColor={{ false: colors.line, true: colors.mint }}
+                  thumbColor={settings[key] ? colors.mintContrast : colors.muted}
+                  accessibilityLabel={label}
+                />
+              </View>
+            ))}
+          </Surface>
+
+          <Surface style={{ marginBottom: 14, padding: 18, borderRadius: 20 }}>
+            <Text style={{ fontSize: 11, fontWeight: '800', letterSpacing: 0.8, color: colors.mint, marginBottom: 6 }}>
+              NOTIFICATIONS & QUIET HOURS
+            </Text>
+            <Text style={{ fontSize: 11, color: colors.muted, marginBottom: 12 }}>
+              Manage notification deliverability and screen previews.
+            </Text>
+
+            {(
+              [
+                ['quietMode', 'Quiet Sanctuary Mode', 'Mute non-essential rings during mindfulness periods.'],
+                ['notificationsEnabled', 'Push Notifications', 'Receive notifications when new messages arrive.'],
+                ['senderPreviews', 'Message Previews', 'Include sender name in notification previews.'],
+              ] as [keyof Settings, string, string][]
+            ).map(([key, label, detail], index) => (
+              <View
+                key={key}
+                style={{
+                  minHeight: 52,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 12,
+                  borderTopWidth: index ? 1 : 0,
+                  borderTopColor: colors.line,
+                  paddingVertical: 10,
+                }}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: colors.ink }}>{label}</Text>
+                  <Text style={{ fontSize: 10, color: colors.muted, marginTop: 2 }}>{detail}</Text>
+                </View>
+                <Switch
+                  value={settings[key]}
+                  onValueChange={(val) => updateSetting(key, val)}
+                  trackColor={{ false: colors.line, true: colors.mint }}
+                  thumbColor={settings[key] ? colors.mintContrast : colors.muted}
+                  accessibilityLabel={label}
+                />
+              </View>
+            ))}
+          </Surface>
+        </>
+      )}
+
+      {/* TAB 3: SECURITY & DEVICES */}
+      {activeTab === 'security' && (
+        <>
+          {/* Password Section */}
+          <Surface style={{ marginBottom: 14, padding: 18, borderRadius: 20 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 13, fontWeight: '800', color: colors.ink }}>
+                  Password & Credentials
+                </Text>
+                <Text style={{ fontSize: 10, color: colors.muted, marginTop: 2 }}>
+                  Updating password revokes all other active sessions.
+                </Text>
+              </View>
+              <Button
+                title={showPasswordForm ? 'Close' : 'Change'}
+                kind="secondary"
+                small
+                onPress={() => setShowPasswordForm(!showPasswordForm)}
+              />
+            </View>
+
+            {showPasswordForm ? (
+              <View style={{ marginTop: 14, paddingTop: 14, borderTopWidth: 1, borderTopColor: colors.line }}>
+                <Field
+                  label="Current Password"
+                  value={currentPassword}
+                  onChangeText={setCurrentPassword}
+                  secureTextEntry
+                  autoComplete="current-password"
+                />
+                <Field
+                  label="New Password (12+ characters)"
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  secureTextEntry
+                  autoComplete="new-password"
+                />
+                <Field
+                  label="Confirm New Password"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry
+                  autoComplete="new-password"
+                />
+                <Button
+                  title="Update Password"
+                  kind="primary"
+                  onPress={savePassword}
+                  loading={passwordBusy}
+                  style={{ marginTop: 6 }}
+                />
+              </View>
+            ) : null}
+          </Surface>
+
+          {/* Active Devices / Sessions */}
+          <Surface style={{ marginBottom: 14, padding: 18, borderRadius: 20 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <Text style={{ fontSize: 11, fontWeight: '800', letterSpacing: 0.8, color: colors.mint }}>
+                ACTIVE SESSIONS ({sessions.length})
+              </Text>
+              {sessions.length > 1 ? (
+                <Pressable onPress={revokeOthers} accessibilityRole="button">
+                  <Text style={{ fontSize: 11, color: colors.red, fontWeight: '700' }}>
+                    Sign Out Others
+                  </Text>
+                </Pressable>
+              ) : null}
+            </View>
+
+            <Text style={{ fontSize: 10, color: colors.muted, marginBottom: 10 }}>
+              Authorized devices currently connected to your account.
+            </Text>
+
+            {sessions.length === 0 ? (
+              <Text style={{ fontSize: 11, color: colors.muted, paddingVertical: 8 }}>
+                Only this device is currently connected.
+              </Text>
+            ) : (
+              sessions.map((item, index) => (
+                <View
+                  key={item.id}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingVertical: 10,
+                    borderTopWidth: index ? 1 : 0,
+                    borderTopColor: colors.line,
+                    gap: 12,
+                  }}
+                >
+                  <View
+                    style={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: 10,
+                      backgroundColor: colors.mintWash,
+                      borderWidth: 1,
+                      borderColor: colors.line,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Text style={{ fontSize: 14, color: colors.mint }}>⛭</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text numberOfLines={1} style={{ fontSize: 12, fontWeight: '700', color: colors.ink }}>
+                      {item.user_agent || 'Haiku Messenger Session'}
+                    </Text>
+                    <Text style={{ fontSize: 10, color: colors.muted, marginTop: 2 }}>
+                      Last active {new Date(item.last_seen_at).toLocaleDateString()}
+                    </Text>
+                  </View>
+                  <Pressable
+                    onPress={() => revokeSession(item.id)}
+                    style={{
+                      paddingHorizontal: 10,
+                      paddingVertical: 4,
+                      borderRadius: 8,
+                      backgroundColor: 'rgba(224, 108, 117, 0.1)',
+                      borderWidth: 1,
+                      borderColor: 'rgba(224, 108, 117, 0.25)',
+                    }}
+                  >
+                    <Text style={{ fontSize: 11, color: colors.red, fontWeight: '700' }}>
+                      Revoke
+                    </Text>
+                  </Pressable>
+                </View>
+              ))
+            )}
+          </Surface>
+
+          {/* Blocked Accounts */}
+          <Surface style={{ marginBottom: 14, padding: 18, borderRadius: 20 }}>
+            <Text style={{ fontSize: 11, fontWeight: '800', letterSpacing: 0.8, color: colors.mint, marginBottom: 8 }}>
+              BLOCKED ACCOUNTS ({blocked.length})
+            </Text>
+            {blocked.length === 0 ? (
+              <Text style={{ fontSize: 11, color: colors.muted, paddingVertical: 8 }}>
+                You have not blocked any accounts.
+              </Text>
+            ) : (
+              blocked.map((item, index) => (
+                <View
+                  key={item.id}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingVertical: 10,
+                    borderTopWidth: index ? 1 : 0,
+                    borderTopColor: colors.line,
+                    gap: 10,
+                  }}
+                >
+                  <Avatar name={item.display_name} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: colors.ink }}>
+                      {item.display_name}
+                    </Text>
+                    <Text style={{ fontSize: 10, color: colors.muted }}>@{item.username}</Text>
+                  </View>
+                  <Button title="Unblock" kind="secondary" small onPress={() => toggleBlock(item)} />
+                </View>
+              ))
+            )}
+          </Surface>
+        </>
+      )}
+
+      {/* TAB 4: CLOUD & SYSTEM */}
+      {activeTab === 'cloud' && (
+        <>
+          {/* Cloud & Server Status */}
+          <Surface style={{ marginBottom: 14, padding: 18, borderRadius: 20 }}>
+            <Text style={{ fontSize: 11, fontWeight: '800', letterSpacing: 0.8, color: colors.mint, marginBottom: 4 }}>
+              INFRASTRUCTURE & DATABASE STATUS
+            </Text>
+            <Text style={{ fontSize: 10, color: colors.muted, marginBottom: 12 }}>
+              Real-time health monitoring of connected backend services.
+            </Text>
+
+            <View
+              style={{
+                backgroundColor: colors.inputBg,
+                padding: 14,
+                borderRadius: 14,
+                borderWidth: 1,
+                borderColor: colors.line,
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <View
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: serverHealth?.databaseConnected ? colors.mint : colors.red,
+                    }}
+                  />
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: colors.ink }}>
+                    Neon Postgres (Lakebase)
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    paddingHorizontal: 8,
+                    paddingVertical: 2,
+                    borderRadius: 6,
+                    backgroundColor: serverHealth?.databaseConnected
+                      ? 'rgba(78, 159, 134, 0.15)'
+                      : 'rgba(224, 108, 117, 0.15)',
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 9,
+                      fontWeight: '800',
+                      color: serverHealth?.databaseConnected ? colors.mint : colors.red,
+                    }}
+                  >
+                    {serverHealth?.databaseConnected ? 'ONLINE' : 'OFFLINE'}
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={{ fontSize: 10, color: colors.muted, lineHeight: 15 }}>
+                Status: {serverHealth?.status?.toUpperCase() || 'HEALTHY'} · Direct connection pool active with instantaneous branch isolation.
+              </Text>
+            </View>
+          </Surface>
+
+          {/* Active Design System */}
+          <Surface style={{ marginBottom: 14, padding: 18, borderRadius: 20 }}>
+            <Text style={{ fontSize: 11, fontWeight: '800', letterSpacing: 0.8, color: colors.mint, marginBottom: 4 }}>
+              THEME & AESTHETIC
+            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 }}>
+              <View>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: colors.ink }}>
+                  Sumi & Rain
+                </Text>
+                <Text style={{ fontSize: 10, color: colors.muted, marginTop: 2 }}>
+                  Basalt slate canvas, Celadon Jade accents, and zero emoji clutter
+                </Text>
+              </View>
+              <View
+                style={{
+                  paddingHorizontal: 10,
+                  paddingVertical: 4,
+                  borderRadius: 10,
+                  backgroundColor: 'rgba(78, 159, 134, 0.15)',
+                  borderWidth: 1,
+                  borderColor: 'rgba(78, 159, 134, 0.35)',
+                }}
+              >
+                <Text style={{ fontSize: 10, fontWeight: '800', color: colors.mint }}>
+                  ACTIVE
+                </Text>
+              </View>
+            </View>
+          </Surface>
+
+          {/* Data Export & Reports */}
+          <Surface style={{ marginBottom: 14, padding: 18, borderRadius: 20 }}>
+            <Text style={{ fontSize: 11, fontWeight: '800', letterSpacing: 0.8, color: colors.mint, marginBottom: 4 }}>
+              ACCOUNT DATA & REPORTS
+            </Text>
+            <Text style={{ fontSize: 10, color: colors.muted, lineHeight: 15, marginBottom: 12 }}>
+              Export a complete snapshot of your profile, active contacts, and settings.
+            </Text>
+
+            <Button title="Export Account Data (JSON)" kind="secondary" onPress={exportData} />
+
+            {reports.length > 0 ? (
+              <View style={{ marginTop: 14, paddingTop: 14, borderTopWidth: 1, borderTopColor: colors.line }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: colors.body, marginBottom: 8 }}>
+                  Submitted Reports ({reports.length})
+                </Text>
+                {reports.slice(0, 5).map((report) => (
+                  <View
+                    key={report.id}
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      paddingVertical: 6,
+                    }}
+                  >
+                    <Text style={{ fontSize: 10, color: colors.body }}>
+                      {report.category} · {new Date(report.created_at).toLocaleDateString()}
+                    </Text>
+                    <Text style={{ fontSize: 10, fontWeight: '700', color: colors.mint }}>
+                      {report.status}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            ) : null}
+          </Surface>
+
+          {/* Danger Zone */}
+          <Surface style={{ marginBottom: 14, padding: 18, borderRadius: 20, borderColor: 'rgba(224, 108, 117, 0.25)' }}>
+            <Text style={{ fontSize: 11, fontWeight: '800', letterSpacing: 0.8, color: colors.red, marginBottom: 4 }}>
+              ACCOUNT ACTIONS
+            </Text>
+            <Text style={{ fontSize: 10, color: colors.muted, lineHeight: 15, marginBottom: 12 }}>
+              Irreversible account actions and session termination.
+            </Text>
+
+            <View style={{ gap: 10 }}>
+              {deletion ? (
+                <>
+                  <Notice tone="error">
+                    Account deletion scheduled for {new Date(deletion.scheduled_for).toLocaleString()}.
+                  </Notice>
+                  <Button title="Cancel Scheduled Deletion" kind="secondary" onPress={cancelDeletion} />
+                </>
+              ) : (
+                <Button title="Schedule Account Deletion" kind="danger" onPress={scheduleDeletion} />
+              )}
+              <Button title="Sign Out of Haiku" kind="ghost" onPress={doSignOut} />
+            </View>
+          </Surface>
+        </>
+      )}
+
+      {/* Footer Disclaimer */}
+      <Text
+        style={{
+          fontSize: 9,
+          color: colors.muted,
+          lineHeight: 14,
+          textAlign: 'center',
+          paddingHorizontal: 16,
+          marginTop: 8,
+        }}
+      >
+        Haiku Messenger enforces ephemeral retention and zero tracker telemetry. Peer backups and local device screenshots cannot be guaranteed erased.
       </Text>
-    </View>
-  </Surface>
-  <Surface style={{marginBottom:12}}><Text style={{fontSize:14,fontWeight:'800',color:colors.ink,marginBottom:4}}>Active sessions</Text><Text style={{fontSize:10,color:colors.muted,marginBottom:8}}>Sign out any device you no longer use.</Text>{sessions.length===0?<Text style={{fontSize:10,color:colors.muted,paddingVertical:9}}>No other sessions are listed.</Text>:sessions.map((item,index)=><View key={item.id} style={{flexDirection:'row',alignItems:'center',paddingVertical:9,borderTopWidth:index?1:0,borderTopColor:colors.line,gap:10}}><View style={{flex:1}}><Text numberOfLines={1} style={{fontSize:10,fontWeight:'700',color:colors.ink}}>{item.user_agent||'Haiku Messenger device'}</Text><Text style={{fontSize:9,color:colors.muted,marginTop:3}}>Last active {new Date(item.last_seen_at).toLocaleString()}</Text></View><Pressable onPress={()=>revokeSession(item.id)}><Text style={{fontSize:10,color:colors.red,fontWeight:'700'}}>Revoke</Text></Pressable></View>)}{sessions.length>1?<Button title="Sign out other devices" kind="secondary" small style={{marginTop:8}} onPress={revokeOthers}/>:null}</Surface>
-  <Surface style={{marginBottom:12}}><Text style={{fontSize:14,fontWeight:'800',color:colors.ink,marginBottom:5}}>Blocked accounts</Text>{blocked.length===0?<Text style={{fontSize:10,color:colors.muted,paddingVertical:8}}>You haven’t blocked anyone.</Text>:blocked.map(item=><View key={item.id} style={{flexDirection:'row',alignItems:'center',paddingVertical:8,borderTopWidth:1,borderTopColor:colors.line}}><Avatar name={item.display_name}/><View style={{flex:1,marginLeft:9}}><Text style={{fontSize:11,fontWeight:'700',color:colors.ink}}>{item.display_name}</Text><Text style={{fontSize:9,color:colors.muted}}>@{item.username}</Text></View><Pressable onPress={()=>toggleBlock(item)}><Text style={{fontSize:10,color:colors.mint,fontWeight:'700'}}>Unblock</Text></Pressable></View>)}</Surface>
-  <Surface style={{marginBottom:12}}><Text style={{fontSize:14,fontWeight:'800',color:colors.ink,marginBottom:7}}>My reports</Text>{reports.length===0?<Text style={{fontSize:10,color:colors.muted,paddingVertical:8}}>No reports submitted in the last year.</Text>:reports.slice(0,8).map(report=><View key={report.id} style={{flexDirection:'row',justifyContent:'space-between',paddingVertical:8,borderTopWidth:1,borderTopColor:colors.line}}><Text style={{fontSize:10,color:colors.body}}>{report.category} · {new Date(report.created_at).toLocaleDateString()}</Text><Text style={{fontSize:10,fontWeight:'700',color:report.status==='open'?colors.blue:colors.muted}}>{report.status}</Text></View>)}</Surface>
-  <Surface style={{marginBottom:12}}><Text style={{fontSize:14,fontWeight:'800',color:colors.ink,marginBottom:4}}>Your data & account</Text><Text style={{fontSize:10,color:colors.muted,lineHeight:15,marginBottom:11}}>Export includes your profile, friends, settings and your own active messages. It excludes other people’s messages and media bytes.</Text><View style={{gap:8}}><Button title="Export my data" kind="secondary" onPress={exportData}/>{deletion?<><Notice tone="info">Deletion scheduled for {new Date(deletion.scheduled_for).toLocaleString()}.</Notice><Button title="Cancel deletion" kind="secondary" onPress={cancelDeletion}/></>:<Button title="Schedule account deletion" kind="danger" onPress={scheduleDeletion}/>}<Button title="Sign out" kind="ghost" onPress={doSignOut}/></View></Surface>
-  <Text style={{fontSize:9,color:colors.muted,lineHeight:14,textAlign:'center',paddingHorizontal:12}}>Haiku Messenger cannot guarantee prevention of screenshots, screen recordings, copied content, or device-level backups. Do not share sensitive content unless you trust the recipient.</Text>
- </ScrollView>;
+    </ScrollView>
+  );
 }

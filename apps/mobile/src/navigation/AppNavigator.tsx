@@ -26,7 +26,7 @@ import {BrandMark} from '../components/UI';
 
 const Stack=createNativeStackNavigator<RootStackParamList>();
 const Tabs=createBottomTabNavigator<MainTabParamList>();
-const tabGlyph:Record<keyof MainTabParamList,string>={Inbox:'💬',Stories:'✦',People:'👥',Profile:'⚙'};
+const tabGlyph:Record<keyof MainTabParamList,string>={Inbox:'✉',Stories:'✦',People:'◈',Profile:'⛭'};
 const linking:LinkingOptions<RootStackParamList>={prefixes:['haikumessenger://'],config:{screens:{JoinGroup:'join/:token'}}};
 
 function LeftNavRail({state,descriptors,navigation,insets}:BottomTabBarProps){
