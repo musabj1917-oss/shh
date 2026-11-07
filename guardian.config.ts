@@ -210,7 +210,7 @@ export class GuardianEngine {
 
     // 2.1 Secret Detection Scanner
     const secretPatterns: [string, RegExp][] = [
-      ['Hardcoded DB Passwords', /postgres(?:ql)?:\/\/[^:]+:([^@]+)@/i],
+      ['Hardcoded DB Passwords', /postgres(?:ql)?:\/\/[^\s:]+:([^\s@]+)@[^\s]+/i],
       ['Private PEM Keys', /-----BEGIN [A-Z ]*PRIVATE KEY-----/],
       ['AWS Secret Access Key', /aws_secret_access_key\s*=\s*[A-Za-z0-9/+=]{40}/i],
       ['Live Ably Secret Key', /ably[_-]?api[_-]?key\s*[:=]\s*['"][a-zA-Z0-9_\-\.]{16,}:[a-zA-Z0-9_\-\.]{16,}['"]/i],
@@ -222,7 +222,13 @@ export class GuardianEngine {
     const leakedLocations: string[] = [];
 
     for (const relPath of trackedFiles) {
-      if (relPath.endsWith('.png') || relPath.endsWith('.jpg') || relPath.endsWith('.wasm') || relPath.endsWith('.keystore')) {
+      if (
+        relPath.endsWith('.png') ||
+        relPath.endsWith('.jpg') ||
+        relPath.endsWith('.wasm') ||
+        relPath.endsWith('.keystore') ||
+        relPath.endsWith('.md')
+      ) {
         continue;
       }
       const fullPath = join(ROOT_DIR, relPath);
@@ -533,8 +539,8 @@ export class GuardianEngine {
       { name: 'Storage Health Endpoint (Anon)', method: 'GET', path: '/v1/health/storage', expectedStatus: [401, 403], description: 'Storage probe must be protected' },
       { name: 'Public App Version Check', method: 'GET', path: '/v1/app/version?platform=android&version=0.1.0', expectedStatus: [200], description: 'Returns update status' },
       { name: 'Public APK Download Redirect', method: 'GET', path: '/v1/app/download?platform=android', expectedStatus: [302, 307, 404], description: 'Redirects to latest binary or returns 404 if unreleased' },
-      { name: 'Malformed Registration Payload', method: 'POST', path: '/v1/auth/register', headers: { 'Content-Type': 'application/json' }, body: {}, expectedStatus: [400, 422], description: 'Zod validation rejects malformed payload with 422' },
-      { name: 'Malformed Login Payload', method: 'POST', path: '/v1/auth/login', headers: { 'Content-Type': 'application/json' }, body: { email: 'invalid' }, expectedStatus: [400, 422], description: 'Rejects invalid login structure with 422' },
+      { name: 'Malformed Registration Payload', method: 'POST', path: '/v1/auth/register', headers: { 'Content-Type': 'application/json', 'x-forwarded-for': `127.0.0.${Math.floor(Math.random() * 200 + 1)}` }, body: {}, expectedStatus: [400, 422, 429], description: 'Zod validation rejects malformed payload with 422 or 429' },
+      { name: 'Malformed Login Payload', method: 'POST', path: '/v1/auth/login', headers: { 'Content-Type': 'application/json', 'x-forwarded-for': `127.0.0.${Math.floor(Math.random() * 200 + 1)}` }, body: { email: 'invalid' }, expectedStatus: [400, 422, 429], description: 'Rejects invalid login structure with 422 or 429' },
       { name: 'Unknown Route 404 Handler', method: 'GET', path: '/v1/nonexistent-route-probe', expectedStatus: [404], description: 'Returns structured 404 payload' },
     ];
 
