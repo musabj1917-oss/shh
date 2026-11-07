@@ -92,6 +92,7 @@ app.route('/v1/account',accountRoutes);
 app.route('/v1/admin',adminRoutes);
 app.route('/v1/internal',internalRoutes);
 app.route('/v1/app',appPublicRoutes);
+app.route('/app',appPublicRoutes);
 app.route('/v1/releases',releaseRoutes);
 app.route('/v1/location',locationRoutes);
 

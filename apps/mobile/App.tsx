@@ -6,6 +6,7 @@ import { AppNavigator } from './src/navigation/AppNavigator';
 import { ErrorBoundary } from './src/components/ErrorBoundary';
 import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
 import { initImmersive, useImmersive } from './src/system/immersive';
+import { UpdateGate } from './src/updates';
 
 function AppRoot() {
   const { colors, isDark } = useTheme();
@@ -21,7 +22,9 @@ function AppRoot() {
         hidden={immersive}
         barStyle={isDark ? 'light-content' : 'dark-content'}
       />
-      <AppNavigator />
+      <UpdateGate>
+        <AppNavigator />
+      </UpdateGate>
     </View>
   );
 }

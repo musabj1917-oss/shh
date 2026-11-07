@@ -6,6 +6,8 @@ import { jsonError, parseJson } from '../http.js';
 import { hasAdminPermission } from '../middleware/admin.js';
 import { auditAdmin } from '../services/audit.js';
 import { getStorage } from '../services/storage.js';
+import { enforceRateLimit } from '../middleware/rate-limit.js';
+import { compareSemver } from '../semver.js';
 import type { ApiEnv } from '../types.js';
 
 const APK_MIME = 'application/vnd.android.package-archive';
@@ -18,6 +20,31 @@ type ReleaseRow = {
 };
 
 let tableReady: Promise<void> | undefined;
+let appVersionsReady: Promise<void> | undefined;
+
+export function ensureAppVersionsTable(): Promise<void> {
+  if (!appVersionsReady) {
+    appVersionsReady = (async () => {
+      await getDb()`CREATE TABLE IF NOT EXISTS app_versions (
+        platform text CHECK (platform IN ('android', 'ios')),
+        latest_version text NOT NULL,
+        min_supported_version text NOT NULL,
+        download_url text NOT NULL,
+        release_notes text,
+        updated_by uuid,
+        updated_at timestamptz NOT NULL DEFAULT now(),
+        PRIMARY KEY (platform)
+      )`;
+      await getDb()`INSERT INTO app_versions (platform, latest_version, min_supported_version, download_url, release_notes)
+        VALUES
+          ('android', '0.1.0', '0.1.0', 'https://haikumessenger.vercel.app/download/android', 'Initial release'),
+          ('ios', '0.1.0', '0.1.0', 'https://haikumessenger.vercel.app/download/ios', 'Initial release')
+        ON CONFLICT (platform) DO NOTHING`;
+    })().catch(() => {});
+  }
+  return appVersionsReady;
+}
+
 // Mirrors database/migrations/005_app_releases.sql so the feature works even before `npm run migrate` is run.
 export function ensureReleaseTable(): Promise<void> {
   if (!tableReady) {
@@ -169,6 +196,53 @@ async function activeRelease() {
     WHERE platform='android' AND is_active AND status='ready' ORDER BY activated_at DESC NULLS LAST LIMIT 1` as unknown as { id: string; version: string; file_name: string; object_key: string; byte_size: string | number; notes: string | null; activated_at: string | null }[];
   return rows[0] ?? null;
 }
+
+appPublicRoutes.get('/version', async (c) => {
+  const platformParam = c.req.query('platform')?.toLowerCase()?.trim();
+  const versionParam = c.req.query('version')?.trim();
+
+  if (!platformParam || !['android', 'ios'].includes(platformParam)) {
+    return jsonError(c, 400, 'INVALID_PLATFORM', 'Query parameter platform must be android or ios');
+  }
+  if (!versionParam) {
+    return jsonError(c, 400, 'INVALID_VERSION', 'Query parameter version is required');
+  }
+
+  const limited = await enforceRateLimit(c, 'app-version-check', 60, 60);
+  if (limited) return limited;
+
+  const platform = platformParam as 'android' | 'ios';
+  const installedVersion = versionParam;
+
+  await ensureAppVersionsTable();
+
+  let latestVersion = '0.1.0';
+  let minSupportedVersion = '0.1.0';
+  let downloadUrl = 'https://haikumessenger.vercel.app';
+  let releaseNotes: string | null = null;
+
+  try {
+    const rows = await getDb()`SELECT latest_version, min_supported_version, download_url, release_notes FROM app_versions WHERE platform=${platform} LIMIT 1` as unknown as { latest_version: string; min_supported_version: string; download_url: string; release_notes: string | null }[];
+    if (rows[0]) {
+      latestVersion = rows[0].latest_version;
+      minSupportedVersion = rows[0].min_supported_version;
+      downloadUrl = rows[0].download_url;
+      releaseNotes = rows[0].release_notes;
+    }
+  } catch {}
+
+  const updateAvailable = compareSemver(installedVersion, latestVersion) < 0;
+  const forceUpdate = compareSemver(installedVersion, minSupportedVersion) < 0;
+
+  return c.json({
+    updateAvailable,
+    forceUpdate,
+    latestVersion,
+    minSupportedVersion,
+    downloadUrl,
+    releaseNotes,
+  });
+});
 
 appPublicRoutes.get('/latest', async (c) => {
   try {

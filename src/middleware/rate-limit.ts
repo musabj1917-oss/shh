@@ -1,10 +1,11 @@
-import { getDb } from '../db.js';
+import { dbReady, getDb } from '../db.js';
 import { sha256 } from '../security.js';
 import { jsonError } from '../http.js';
 import type { ApiContext } from '../types.js';
 
 /** Persistent fixed-window rate limit shared across serverless instances. */
 export async function enforceRateLimit(c: ApiContext, bucket: string, limit: number, windowSeconds: number) {
+  if (!dbReady()) return null;
   const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
   const key = `${bucket}:${sha256(ip)}`.slice(0, 240);
   try {

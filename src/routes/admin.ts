@@ -7,7 +7,7 @@ import { requireUser } from '../middleware/auth.js';
 import { hasAdminPermission, requireAdmin } from '../middleware/admin.js';
 import { auditAdmin } from '../services/audit.js';
 import { getStorage } from '../services/storage.js';
-import { releaseAdminRoutes } from './app-releases.js';
+import { releaseAdminRoutes, ensureAppVersionsTable } from './app-releases.js';
 import { getLatestApkRelease, setLatestApkRelease } from '../services/vercel-blob.js';
 import { publishMessageCreated } from '../services/realtime.js';
 import type { ApiEnv } from '../types.js';
@@ -17,6 +17,48 @@ adminRoutes.use('*',requireUser,requireAdmin);
 const pageArgs=(c:any)=>({page:Math.max(1,Number.parseInt(c.req.query('page')||'1',10)||1),limit:Math.min(100,Math.max(1,Number.parseInt(c.req.query('limit')||'25',10)||25))});
 const check=(c:any,permission:string)=>hasAdminPermission(c,permission);
 adminRoutes.route('/app-releases',releaseAdminRoutes);
+
+const putAppVersionSchema = z.object({
+  platform: z.enum(['android', 'ios']),
+  latestVersion: z.string().trim().regex(/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/, 'Must be valid semver format (e.g. 1.0.0)'),
+  minSupportedVersion: z.string().trim().regex(/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/, 'Must be valid semver format (e.g. 1.0.0)'),
+  downloadUrl: z.string().trim().url().refine((u) => u.startsWith('https://'), 'Download URL must use https'),
+  releaseNotes: z.string().trim().max(1000).optional(),
+}).strict();
+
+adminRoutes.get('/app-versions', async (c) => {
+  await ensureAppVersionsTable();
+  const rows = await getDb()`SELECT platform, latest_version, min_supported_version, download_url, release_notes, updated_by, updated_at FROM app_versions ORDER BY platform`;
+  return c.json({ versions: rows });
+});
+
+adminRoutes.put('/app-versions', async (c) => {
+  const actor = c.get('user');
+  const parsed = await parseJson(c, putAppVersionSchema);
+  if ('response' in parsed) return parsed.response;
+  const input = parsed.data;
+
+  await ensureAppVersionsTable();
+
+  const rows = await getDb()`INSERT INTO app_versions (platform, latest_version, min_supported_version, download_url, release_notes, updated_by, updated_at)
+    VALUES (${input.platform}, ${input.latestVersion}, ${input.minSupportedVersion}, ${input.downloadUrl}, ${input.releaseNotes ?? null}, ${actor.id}, now())
+    ON CONFLICT (platform) DO UPDATE SET
+      latest_version = EXCLUDED.latest_version,
+      min_supported_version = EXCLUDED.min_supported_version,
+      download_url = EXCLUDED.download_url,
+      release_notes = EXCLUDED.release_notes,
+      updated_by = EXCLUDED.updated_by,
+      updated_at = now()
+    RETURNING platform, latest_version, min_supported_version, download_url, release_notes, updated_by, updated_at`;
+
+  await auditAdmin(actor.id, 'app_version.update', 'app_version', input.platform, input.releaseNotes, {
+    latestVersion: input.latestVersion,
+    minSupportedVersion: input.minSupportedVersion,
+    downloadUrl: input.downloadUrl,
+  });
+
+  return c.json({ version: rows[0] });
+});
 
 adminRoutes.get('/me',async(c)=>{
   const user=c.get('user'),admin=c.get('admin');
