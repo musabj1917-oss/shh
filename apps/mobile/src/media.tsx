@@ -430,7 +430,7 @@ export const VoiceNoteBubble = memo(function VoiceNoteBubble({
             })}
           </View>
 
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 2 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
             <Text
               style={{
                 fontSize: 10,
@@ -440,15 +440,19 @@ export const VoiceNoteBubble = memo(function VoiceNoteBubble({
             >
               {isPlaying ? formatSecs(currentTime) : (effectiveDuration > 0 ? formatSecs(effectiveDuration) : 'Voice note')}
             </Text>
-            <Text
-              style={{
-                fontSize: 10,
-                fontWeight: '600',
-                color: mine ? 'rgba(255,255,255,0.6)' : colors.muted,
-              }}
-            >
-              ⏱ 10m auto-delete
-            </Text>
+            {expiresAt ? (
+              <ExpiryCaption expiresAt={expiresAt} mine={mine} />
+            ) : (
+              <Text
+                style={{
+                  fontSize: 10,
+                  fontWeight: '600',
+                  color: mine ? 'rgba(255,255,255,0.6)' : colors.muted,
+                }}
+              >
+                ⏱ 10m auto-delete
+              </Text>
+            )}
           </View>
         </View>
       </View>

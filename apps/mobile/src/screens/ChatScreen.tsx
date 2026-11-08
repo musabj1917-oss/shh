@@ -21,7 +21,7 @@ import type { RootStackParamList } from '../navigation/types';
 import { api, apiUrl, getSessionToken, messageForError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { Avatar, ConfirmModal, ConfirmModalButton, EmptyState } from '../components/UI';
-import { BackIcon, MapPinIcon, MicrophoneIcon, PaperclipIcon, PlayIcon, SendIcon, VideoIcon } from '../components/Icons';
+import { BackIcon, MapPinIcon, MicrophoneIcon, PaperclipIcon, PlayIcon, SendIcon } from '../components/Icons';
 import { useTheme } from '../theme/ThemeContext';
 import { useImmersive } from '../system/immersive';
 import { ExpiringBubble, ExpiryCaption, fetchMediaUrl, MediaImage, VoiceNoteBubble } from '../media';
