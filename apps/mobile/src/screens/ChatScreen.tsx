@@ -21,10 +21,10 @@ import type { RootStackParamList } from '../navigation/types';
 import { api, apiUrl, getSessionToken, messageForError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { Avatar, ConfirmModal, ConfirmModalButton, EmptyState } from '../components/UI';
-import { BackIcon, MapPinIcon, PaperclipIcon, SendIcon } from '../components/Icons';
+import { BackIcon, MapPinIcon, MicrophoneIcon, PaperclipIcon, PlayIcon, SendIcon, VideoIcon } from '../components/Icons';
 import { useTheme } from '../theme/ThemeContext';
 import { useImmersive } from '../system/immersive';
-import { ExpiringBubble, ExpiryCaption, fetchMediaUrl, MediaImage } from '../media';
+import { ExpiringBubble, ExpiryCaption, fetchMediaUrl, MediaImage, VoiceNoteBubble } from '../media';
 import { useEscapeKey } from '../theme/webStyles';
 
 type Props = Partial<NativeStackScreenProps<RootStackParamList, 'Chat'>> & {
@@ -140,6 +140,8 @@ const MessageRow = memo(function MessageRow({
           {isMedia && item.message_type === 'video' && item.attachment_id ? (
             <Pressable
               onPress={() => onVideoPress(item.attachment_id!)}
+              accessibilityRole="button"
+              accessibilityLabel="Play video message"
               style={{
                 width: 240,
                 height: 140,
@@ -164,7 +166,8 @@ const MessageRow = memo(function MessageRow({
                   borderRadius: radii.pill,
                 }}
               >
-                <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 13 }}>▶ Video</Text>
+                <PlayIcon size={14} color="#ffffff" />
+                <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 13 }}>Video Message</Text>
                 {item.duration ? (
                   <View
                     style={{
@@ -180,7 +183,31 @@ const MessageRow = memo(function MessageRow({
                   </View>
                 ) : null}
               </View>
+              <View
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                  paddingVertical: 3,
+                  alignItems: 'center',
+                }}
+              >
+                <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: '700' }}>
+                  ⏱ 10m Auto-Delete
+                </Text>
+              </View>
             </Pressable>
+          ) : null}
+
+          {isMedia && item.message_type === 'voice' && item.attachment_id ? (
+            <VoiceNoteBubble
+              attachmentId={item.attachment_id}
+              mine={mine}
+              duration={item.duration}
+              expiresAt={item.expires_at}
+            />
           ) : null}
 
           {item.message_type === 'location' && item.body
@@ -492,9 +519,30 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
     }
   };
 
-  const uploadMedia = async () => {
+  const [isRecordingVoice, setIsRecordingVoice] = useState(false);
+  const [voiceSeconds, setVoiceSeconds] = useState(0);
+  const mediaRecorderRef = useRef<any>(null);
+  const audioChunksRef = useRef<any[]>([]);
+  const voiceTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (voiceTimerRef.current) clearInterval(voiceTimerRef.current);
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        try {
+          mediaRecorderRef.current.stop();
+          if (mediaRecorderRef.current.stream?.getTracks) {
+            mediaRecorderRef.current.stream.getTracks().forEach((t: any) => t.stop());
+          }
+        } catch {}
+      }
+    };
+  }, []);
+
+  const uploadMedia = async (mode: 'photo' | 'video' | 'mixed' | 'audio' = 'mixed') => {
     setError('');
-    const picked = await launchImageLibrary({ mediaType: 'mixed', selectionLimit: 1, quality: 0.8 });
+    const libraryMediaType = mode === 'photo' ? 'photo' : mode === 'video' ? 'video' : 'mixed';
+    const picked = await launchImageLibrary({ mediaType: libraryMediaType, selectionLimit: 1, quality: 0.8 });
     if (picked.didCancel) return;
     if (picked.errorCode) {
       setError(picked.errorMessage || 'Could not open media library.');
@@ -505,8 +553,13 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
       setError('Media could not be read.');
       return;
     }
-    const rawType = (asset.type || 'image/jpeg').toLowerCase();
-    const mediaType: 'image' | 'video' = rawType.startsWith('video') ? 'video' : 'image';
+    const rawType = (asset.type || (mode === 'video' ? 'video/mp4' : 'image/jpeg')).toLowerCase();
+    const mediaType: 'image' | 'video' | 'voice' =
+      mode === 'audio' || rawType.startsWith('audio')
+        ? 'voice'
+        : rawType.startsWith('video') || mode === 'video'
+        ? 'video'
+        : 'image';
     const mimeType = rawType;
     const byteSize = asset.fileSize || 0;
     if (!byteSize) {
@@ -520,7 +573,13 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
         upload: { url: string; method: 'PUT'; headers: Record<string, string>; mode: 'proxy' | 'signed' };
       }>('/media/upload-intents', {
         method: 'POST',
-        body: JSON.stringify({ purpose: 'message', mediaType, mimeType, byteSize }),
+        body: JSON.stringify({
+          purpose: 'message',
+          conversationId,
+          mediaType,
+          mimeType,
+          byteSize,
+        }),
       });
       const blob = await (await fetch(asset.uri)).blob();
       const result = await fetch(intent.upload.url, {
@@ -540,6 +599,167 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
     } finally {
       setUploading(false);
     }
+  };
+
+  const startVoiceRecording = async () => {
+    setError('');
+    const nav = (globalThis as any).navigator;
+    if (nav?.mediaDevices?.getUserMedia && typeof (globalThis as any).MediaRecorder !== 'undefined') {
+      try {
+        const stream = await nav.mediaDevices.getUserMedia({ audio: true });
+        const MR = (globalThis as any).MediaRecorder;
+        const mimeType = MR.isTypeSupported('audio/webm')
+          ? 'audio/webm'
+          : MR.isTypeSupported('audio/mp4')
+          ? 'audio/mp4'
+          : 'audio/ogg';
+        audioChunksRef.current = [];
+        const recorder = new MR(stream, { mimeType });
+        recorder.ondataavailable = (e: any) => {
+          if (e.data && e.data.size > 0) {
+            audioChunksRef.current.push(e.data);
+          }
+        };
+        recorder.start(250);
+        mediaRecorderRef.current = recorder;
+
+        setVoiceSeconds(0);
+        setIsRecordingVoice(true);
+
+        if (voiceTimerRef.current) clearInterval(voiceTimerRef.current);
+        voiceTimerRef.current = setInterval(() => {
+          setVoiceSeconds((prev) => {
+            if (prev >= 119) {
+              void sendVoiceRecording();
+              return 120;
+            }
+            return prev + 1;
+          });
+        }, 1000);
+      } catch {
+        setError('Microphone access was denied or unavailable.');
+      }
+    } else {
+      setModalDialog({
+        visible: true,
+        title: 'Voice Note',
+        message: 'Direct live mic capture is available in browser/web. You can select an audio file or voice clip to send:',
+        buttons: [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Choose Audio File',
+            style: 'primary',
+            onPress: () => {
+              void uploadMedia('audio');
+            },
+          },
+        ],
+      });
+    }
+  };
+
+  const cancelVoiceRecording = () => {
+    if (voiceTimerRef.current) clearInterval(voiceTimerRef.current);
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      try {
+        mediaRecorderRef.current.stop();
+        if (mediaRecorderRef.current.stream?.getTracks) {
+          mediaRecorderRef.current.stream.getTracks().forEach((t: any) => t.stop());
+        }
+      } catch {}
+    }
+    mediaRecorderRef.current = null;
+    audioChunksRef.current = [];
+    setIsRecordingVoice(false);
+    setVoiceSeconds(0);
+  };
+
+  const sendVoiceRecording = async () => {
+    if (voiceTimerRef.current) clearInterval(voiceTimerRef.current);
+    const rec = mediaRecorderRef.current;
+    if (rec && rec.state !== 'inactive') {
+      try {
+        rec.stop();
+        if (rec.stream?.getTracks) {
+          rec.stream.getTracks().forEach((t: any) => t.stop());
+        }
+      } catch {}
+    }
+    setIsRecordingVoice(false);
+
+    setTimeout(async () => {
+      try {
+        const mimeType = rec?.mimeType || 'audio/webm';
+        const blob = new Blob(audioChunksRef.current, { type: mimeType });
+        if (blob.size < 500) {
+          setError('Voice note was too short.');
+          return;
+        }
+
+        setUploading(true);
+        const byteSize = blob.size;
+        const intent = await api<{
+          attachmentId: string;
+          upload: { url: string; method: 'PUT'; headers: Record<string, string>; mode: 'proxy' | 'signed' };
+        }>('/media/upload-intents', {
+          method: 'POST',
+          body: JSON.stringify({
+            purpose: 'message',
+            conversationId,
+            mediaType: 'voice',
+            mimeType,
+            byteSize,
+          }),
+        });
+
+        const uploadRes = await fetch(intent.upload.url, {
+          method: intent.upload.method,
+          headers: intent.upload.headers,
+          body: blob,
+        });
+
+        if (!uploadRes.ok) throw new Error(`Upload failed (${uploadRes.status}).`);
+        if (intent.upload.mode === 'signed') {
+          await api(`/media/${intent.attachmentId}/complete`, { method: 'POST' });
+        }
+
+        await api(`/conversations/${conversationId}/messages`, {
+          method: 'POST',
+          body: JSON.stringify({ attachmentId: intent.attachmentId }),
+        });
+
+        await load();
+      } catch (err) {
+        setError(messageForError(err));
+      } finally {
+        setUploading(false);
+        audioChunksRef.current = [];
+        mediaRecorderRef.current = null;
+      }
+    }, 250);
+  };
+
+  const openAttachmentMenu = () => {
+    setModalDialog({
+      visible: true,
+      title: 'Attach Media',
+      message: 'Choose media to share:',
+      buttons: [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: '📷 Photo',
+          onPress: () => {
+            void uploadMedia('photo');
+          },
+        },
+        {
+          text: '🎥 Video Message (10m Expiry)',
+          onPress: () => {
+            void uploadMedia('video');
+          },
+        },
+      ],
+    });
   };
 
   const sendLocation = async () => {
@@ -956,114 +1176,200 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
             </View>
           ) : null}
 
-          <View
-            style={{
-              minHeight: 52,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 8,
-              paddingHorizontal: 10,
-              paddingVertical: 6,
-              borderWidth: 1,
-              borderColor: colors.line,
-              borderRadius: radii.xl,
-              backgroundColor: colors.panel,
-            }}
-          >
-            <Pressable
-              onPress={uploading ? undefined : uploadMedia}
-              accessibilityRole="button"
-              accessibilityLabel="Attach photo or video"
-              style={({ pressed }) => [
-                {
-                  width: 44,
-                  height: 44,
-                  borderRadius: radii.xl,
-                  borderCurve: 'continuous',
-                  backgroundColor: colors.card,
-                  borderWidth: 1,
-                  borderColor: colors.line,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: pressed ? 0.75 : 1,
-                },
-              ]}
+          {isRecordingVoice ? (
+            <View
+              style={{
+                minHeight: 52,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingHorizontal: 14,
+                paddingVertical: 8,
+                borderWidth: 1,
+                borderColor: 'rgba(239, 68, 68, 0.4)',
+                borderRadius: radii.xl,
+                backgroundColor: 'rgba(239, 68, 68, 0.08)',
+              }}
             >
-              <PaperclipIcon size={18} color={uploading ? colors.muted : colors.mint} />
-            </Pressable>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    backgroundColor: '#EF4444',
+                  }}
+                />
+                <Text style={{ fontWeight: '800', color: colors.ink, fontSize: 13 }}>
+                  {Math.floor(voiceSeconds / 60)}:{(voiceSeconds % 60).toString().padStart(2, '0')}
+                </Text>
+                <Text style={{ fontSize: 12, color: colors.muted }}>
+                  Recording voice note…
+                </Text>
+              </View>
 
-            <Pressable
-              onPress={sendLocation}
-              accessibilityRole="button"
-              accessibilityLabel="Share location pin"
-              style={({ pressed }) => [
-                {
-                  width: 44,
-                  height: 44,
-                  borderRadius: radii.xl,
-                  borderCurve: 'continuous',
-                  backgroundColor: colors.card,
-                  borderWidth: 1,
-                  borderColor: colors.line,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: pressed ? 0.75 : 1,
-                },
-              ]}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Pressable
+                  onPress={cancelVoiceRecording}
+                  style={{
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: radii.pill,
+                    backgroundColor: colors.card,
+                    borderWidth: 1,
+                    borderColor: colors.line,
+                  }}
+                >
+                  <Text style={{ color: colors.muted, fontSize: 12, fontWeight: '700' }}>Cancel</Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={sendVoiceRecording}
+                  style={{
+                    paddingHorizontal: 14,
+                    paddingVertical: 6,
+                    borderRadius: radii.pill,
+                    backgroundColor: '#EF4444',
+                  }}
+                >
+                  <Text style={{ color: '#ffffff', fontSize: 12, fontWeight: '700' }}>Send Note</Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : (
+            <View
+              style={{
+                minHeight: 52,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8,
+                paddingHorizontal: 10,
+                paddingVertical: 6,
+                borderWidth: 1,
+                borderColor: colors.line,
+                borderRadius: radii.xl,
+                backgroundColor: colors.panel,
+              }}
             >
-              <MapPinIcon size={18} color={colors.mint} />
-            </Pressable>
+              <Pressable
+                onPress={uploading ? undefined : openAttachmentMenu}
+                accessibilityRole="button"
+                accessibilityLabel="Attach photo or video"
+                style={({ pressed }) => [
+                  {
+                    width: 44,
+                    height: 44,
+                    borderRadius: radii.xl,
+                    borderCurve: 'continuous',
+                    backgroundColor: colors.card,
+                    borderWidth: 1,
+                    borderColor: colors.line,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: pressed ? 0.75 : 1,
+                  },
+                ]}
+              >
+                <PaperclipIcon size={18} color={uploading ? colors.muted : colors.mint} />
+              </Pressable>
 
-            <TextInput
-              value={text}
-              onChangeText={setText}
-              onFocus={() => scrollToNewest(true)}
-              onKeyPress={(e: any) => {
-                if (Platform.OS === 'web') {
-                  const native = e.nativeEvent;
-                  if (native && native.key === 'Enter' && !native.shiftKey) {
-                    e.preventDefault?.();
-                    if (text.trim() && !sending && !uploading) {
-                      void send();
+              <Pressable
+                onPress={sendLocation}
+                accessibilityRole="button"
+                accessibilityLabel="Share location pin"
+                style={({ pressed }) => [
+                  {
+                    width: 44,
+                    height: 44,
+                    borderRadius: radii.xl,
+                    borderCurve: 'continuous',
+                    backgroundColor: colors.card,
+                    borderWidth: 1,
+                    borderColor: colors.line,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: pressed ? 0.75 : 1,
+                  },
+                ]}
+              >
+                <MapPinIcon size={18} color={colors.mint} />
+              </Pressable>
+
+              <TextInput
+                value={text}
+                onChangeText={setText}
+                onFocus={() => scrollToNewest(true)}
+                onKeyPress={(e: any) => {
+                  if (Platform.OS === 'web') {
+                    const native = e.nativeEvent;
+                    if (native && native.key === 'Enter' && !native.shiftKey) {
+                      e.preventDefault?.();
+                      if (text.trim() && !sending && !uploading) {
+                        void send();
+                      }
                     }
                   }
-                }
-              }}
-              placeholder={editingId ? 'Edit your message…' : 'Write a thoughtful message…'}
-              placeholderTextColor={colors.muted}
-              multiline
-              style={{
-                flex: 1,
-                maxHeight: 110,
-                minHeight: 36,
-                paddingVertical: 8,
-                color: colors.ink,
-                fontSize: 14,
-              }}
-              editable={!uploading}
-            />
+                }}
+                placeholder={editingId ? 'Edit your message…' : 'Write a thoughtful message…'}
+                placeholderTextColor={colors.muted}
+                multiline
+                style={{
+                  flex: 1,
+                  maxHeight: 110,
+                  minHeight: 36,
+                  paddingVertical: 8,
+                  color: colors.ink,
+                  fontSize: 14,
+                }}
+                editable={!uploading}
+              />
 
-            <Pressable
-              onPress={send}
-              disabled={!text.trim() || sending || uploading}
-              accessibilityRole="button"
-              accessibilityLabel={editingId ? 'Save edit' : 'Send message'}
-              style={({ pressed }) => [
-                {
-                  width: 44,
-                  height: 44,
-                  borderRadius: radii.xl,
-                  borderCurve: 'continuous',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: text.trim() ? colors.mint : colors.mintWash,
-                  opacity: pressed ? 0.8 : 1,
-                },
-              ]}
-            >
-              <SendIcon size={16} color={text.trim() ? colors.mintContrast : colors.muted} />
-            </Pressable>
-          </View>
+              {text.trim() ? (
+                <Pressable
+                  onPress={send}
+                  disabled={sending || uploading}
+                  accessibilityRole="button"
+                  accessibilityLabel={editingId ? 'Save edit' : 'Send message'}
+                  style={({ pressed }) => [
+                    {
+                      width: 44,
+                      height: 44,
+                      borderRadius: radii.xl,
+                      borderCurve: 'continuous',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: colors.mint,
+                      opacity: pressed ? 0.8 : 1,
+                    },
+                  ]}
+                >
+                  <SendIcon size={16} color={colors.mintContrast} />
+                </Pressable>
+              ) : (
+                <Pressable
+                  onPress={uploading ? undefined : startVoiceRecording}
+                  accessibilityRole="button"
+                  accessibilityLabel="Record voice note"
+                  style={({ pressed }) => [
+                    {
+                      width: 44,
+                      height: 44,
+                      borderRadius: radii.xl,
+                      borderCurve: 'continuous',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: colors.mintWash,
+                      borderWidth: 1,
+                      borderColor: colors.stitchGlow,
+                      opacity: pressed ? 0.75 : 1,
+                    },
+                  ]}
+                >
+                  <MicrophoneIcon size={18} color={colors.mint} />
+                </Pressable>
+              )}
+            </View>
+          )}
           {uploading ? (
             <Text style={{ fontSize: 11, color: colors.muted, marginLeft: 9, marginTop: 5 }}>
               Uploading securely…

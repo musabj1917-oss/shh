@@ -1,7 +1,8 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Image, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api } from './api/client';
 import { useTheme } from './theme/ThemeContext';
+import { PauseIcon, PlayIcon } from './components/Icons';
 
 export interface MediaCacheItem {
   url: string;
@@ -287,6 +288,171 @@ export const ExpiringBubble = memo(function ExpiringBubble({
     >
       {children}
     </Animated.View>
+  );
+});
+
+export interface VoiceNoteBubbleProps {
+  attachmentId: string;
+  mine: boolean;
+  duration?: number | null;
+  expiresAt?: string | null;
+}
+
+const WAVE_BARS = [6, 12, 18, 22, 14, 8, 16, 24, 20, 12, 16, 22, 18, 10, 14, 8];
+
+export const VoiceNoteBubble = memo(function VoiceNoteBubble({
+  attachmentId,
+  mine,
+  duration = 0,
+  expiresAt,
+}: VoiceNoteBubbleProps) {
+  const { colors } = useTheme();
+  const { url, loading, error } = useMediaUrl(attachmentId);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [audioDuration, setAudioDuration] = useState(duration || 0);
+  const audioRef = useRef<any>(null);
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current && typeof audioRef.current.pause === 'function') {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  const togglePlay = useCallback(async () => {
+    if (!url) return;
+
+    if (Platform.OS === 'web' && typeof (globalThis as any).Audio !== 'undefined') {
+      if (!audioRef.current) {
+        const audio = new (globalThis as any).Audio(url);
+        audioRef.current = audio;
+
+        audio.onloadedmetadata = () => {
+          if (audio.duration && !Number.isNaN(audio.duration)) {
+            setAudioDuration(Math.round(audio.duration));
+          }
+        };
+
+        audio.ontimeupdate = () => {
+          setCurrentTime(Math.round(audio.currentTime));
+        };
+
+        audio.onended = () => {
+          setIsPlaying(false);
+          setCurrentTime(0);
+        };
+
+        audio.onerror = () => {
+          setIsPlaying(false);
+        };
+      }
+
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        try {
+          await audioRef.current.play();
+          setIsPlaying(true);
+        } catch {
+          setIsPlaying(false);
+        }
+      }
+    } else {
+      try {
+        await Linking.openURL(url);
+      } catch (err) {
+        console.warn('Could not open audio file', err);
+      }
+    }
+  }, [url, isPlaying]);
+
+  const effectiveDuration = audioDuration || duration || 0;
+  const progressRatio = effectiveDuration > 0 ? Math.min(1, currentTime / effectiveDuration) : 0;
+  const activeBars = Math.floor(progressRatio * WAVE_BARS.length);
+
+  const formatSecs = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
+  const iconColor = mine ? colors.mintContrast : '#ffffff';
+  const btnBg = mine ? colors.mint : colors.mint;
+
+  return (
+    <View style={{ minWidth: 200, maxWidth: 280, paddingVertical: 4 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+        <Pressable
+          onPress={togglePlay}
+          disabled={loading || Boolean(error)}
+          accessibilityRole="button"
+          accessibilityLabel={isPlaying ? 'Pause voice message' : 'Play voice message'}
+          style={({ pressed }) => [
+            {
+              width: 38,
+              height: 38,
+              borderRadius: 19,
+              backgroundColor: btnBg,
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: pressed ? 0.8 : loading ? 0.5 : 1,
+            },
+          ]}
+        >
+          {isPlaying ? (
+            <PauseIcon size={16} color={iconColor} />
+          ) : (
+            <PlayIcon size={16} color={iconColor} />
+          )}
+        </Pressable>
+
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', height: 26, gap: 3 }}>
+            {WAVE_BARS.map((h, i) => {
+              const active = i <= activeBars && isPlaying;
+              return (
+                <View
+                  key={i}
+                  style={{
+                    width: 3,
+                    height: h,
+                    borderRadius: 2,
+                    backgroundColor: active
+                      ? (mine ? '#ffffff' : colors.mint)
+                      : (mine ? 'rgba(255,255,255,0.35)' : colors.line),
+                  }}
+                />
+              );
+            })}
+          </View>
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 2 }}>
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: '600',
+                color: mine ? 'rgba(255,255,255,0.85)' : colors.muted,
+              }}
+            >
+              {isPlaying ? formatSecs(currentTime) : (effectiveDuration > 0 ? formatSecs(effectiveDuration) : 'Voice note')}
+            </Text>
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: '600',
+                color: mine ? 'rgba(255,255,255,0.6)' : colors.muted,
+              }}
+            >
+              ⏱ 10m auto-delete
+            </Text>
+          </View>
+        </View>
+      </View>
+    </View>
   );
 });
 

@@ -4,11 +4,15 @@ import {
   Animated,
   FlatList,
   Image,
+  KeyboardAvoidingView,
+  Linking,
   Modal,
   PanResponder,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,6 +23,7 @@ import { fetchMediaUrl } from '../media';
 import { useAuth } from '../auth/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
 import { Avatar, ConfirmModal } from '../components/UI';
+import { PlayIcon, SendIcon } from '../components/Icons';
 import { useImmersive } from '../system/immersive';
 import { useEscapeKey } from '../theme/webStyles';
 
@@ -111,6 +116,28 @@ export function StoryViewScreen({ route, navigation }: Props) {
 
   const currentStory = stories[currentIndex] as StoryItem | undefined;
   const isMine = currentStory?.user_id === user?.id;
+
+  const [replyText, setReplyText] = useState('');
+  const [replySending, setReplySending] = useState(false);
+  const [replySent, setReplySent] = useState(false);
+
+  const sendReply = async () => {
+    if (!replyText.trim() || replySending || !currentStory?.id) return;
+    setReplySending(true);
+    try {
+      await api(`/stories/${currentStory.id}/replies`, {
+        method: 'POST',
+        body: JSON.stringify({ text: replyText.trim() }),
+      });
+      setReplyText('');
+      setReplySent(true);
+      setTimeout(() => setReplySent(false), 3000);
+    } catch (e) {
+      setError(messageForError(e));
+    } finally {
+      setReplySending(false);
+    }
+  };
 
   // Preload and fetch media URL for active story
   useEffect(() => {
@@ -243,10 +270,52 @@ export function StoryViewScreen({ route, navigation }: Props) {
       {/* Background Media */}
       {activeMediaUrl ? (
         currentStory.media_type === 'video' ? (
-          <View style={[StyleSheet.absoluteFill, styles.centered, { backgroundColor: '#0B0F19' }]}>
-            <Text style={{ fontSize: 56 }}>▶</Text>
-            <Text style={{ color: '#ffffff', marginTop: 12, fontWeight: '700' }}>Video Story</Text>
-          </View>
+          Platform.OS === 'web' ? (
+            <View style={StyleSheet.absoluteFill}>
+              {/* @ts-ignore */}
+              <video
+                src={activeMediaUrl}
+                autoPlay
+                playsInline
+                loop
+                muted={false}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  backgroundColor: '#000000',
+                }}
+              />
+            </View>
+          ) : (
+            <Pressable
+              onPress={() => Linking.openURL(activeMediaUrl)}
+              style={[StyleSheet.absoluteFill, styles.centered, { backgroundColor: '#070A10' }]}
+            >
+              <View
+                style={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: 36,
+                  backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                  borderWidth: 2,
+                  borderColor: colors.mint,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 16,
+                }}
+              >
+                <PlayIcon size={32} color={colors.mint} />
+              </View>
+              <Text style={{ color: '#ffffff', fontWeight: '800', fontSize: 18 }}>Video Story</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, marginTop: 4 }}>
+                Tap to stream in full screen
+              </Text>
+            </Pressable>
+          )
         ) : (
           <Image
             source={{ uri: activeMediaUrl }}
@@ -382,6 +451,55 @@ export function StoryViewScreen({ route, navigation }: Props) {
             </Text>
           </Pressable>
         </View>
+      ) : null}
+
+      {/* Bottom Reply Bar for friends' stories */}
+      {!isMine ? (
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 12 : 0}
+          style={[
+            styles.replyBarWrapper,
+            {
+              paddingBottom: Math.max(insets.bottom, 14),
+              paddingLeft: Math.max(insets.left, 16),
+              paddingRight: Math.max(insets.right, 16),
+            },
+          ]}
+        >
+          {replySent ? (
+            <View style={styles.replySentToast}>
+              <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 13 }}>
+                ✓ Reply sent to @{currentStory.username}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.replyInputRow}>
+              <TextInput
+                value={replyText}
+                onChangeText={setReplyText}
+                onFocus={() => setIsPaused(true)}
+                onBlur={() => setIsPaused(false)}
+                placeholder={`Reply to @${currentStory.username}…`}
+                placeholderTextColor="rgba(255,255,255,0.6)"
+                style={styles.replyTextInput}
+              />
+              <Pressable
+                onPress={sendReply}
+                disabled={!replyText.trim() || replySending}
+                style={({ pressed }) => [
+                  styles.replySendBtn,
+                  {
+                    backgroundColor: replyText.trim() ? colors.mint : 'rgba(255,255,255,0.2)',
+                    opacity: pressed ? 0.8 : 1,
+                  },
+                ]}
+              >
+                <SendIcon size={14} color={replyText.trim() ? colors.mintContrast : '#ffffff'} />
+              </Pressable>
+            </View>
+          )}
+        </KeyboardAvoidingView>
       ) : null}
 
       {/* Viewers Sheet Modal */}
@@ -580,5 +698,44 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  replyBarWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+  },
+  replyInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+  },
+  replyTextInput: {
+    flex: 1,
+    color: '#ffffff',
+    fontSize: 14,
+    minHeight: 36,
+    paddingVertical: 6,
+  },
+  replySendBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  replySentToast: {
+    backgroundColor: 'rgba(16, 185, 129, 0.85)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    alignItems: 'center',
   },
 });

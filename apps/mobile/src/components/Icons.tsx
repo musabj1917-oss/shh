@@ -523,4 +523,120 @@ export function CameraIcon({ size = 22, color = '#E6EAE8', style }: IconProps) {
   );
 }
 
+export function MicrophoneIcon({ size = 20, color = '#E6EAE8', style }: IconProps) {
+  const stroke = Math.max(1.75, Math.round(size * 0.08));
+  return (
+    <View style={[{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }, style]}>
+      <View
+        style={{
+          width: size * 0.36,
+          height: size * 0.5,
+          borderRadius: size * 0.18,
+          borderWidth: stroke,
+          borderColor: color,
+          backgroundColor: 'transparent',
+          top: -size * 0.04,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          width: size * 0.62,
+          height: size * 0.44,
+          borderBottomLeftRadius: size * 0.31,
+          borderBottomRightRadius: size * 0.31,
+          borderWidth: stroke,
+          borderTopWidth: 0,
+          borderColor: color,
+          top: size * 0.22,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          bottom: size * 0.12,
+          width: stroke,
+          height: size * 0.2,
+          backgroundColor: color,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          bottom: size * 0.1,
+          width: size * 0.36,
+          height: stroke,
+          borderRadius: stroke / 2,
+          backgroundColor: color,
+        }}
+      />
+    </View>
+  );
+}
+
+export function VideoIcon({ size = 20, color = '#E6EAE8', style }: IconProps) {
+  const stroke = Math.max(1.75, Math.round(size * 0.08));
+  return (
+    <View style={[{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }, style]}>
+      <View
+        style={{
+          width: size * 0.58,
+          height: size * 0.5,
+          borderRadius: Math.round(size * 0.12),
+          borderWidth: stroke,
+          borderColor: color,
+          position: 'absolute',
+          left: size * 0.08,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          right: size * 0.06,
+          width: 0,
+          height: 0,
+          borderTopWidth: size * 0.18,
+          borderBottomWidth: size * 0.18,
+          borderRightWidth: size * 0.24,
+          borderTopColor: 'transparent',
+          borderBottomColor: 'transparent',
+          borderRightColor: color,
+          transform: [{ rotate: '180deg' }],
+        }}
+      />
+    </View>
+  );
+}
+
+export function PlayIcon({ size = 18, color = '#E6EAE8', style }: IconProps) {
+  return (
+    <View style={[{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }, style]}>
+      <View
+        style={{
+          width: 0,
+          height: 0,
+          borderTopWidth: size * 0.34,
+          borderBottomWidth: size * 0.34,
+          borderLeftWidth: size * 0.55,
+          borderTopColor: 'transparent',
+          borderBottomColor: 'transparent',
+          borderLeftColor: color,
+          marginLeft: size * 0.12,
+        }}
+      />
+    </View>
+  );
+}
+
+export function PauseIcon({ size = 18, color = '#E6EAE8', style }: IconProps) {
+  const barWidth = Math.max(2, Math.round(size * 0.18));
+  return (
+    <View style={[{ width: size, height: size, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: size * 0.2 }, style]}>
+      <View style={{ width: barWidth, height: size * 0.65, borderRadius: barWidth / 2, backgroundColor: color }} />
+      <View style={{ width: barWidth, height: size * 0.65, borderRadius: barWidth / 2, backgroundColor: color }} />
+    </View>
+  );
+}
+
+
 
