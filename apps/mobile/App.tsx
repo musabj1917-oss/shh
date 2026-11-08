@@ -8,6 +8,7 @@ import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
 import { initImmersive, useImmersive } from './src/system/immersive';
 import { UpdateGate } from './src/updates';
 import { injectWebStyles, initWebMetadata } from './src/theme/webStyles';
+import { PermissionsModal } from './src/components/PermissionsModal';
 
 function AppRoot() {
   const { colors, isDark } = useTheme();
@@ -31,6 +32,7 @@ function AppRoot() {
       <UpdateGate>
         <AppNavigator />
       </UpdateGate>
+      <PermissionsModal />
     </View>
   );
 }

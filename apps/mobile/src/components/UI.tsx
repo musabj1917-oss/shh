@@ -49,13 +49,18 @@ export function Screen({
 
 export function BrandMark({ size = 38, style }: { size?: number; style?: ViewStyle }) {
   const { colors } = useTheme();
+  const lineHeight = Math.max(2, Math.round(size * 0.08));
+  const lineGap = Math.max(2, Math.round(size * 0.06));
+  const lineRadius = Math.round(lineHeight / 2);
+  const strokeColor = colors.mintContrast;
+
   return (
     <View
       style={[
         {
           width: size,
           height: size,
-          borderRadius: Math.round(size * 0.34),
+          borderRadius: Math.round(size * 0.28),
           backgroundColor: colors.mint,
           alignItems: 'center',
           justifyContent: 'center',
@@ -63,21 +68,41 @@ export function BrandMark({ size = 38, style }: { size?: number; style?: ViewSty
           shadowOpacity: 0.15,
           shadowRadius: 12,
           elevation: 4,
+          paddingHorizontal: Math.round(size * 0.18),
         },
         style,
       ]}
     >
-      <Text
+      {/* 5-7-5 Haiku poetic speech bubble lines */}
+      <View
         style={{
-          fontWeight: '900',
-          fontStyle: 'italic',
-          color: colors.mintContrast,
-          fontSize: Math.round(size * 0.46),
-          marginTop: -2,
+          width: '56%',
+          height: lineHeight,
+          borderRadius: lineRadius,
+          backgroundColor: strokeColor,
+          marginBottom: lineGap,
+          alignSelf: 'flex-start',
         }}
-      >
-        h
-      </Text>
+      />
+      <View
+        style={{
+          width: '85%',
+          height: lineHeight,
+          borderRadius: lineRadius,
+          backgroundColor: strokeColor,
+          marginBottom: lineGap,
+          alignSelf: 'flex-start',
+        }}
+      />
+      <View
+        style={{
+          width: '56%',
+          height: lineHeight,
+          borderRadius: lineRadius,
+          backgroundColor: strokeColor,
+          alignSelf: 'flex-start',
+        }}
+      />
     </View>
   );
 }

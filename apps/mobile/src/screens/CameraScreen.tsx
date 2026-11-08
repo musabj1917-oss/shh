@@ -11,6 +11,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Camera, CameraType } from 'react-native-camera-kit';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { checkPermission, requestPermission } from '../permissions';
 import type { RootStackParamList } from '../navigation/types';
@@ -98,21 +99,19 @@ export function CameraScreen() {
 
   const takePhoto = useCallback(async () => {
     if (isRecording) return;
-    if (cameraRef.current && typeof cameraRef.current.takePictureAsync === 'function') {
+    if (cameraRef.current && typeof cameraRef.current.capture === 'function') {
       try {
-        const photo = await cameraRef.current.takePictureAsync({
-          quality: 0.85,
-          skipProcessing: false,
-        });
+        const photo = await cameraRef.current.capture();
         if (photo?.uri) {
+          const uri = photo.uri.startsWith('file://') ? photo.uri : `file://${photo.uri}`;
           navigation.navigate('CameraPreview', {
-            uri: photo.uri,
+            uri,
             mediaType: 'photo',
           });
           return;
         }
       } catch (e) {
-        console.warn('Take photo failed, trying system camera', e);
+        console.warn('In-app camera capture failed, falling back to system camera', e);
       }
     }
 
@@ -486,9 +485,17 @@ export function CameraScreen() {
         </View>
       ) : null}
       {isFocused ? (
-        <View
-          style={[StyleSheet.absoluteFill, { backgroundColor: '#0A0A0A' }]}
-        >
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: '#0A0A0A' }]}>
+          {Platform.OS !== 'web' ? (
+            <Camera
+              ref={cameraRef}
+              style={StyleSheet.absoluteFill}
+              cameraType={facing === 'front' ? CameraType.Front : CameraType.Back}
+              flashMode={flash === 'on' ? 'on' : flash === 'auto' ? 'auto' : 'off'}
+              focusMode="on"
+              zoomMode="on"
+            />
+          ) : null}
           <Pressable
             style={StyleSheet.absoluteFill}
             onPress={handleTapToFocus}

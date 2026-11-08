@@ -200,3 +200,33 @@ export async function checkAllPermissions(): Promise<Record<PermissionKind, Perm
 
   return { camera, microphone, photos, location, notifications };
 }
+
+export async function requestAllCorePermissions(): Promise<Record<string, string>> {
+  if (Platform.OS !== 'android') {
+    await markPermissionsFlowCompleted();
+    return {};
+  }
+
+  try {
+    const list: any[] = [
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+    ];
+
+    if ((Platform.Version as number) >= 33) {
+      list.push('android.permission.READ_MEDIA_IMAGES' as any);
+      list.push('android.permission.READ_MEDIA_VIDEO' as any);
+      list.push('android.permission.POST_NOTIFICATIONS' as any);
+    } else {
+      list.push(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE);
+    }
+
+    const results = await PermissionsAndroid.requestMultiple(list);
+    await markPermissionsFlowCompleted();
+    return results as unknown as Record<string, string>;
+  } catch (err) {
+    console.warn('Failed to request core permissions:', err);
+    await markPermissionsFlowCompleted();
+    return {};
+  }
+}
