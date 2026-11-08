@@ -9,6 +9,7 @@ import {
   Modal,
   Platform,
   Pressable,
+  ScrollView,
   Text,
   TextInput,
   View,
@@ -20,7 +21,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { api, apiUrl, getSessionToken, messageForError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
-import { Avatar, ConfirmModal, ConfirmModalButton, EmptyState } from '../components/UI';
+import { Avatar, BrandMark, ConfirmModal, ConfirmModalButton } from '../components/UI';
 import { BackIcon, MapPinIcon, MicrophoneIcon, PaperclipIcon, PlayIcon, SendIcon } from '../components/Icons';
 import { useTheme } from '../theme/ThemeContext';
 import { useImmersive } from '../system/immersive';
@@ -59,6 +60,17 @@ const expiryOptions: { value: 1 | 24 | 168 | null; label: string }[] = [
   { value: 24, label: '24h' },
   { value: 168, label: '7d' },
 ];
+
+const QUICK_PHRASES = [
+  'Understood',
+  'Noted',
+  'Agreed',
+  'On it',
+  'Thank you',
+  'Sounds good',
+  'On my way',
+  'Will check',
+] as const;
 
 interface MessageRowProps {
   item: Message;
@@ -1074,7 +1086,45 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
             <Text style={{ color: colors.muted, fontSize: 13 }}>Loading conversation…</Text>
           </View>
         ) : messages.length === 0 ? (
-          <EmptyState title="A fresh beginning." detail="Send a message to start this conversation." />
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 28 }}>
+            <BrandMark size={56} style={{ marginBottom: 14 }} />
+            <Text style={{ fontSize: 20, fontWeight: '800', letterSpacing: -0.3, color: colors.ink, marginBottom: 8 }}>
+              Welcome to Haiku
+            </Text>
+            <Text
+              style={{
+                fontSize: 13,
+                lineHeight: 20,
+                color: colors.muted,
+                textAlign: 'center',
+                maxWidth: 290,
+                marginBottom: 18,
+              }}
+            >
+              A calm, weightless space for private conversations. Pick a quick response below or write a message.
+            </Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center', maxWidth: 300 }}>
+              {QUICK_PHRASES.slice(0, 4).map((phrase) => (
+                <Pressable
+                  key={phrase}
+                  onPress={() => setText(phrase)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Pick ${phrase}`}
+                  style={({ pressed }) => ({
+                    paddingVertical: 6,
+                    paddingHorizontal: 12,
+                    borderRadius: radii.pill,
+                    backgroundColor: colors.card,
+                    borderWidth: 1,
+                    borderColor: colors.stitchGlow,
+                    opacity: pressed ? 0.75 : 1,
+                  })}
+                >
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: colors.mint }}>{phrase}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
         ) : (
           <FlatList
             ref={flatListRef}
@@ -1128,6 +1178,35 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
               </Pressable>
             </View>
           ) : null}
+
+          {/* Quick Phrases Carousel */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: 6, paddingVertical: 4, paddingHorizontal: 2, marginBottom: 4 }}
+          >
+            {QUICK_PHRASES.map((phrase) => (
+              <Pressable
+                key={phrase}
+                onPress={() => setText((prev) => (prev ? `${prev} ${phrase}` : phrase))}
+                accessibilityRole="button"
+                accessibilityLabel={`Insert ${phrase}`}
+                style={({ pressed }) => [
+                  {
+                    paddingVertical: 4,
+                    paddingHorizontal: 9,
+                    borderRadius: radii.pill,
+                    backgroundColor: colors.card,
+                    borderWidth: 1,
+                    borderColor: colors.line,
+                    opacity: pressed ? 0.75 : 1,
+                  },
+                ]}
+              >
+                <Text style={{ fontSize: 11, fontWeight: '600', color: colors.body }}>{phrase}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
 
           {/* Ephemeral Expiry Selector */}
           {!editingId ? (
