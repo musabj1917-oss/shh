@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import type { RootStackParamList } from '../navigation/types';
 import { useTheme } from '../theme/ThemeContext';
 import { useImmersive } from '../system/immersive';
@@ -89,25 +89,45 @@ export function CameraScreen() {
   );
 
   const takePhoto = useCallback(async () => {
-    if (!cameraRef.current || isRecording) return;
+    if (isRecording) return;
+    if (cameraRef.current && typeof cameraRef.current.takePictureAsync === 'function') {
+      try {
+        const photo = await cameraRef.current.takePictureAsync({
+          quality: 0.85,
+          skipProcessing: false,
+        });
+        if (photo?.uri) {
+          navigation.navigate('CameraPreview', {
+            uri: photo.uri,
+            mediaType: 'photo',
+          });
+          return;
+        }
+      } catch (e) {
+        console.warn('Take photo failed, trying system camera', e);
+      }
+    }
+
     try {
-      const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.85,
-        skipProcessing: false,
+      const res = await launchCamera({
+        mediaType: 'photo',
+        quality: 0.8,
+        saveToPhotos: true,
       });
-      if (photo?.uri) {
+      const asset = res.assets?.[0];
+      if (asset?.uri) {
         navigation.navigate('CameraPreview', {
-          uri: photo.uri,
+          uri: asset.uri,
           mediaType: 'photo',
         });
       }
     } catch (e) {
-      console.warn('Take photo failed', e);
+      console.warn('Native camera launch failed', e);
     }
   }, [isRecording, navigation]);
 
   const stopRecording = useCallback(() => {
-    if (cameraRef.current && isRecording) {
+    if (cameraRef.current && isRecording && typeof cameraRef.current.stopRecording === 'function') {
       cameraRef.current.stopRecording();
       setIsRecording(false);
       if (recordTimer.current) {
@@ -118,37 +138,57 @@ export function CameraScreen() {
   }, [isRecording]);
 
   const startRecording = useCallback(async () => {
-    if (!cameraRef.current || isRecording) return;
-    try {
-      setIsRecording(true);
-      setRecordingSeconds(0);
-      recordTimer.current = setInterval(() => {
-        setRecordingSeconds((prev) => {
-          if (prev >= 29) {
-            stopRecording();
-            return 30;
-          }
-          return prev + 1;
-        });
-      }, 1000);
+    if (isRecording) return;
+    if (cameraRef.current && typeof cameraRef.current.recordAsync === 'function') {
+      try {
+        setIsRecording(true);
+        setRecordingSeconds(0);
+        recordTimer.current = setInterval(() => {
+          setRecordingSeconds((prev) => {
+            if (prev >= 29) {
+              stopRecording();
+              return 30;
+            }
+            return prev + 1;
+          });
+        }, 1000);
 
-      const video = await cameraRef.current.recordAsync({
-        maxDuration: 30,
+        const video = await cameraRef.current.recordAsync({
+          maxDuration: 30,
+        });
+        if (video?.uri) {
+          navigation.navigate('CameraPreview', {
+            uri: video.uri,
+            mediaType: 'video',
+          });
+          return;
+        }
+      } catch (e) {
+        console.warn('Record video failed, trying system recorder', e);
+      } finally {
+        setIsRecording(false);
+        if (recordTimer.current) {
+          clearInterval(recordTimer.current);
+          recordTimer.current = null;
+        }
+      }
+    }
+
+    try {
+      const res = await launchCamera({
+        mediaType: 'video',
+        videoQuality: 'high',
+        durationLimit: 30,
       });
-      if (video?.uri) {
+      const asset = res.assets?.[0];
+      if (asset?.uri) {
         navigation.navigate('CameraPreview', {
-          uri: video.uri,
+          uri: asset.uri,
           mediaType: 'video',
         });
       }
     } catch (e) {
-      console.warn('Record video failed', e);
-    } finally {
-      setIsRecording(false);
-      if (recordTimer.current) {
-        clearInterval(recordTimer.current);
-        recordTimer.current = null;
-      }
+      console.warn('Native video launch failed', e);
     }
   }, [isRecording, navigation, stopRecording]);
 

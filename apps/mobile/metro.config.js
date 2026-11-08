@@ -9,6 +9,12 @@ const config = {
   resolver: {
     ...defaults.resolver,
     resolveRequest: (context, moduleName, platform) => {
+      if (typeof moduleName === 'string' && moduleName.includes('NativeViewManagerAdapter')) {
+        return {
+          filePath: path.resolve(projectRoot, 'src/system/NativeViewManagerAdapter.shim.tsx'),
+          type: 'sourceFile',
+        };
+      }
       try {
         return context.resolveRequest(context, moduleName, platform);
       } catch (err) {

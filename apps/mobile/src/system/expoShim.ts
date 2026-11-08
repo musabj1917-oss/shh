@@ -1,8 +1,20 @@
 /**
  * Safe shim for Expo runtime globals in bare React Native environments.
- * Prevents "TypeError: Cannot read property 'EventEmitter' of undefined" when
+ * Prevents "TypeError: Cannot read property 'EventEmitter' of undefined" and
+ * "TypeError: Cannot read property 'viewManagersMetadata' of null" when
  * packages importing expo-modules-core run in a bare APK without native ExpoModulesCore.
  */
+
+import { NativeModules } from 'react-native';
+
+// Ensure NativeUnimoduleProxy exists for legacy or unimodule callers
+if (NativeModules && !NativeModules.NativeUnimoduleProxy) {
+  NativeModules.NativeUnimoduleProxy = {
+    viewManagersMetadata: {},
+    exportedMethods: {},
+    modulesConstants: {},
+  };
+}
 
 if (!globalThis.expo) {
   class EventEmitter {
@@ -76,6 +88,16 @@ if (!globalThis.expo) {
           }
           if (mProp === '__expo_module_name__') {
             return prop;
+          }
+          // Return granted permission for permission queries/requests
+          if (typeof mProp === 'string' && (mProp.toLowerCase().includes('permission') || mProp.endsWith('Async'))) {
+            return () =>
+              Promise.resolve({
+                status: 'granted',
+                granted: true,
+                canAskAgain: true,
+                expires: 'never',
+              });
           }
           return () => undefined;
         },
