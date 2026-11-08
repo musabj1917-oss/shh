@@ -25,7 +25,7 @@ import type { RootStackParamList } from '../navigation/types';
 import { useAuth } from '../auth/AuthContext';
 import { api, messageForError } from '../api/client';
 import { BrandMark, Button, Field, Notice, Screen, Surface } from '../components/UI';
-import { CheckIcon, CloseIcon, PlusIcon } from '../components/Icons';
+import { CheckIcon, CloseIcon, GoogleIcon, PlusIcon } from '../components/Icons';
 import { useTheme } from '../theme/ThemeContext';
 import {
   ONBOARDING_COMPLETED_KEY,
@@ -38,9 +38,14 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Auth'>;
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
 
 export function AuthScreen({ navigation }: Props) {
-  const { signIn, register } = useAuth();
+  const { signIn, signInWithGoogle, register } = useAuth();
   const { colors, radii, controls } = useTheme();
   const insets = useSafeAreaInsets();
+
+  // Google sign in state
+  const [googlePendingToken, setGooglePendingToken] = useState<string | null>(null);
+  const [showGoogleInput, setShowGoogleInput] = useState(false);
+  const [googleManualToken, setGoogleManualToken] = useState('');
 
   // Onboarding state
   const [checkingOnboarding, setCheckingOnboarding] = useState(true);
@@ -334,6 +339,47 @@ export function AuthScreen({ navigation }: Props) {
     }
   };
 
+  // Google Sign-In Flow
+  const handleGoogleSignIn = async (tokenOverride?: string) => {
+    setError('');
+    setStepError('');
+    setBusy(true);
+    try {
+      try {
+        const health = await api<{ googleSignInConfigured: boolean }>('/health', { anonymous: true });
+        if (!health?.googleSignInConfigured && !tokenOverride && !googleManualToken) {
+          setError('Google Sign-In is ready in code, but requires GOOGLE_CLIENT_ID configured on the server.');
+          setBusy(false);
+          return;
+        }
+      } catch {}
+
+      const idToken = tokenOverride || googleManualToken;
+      if (!idToken) {
+        setShowGoogleInput(true);
+        setBusy(false);
+        return;
+      }
+
+      const res = await signInWithGoogle({ idToken });
+      if (res.registrationRequired) {
+        setGooglePendingToken(idToken);
+        setMode('register');
+        if (res.verifiedEmail) setEmail(res.verifiedEmail);
+        if (res.displayName) setDisplayName(res.displayName);
+        setCurrentStep(3); // Direct jump to username selection
+        triggerSlideAnimation('next');
+        setInfo('Google account verified! Please choose a username and birth date (13+).');
+      } else {
+        setInfo('Signed in successfully with Google.');
+      }
+    } catch (e) {
+      setError(messageForError(e, 'Google sign-in failed.'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   // Complete Registration
   const completeRegistration = async () => {
     setError('');
@@ -342,6 +388,20 @@ export function AuthScreen({ navigation }: Props) {
     try {
       const emailValue = email.trim().toLowerCase();
       const normalizedDob = dateOfBirth.trim().replace(/[/.\s]/g, '-');
+
+      if (googlePendingToken) {
+        const res = await signInWithGoogle({
+          idToken: googlePendingToken,
+          username: username.trim().toLowerCase(),
+          dateOfBirth: normalizedDob,
+          displayName: displayName.trim() || username.trim(),
+        });
+        if (res.accessToken) {
+          setInfo('Welcome to Haiku!');
+        }
+        return;
+      }
+
       const input = {
         email: emailValue,
         password,
@@ -608,6 +668,90 @@ export function AuthScreen({ navigation }: Props) {
                     Forgot your password?
                   </Text>
                 </Pressable>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 12,
+                    marginVertical: 10,
+                  }}
+                >
+                  <View style={{ flex: 1, height: 1, backgroundColor: colors.line }} />
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      fontWeight: '700',
+                      textTransform: 'uppercase',
+                      letterSpacing: 0.8,
+                      color: colors.muted,
+                    }}
+                  >
+                    or
+                  </Text>
+                  <View style={{ flex: 1, height: 1, backgroundColor: colors.line }} />
+                </View>
+
+                <Pressable
+                  onPress={() => void handleGoogleSignIn()}
+                  disabled={busy}
+                  accessibilityRole="button"
+                  accessibilityLabel="Continue with Google"
+                  style={({ pressed }) => [
+                    {
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 10,
+                      height: controls.heights.md,
+                      borderRadius: radii.md,
+                      backgroundColor: colors.card,
+                      borderWidth: 1,
+                      borderColor: colors.line,
+                      opacity: pressed || busy ? 0.75 : 1,
+                    },
+                  ]}
+                >
+                  <GoogleIcon size={18} />
+                  <Text
+                    style={{
+                      color: colors.ink,
+                      fontSize: 14,
+                      fontWeight: '700',
+                    }}
+                  >
+                    Continue with Google
+                  </Text>
+                </Pressable>
+
+                {showGoogleInput ? (
+                  <View
+                    style={{
+                      marginTop: 12,
+                      padding: 12,
+                      borderRadius: radii.md,
+                      backgroundColor: colors.card,
+                      borderWidth: 1,
+                      borderColor: colors.line,
+                    }}
+                  >
+                    <Field
+                      label="Google ID Token"
+                      value={googleManualToken}
+                      onChangeText={setGoogleManualToken}
+                      placeholder="Paste Google JWT id_token"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                    />
+                    <Button
+                      title="Verify & Continue"
+                      onPress={() => void handleGoogleSignIn(googleManualToken)}
+                      loading={busy}
+                      disabled={!googleManualToken.trim()}
+                      style={{ marginTop: 8 }}
+                    />
+                  </View>
+                ) : null}
               </View>
             ) : (
               /* STEP-BY-STEP SIGN UP WIZARD */
@@ -715,6 +859,61 @@ export function AuthScreen({ navigation }: Props) {
                       returnKeyType="next"
                       onSubmitEditing={validateAndProceedStep}
                     />
+
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 12,
+                        marginVertical: 14,
+                      }}
+                    >
+                      <View style={{ flex: 1, height: 1, backgroundColor: colors.line }} />
+                      <Text
+                        style={{
+                          fontSize: 11,
+                          fontWeight: '700',
+                          textTransform: 'uppercase',
+                          letterSpacing: 0.8,
+                          color: colors.muted,
+                        }}
+                      >
+                        or
+                      </Text>
+                      <View style={{ flex: 1, height: 1, backgroundColor: colors.line }} />
+                    </View>
+
+                    <Pressable
+                      onPress={() => void handleGoogleSignIn()}
+                      disabled={busy}
+                      accessibilityRole="button"
+                      accessibilityLabel="Sign up with Google"
+                      style={({ pressed }) => [
+                        {
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 10,
+                          height: controls.heights.md,
+                          borderRadius: radii.md,
+                          backgroundColor: colors.card,
+                          borderWidth: 1,
+                          borderColor: colors.line,
+                          opacity: pressed || busy ? 0.75 : 1,
+                        },
+                      ]}
+                    >
+                      <GoogleIcon size={18} />
+                      <Text
+                        style={{
+                          color: colors.ink,
+                          fontSize: 14,
+                          fontWeight: '700',
+                        }}
+                      >
+                        Sign up with Google
+                      </Text>
+                    </Pressable>
                   </View>
                 )}
 
