@@ -27,6 +27,7 @@ import { api, messageForError } from '../api/client';
 import { BrandMark, Button, Field, Notice, Screen, Surface } from '../components/UI';
 import { CheckIcon, CloseIcon, GoogleIcon, PlusIcon } from '../components/Icons';
 import { useTheme } from '../theme/ThemeContext';
+import { googleConfig } from '../google.config';
 import {
   ONBOARDING_COMPLETED_KEY,
   OnboardingSlider,
@@ -743,6 +744,17 @@ export function AuthScreen({ navigation }: Props) {
                       autoCapitalize="none"
                       autoCorrect={false}
                     />
+                    <Text
+                      style={{
+                        fontSize: 11,
+                        color: colors.muted,
+                        marginTop: 4,
+                        marginBottom: 4,
+                      }}
+                      numberOfLines={1}
+                    >
+                      App ID: {googleConfig.appClientId}
+                    </Text>
                     <Button
                       title="Verify & Continue"
                       onPress={() => void handleGoogleSignIn(googleManualToken)}
