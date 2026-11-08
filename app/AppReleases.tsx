@@ -77,7 +77,7 @@ export default function AppReleases({onNotice,onError}:{onNotice:(value:string)=
 
  const uploading=stage!=='';
  return <section className="fade-in">
-  {!storageReady&&<div className="alert alert-error">Object storage is not configured on the API (MEDIA_STORAGE must be neon-s3), so APKs cannot be uploaded yet.</div>}
+  {!storageReady&&<div className="alert alert-error">Object storage is not configured on the API (MEDIA_STORAGE must be neon-s3 or b2), so APKs cannot be uploaded yet.</div>}
   <form className="panel" onSubmit={upload} style={{marginBottom:16}}>
    <div className="panel-title"><div><div className="eyebrow">NEW VERSION</div><h2>Upload an Android APK</h2><p>The newest published version becomes the Download button on the website. Maximum size {size(maxBytes)}.</p></div></div>
    <div className="grant-controls" style={{display:'grid',gap:12,marginTop:14}}>

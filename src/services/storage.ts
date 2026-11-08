@@ -22,7 +22,7 @@ import { isProduction } from '../config.js';
 
 export type UploadPlan = { mode: 'proxy' | 'signed'; url: string; method: 'PUT'; headers: Record<string,string>; expiresInSeconds: number };
 export type StorageAdapter = {
-  mode: 'local' | 'neon-s3';
+  mode: 'local' | 'neon-s3' | 'b2';
   uploadPlan(objectKey: string, mimeType: string, byteSize: number, baseUrl: string, attachmentId: string): Promise<UploadPlan>;
   downloadUrl(objectKey: string, baseUrl: string, opts?: { fileName?: string; contentType?: string }): Promise<{ mode: 'proxy' | 'signed'; url: string; expiresInSeconds: number }>;
   putLocal?(objectKey: string, bytes: Uint8Array): Promise<void>;
@@ -154,14 +154,142 @@ function neonS3Storage(): StorageAdapter {
   };
 }
 
+function b2Storage(): StorageAdapter {
+  const region = process.env.B2_REGION || process.env.S3_REGION || 'us-west-004';
+  const endpoint =
+    process.env.B2_ENDPOINT ||
+    process.env.B2_S3_ENDPOINT ||
+    process.env.S3_ENDPOINT ||
+    `https://s3.${region}.backblazeb2.com`;
+  const accessKeyId =
+    process.env.B2_KEY_ID ||
+    process.env.B2_APPLICATION_KEY_ID ||
+    process.env.B2_ACCESS_KEY_ID ||
+    process.env.S3_ACCESS_KEY_ID ||
+    process.env.AWS_ACCESS_KEY_ID;
+  const secretAccessKey =
+    process.env.B2_APPLICATION_KEY ||
+    process.env.B2_SECRET_ACCESS_KEY ||
+    process.env.S3_SECRET_ACCESS_KEY ||
+    process.env.AWS_SECRET_ACCESS_KEY;
+  const bucket =
+    process.env.B2_BUCKET ||
+    process.env.B2_BUCKET_NAME ||
+    process.env.S3_BUCKET ||
+    process.env.MEDIA_BUCKET;
+  const cdnUrl = process.env.B2_CDN_URL || process.env.B2_DOWNLOAD_URL || process.env.B2_PUBLIC_URL;
+
+  if (!accessKeyId || !secretAccessKey || !bucket) {
+    throw new Error('CONFIG_B2_STORAGE_MISSING');
+  }
+
+  const s3 = new S3Client({
+    region,
+    endpoint,
+    forcePathStyle: true,
+    requestChecksumCalculation: 'WHEN_REQUIRED',
+    responseChecksumValidation: 'WHEN_REQUIRED',
+    credentials: { accessKeyId, secretAccessKey },
+  });
+
+  return {
+    mode: 'b2',
+    async uploadPlan(objectKey, mimeType, byteSize) {
+      const command = new PutObjectCommand({
+        Bucket: bucket,
+        Key: objectKey,
+        ContentType: mimeType,
+        ContentLength: byteSize,
+      });
+      const url = await getSignedUrl(s3, command, { expiresIn: 300 });
+      return {
+        mode: 'signed',
+        url,
+        method: 'PUT',
+        headers: { 'Content-Type': mimeType },
+        expiresInSeconds: 300,
+      };
+    },
+    async downloadUrl(objectKey, _baseUrl, opts) {
+      if (cdnUrl) {
+        const cleanBase = cdnUrl.replace(/\/$/, '');
+        const safeName = opts?.fileName ? opts.fileName.replace(/[^A-Za-z0-9._-]/g, '_') : undefined;
+        const query = safeName ? `?filename=${encodeURIComponent(safeName)}` : '';
+        return { mode: 'signed', url: `${cleanBase}/${objectKey}${query}`, expiresInSeconds: 86400 };
+      }
+      const safeName = opts?.fileName ? opts.fileName.replace(/[^A-Za-z0-9._-]/g, '_') : undefined;
+      const url = await getSignedUrl(
+        s3,
+        new GetObjectCommand({
+          Bucket: bucket,
+          Key: objectKey,
+          ...(safeName ? { ResponseContentDisposition: `attachment; filename="${safeName}"` } : {}),
+          ...(opts?.contentType ? { ResponseContentType: opts.contentType } : {})
+        }),
+        { expiresIn: 300 }
+      );
+      return { mode: 'signed', url, expiresInSeconds: 300 };
+    },
+    async checkObject(objectKey) {
+      const head = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: objectKey }));
+      const object = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: objectKey, Range: 'bytes=0-31' }));
+      const prefix = object.Body ? await object.Body.transformToByteArray() : new Uint8Array();
+      return {
+        byteSize: Number(head.ContentLength || 0),
+        mimeType: String(head.ContentType || 'application/octet-stream'),
+        prefix,
+      };
+    },
+    async deleteObject(objectKey) {
+      await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: objectKey }));
+    },
+    async copyObject(sourceKey, destinationKey) {
+      const copySource = formatCopySource(bucket, sourceKey);
+      await s3.send(
+        new CopyObjectCommand({
+          Bucket: bucket,
+          Key: destinationKey,
+          CopySource: copySource,
+        })
+      );
+    },
+    async healthCheck() {
+      const probeKey = `_probe_${Date.now()}_${randomUUID().slice(0, 8)}.txt`;
+      const probeData = Buffer.from('haiku-b2-storage-health-check');
+      const start = Date.now();
+      await s3.send(
+        new PutObjectCommand({
+          Bucket: bucket,
+          Key: probeKey,
+          Body: probeData,
+          ContentType: 'text/plain',
+        })
+      );
+      await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: probeKey }));
+      await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: probeKey }));
+      return {
+        ok: true,
+        mode: 'b2',
+        bucket,
+        latencyMs: Date.now() - start,
+      };
+    },
+  };
+}
+
 let cached: StorageAdapter | undefined;
 export function getStorage(): StorageAdapter {
   if (cached) return cached;
   const mode = process.env.MEDIA_STORAGE || 'local';
   if (mode === 'local') cached = localStorage();
-  else if (mode === 'neon-s3') cached = neonS3Storage();
+  else if (mode === 'neon-s3' || mode === 's3') cached = neonS3Storage();
+  else if (mode === 'b2' || mode === 'backblaze' || mode === 'backblaze-b2') cached = b2Storage();
   else throw new Error('CONFIG_MEDIA_STORAGE_INVALID');
   return cached;
+}
+
+export function resetStorageCache(): void {
+  cached = undefined;
 }
 
 export async function copyObject(sourceKey: string, destinationKey: string): Promise<void> {

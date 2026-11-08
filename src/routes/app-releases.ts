@@ -108,7 +108,8 @@ releaseAdminRoutes.get('/', async (c) => {
   await purgeStalePending();
   const rows = await getDb()`SELECT id,platform,version,file_name,byte_size,notes,status,is_active,download_count,created_at,activated_at
     FROM app_releases ORDER BY created_at DESC LIMIT 50` as unknown as ReleaseRow[];
-  return c.json({ releases: rows.map(publicRow), storageReady: process.env.MEDIA_STORAGE === 'neon-s3', maxBytes: MAX_APK_BYTES });
+  const storageReady = ['neon-s3', 'b2', 'backblaze', 'backblaze-b2', 's3'].includes(process.env.MEDIA_STORAGE || '');
+  return c.json({ releases: rows.map(publicRow), storageReady, maxBytes: MAX_APK_BYTES });
 });
 
 const planSchema = z.object({
@@ -125,7 +126,7 @@ releaseAdminRoutes.post('/upload-plan', async (c) => {
   let storage: ReturnType<typeof getStorage>;
   try { storage = getStorage(); }
   catch { return jsonError(c, 503, 'STORAGE_NOT_CONFIGURED', 'Object storage is not configured for this API.'); }
-  if (storage.mode !== 'neon-s3') return jsonError(c, 409, 'STORAGE_NOT_CONFIGURED', 'APK uploads need object storage (set MEDIA_STORAGE=neon-s3).');
+  if (storage.mode === 'local') return jsonError(c, 409, 'STORAGE_NOT_CONFIGURED', 'APK uploads need object storage (set MEDIA_STORAGE=neon-s3 or b2).');
   const id = randomUUID();
   const objectKey = `releases/${id}.apk`;
   const plan = await storage.uploadPlan(objectKey, APK_MIME, byteSize, new URL(c.req.url).origin, id);

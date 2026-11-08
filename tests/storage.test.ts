@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { formatCopySource, copyObject, getStorage, checkStorageHealth } from '../src/services/storage.ts';
+import { formatCopySource, copyObject, getStorage, checkStorageHealth, resetStorageCache } from '../src/services/storage.ts';
 import app from '../src/app.ts';
 
 test('formatCopySource properly formats Bucket/key with URI-encoded key and unencoded slashes', () => {
@@ -56,4 +56,44 @@ test('/health/storage endpoints reject unauthenticated access', async () => {
 
   const res3 = await app.request('/v1/admin/health/storage');
   assert.equal(res3.status, 401);
+});
+
+test('Backblaze B2 storage adapter initializes and handles upload plan', async () => {
+  const origStorage = process.env.MEDIA_STORAGE;
+  const origKey = process.env.B2_KEY_ID;
+  const origAppKey = process.env.B2_APPLICATION_KEY;
+  const origBucket = process.env.B2_BUCKET;
+  const origRegion = process.env.B2_REGION;
+
+  try {
+    resetStorageCache();
+    process.env.MEDIA_STORAGE = 'b2';
+    delete process.env.B2_KEY_ID;
+    delete process.env.B2_APPLICATION_KEY;
+    delete process.env.B2_BUCKET;
+
+    assert.throws(() => getStorage(), /CONFIG_B2_STORAGE_MISSING/);
+
+    process.env.B2_KEY_ID = 'test-b2-key-id-0123456789';
+    process.env.B2_APPLICATION_KEY = 'test-b2-app-key-abcdefghijklmnopqrstuvwxyz';
+    process.env.B2_BUCKET = 'haiku-test-bucket';
+    process.env.B2_REGION = 'us-west-004';
+    resetStorageCache();
+
+    const b2 = getStorage();
+    assert.equal(b2.mode, 'b2');
+
+    const plan = await b2.uploadPlan('test-key.jpg', 'image/jpeg', 1024, 'http://localhost:3001', 'att-1');
+    assert.equal(plan.mode, 'signed');
+    assert.equal(plan.method, 'PUT');
+    assert.ok(plan.url.includes('backblazeb2.com') || plan.url.includes('haiku-test-bucket'));
+    assert.equal(plan.headers['Content-Type'], 'image/jpeg');
+  } finally {
+    process.env.MEDIA_STORAGE = origStorage;
+    process.env.B2_KEY_ID = origKey;
+    process.env.B2_APPLICATION_KEY = origAppKey;
+    process.env.B2_BUCKET = origBucket;
+    process.env.B2_REGION = origRegion;
+    resetStorageCache();
+  }
 });
