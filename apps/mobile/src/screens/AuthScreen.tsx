@@ -29,6 +29,10 @@ import { CheckIcon, CloseIcon, GoogleIcon, PlusIcon } from '../components/Icons'
 import { useTheme } from '../theme/ThemeContext';
 import { googleConfig } from '../google.config';
 import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
+import {
   ONBOARDING_COMPLETED_KEY,
   OnboardingSlider,
 } from '../components/OnboardingSlider';
@@ -45,8 +49,6 @@ export function AuthScreen({ navigation }: Props) {
 
   // Google sign in state
   const [googlePendingToken, setGooglePendingToken] = useState<string | null>(null);
-  const [showGoogleInput, setShowGoogleInput] = useState(false);
-  const [googleManualToken, setGoogleManualToken] = useState('');
 
   // Onboarding state
   const [checkingOnboarding, setCheckingOnboarding] = useState(true);
@@ -66,6 +68,14 @@ export function AuthScreen({ navigation }: Props) {
       }
     }
     void checkFirstLaunch();
+    try {
+      GoogleSignin.configure({
+        webClientId: googleConfig.webClientId,
+        offlineAccess: false,
+      });
+    } catch (e) {
+      console.warn('GoogleSignin.configure error:', e);
+    }
   }, []);
 
   const handleFinishOnboarding = async () => {
@@ -346,20 +356,31 @@ export function AuthScreen({ navigation }: Props) {
     setStepError('');
     setBusy(true);
     try {
-      try {
-        const health = await api<{ googleSignInConfigured: boolean }>('/health', { anonymous: true });
-        if (!health?.googleSignInConfigured && !tokenOverride && !googleManualToken) {
-          setError('Google Sign-In is ready in code, but requires GOOGLE_CLIENT_ID configured on the server.');
+      let idToken = tokenOverride;
+
+      if (!idToken) {
+        try {
+          await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+          const signInResult = await GoogleSignin.signIn();
+          if (signInResult.type === 'success' && signInResult.data.idToken) {
+            idToken = signInResult.data.idToken;
+          } else {
+            setBusy(false);
+            return;
+          }
+        } catch (nativeErr: any) {
+          if (nativeErr?.code === statusCodes.SIGN_IN_CANCELLED) {
+            setBusy(false);
+            return;
+          }
+          console.warn('GoogleSignin native error:', nativeErr);
+          setError(
+            nativeErr?.message ||
+              'Unable to sign in with Google. Ensure Google Play Services is available on this device.'
+          );
           setBusy(false);
           return;
         }
-      } catch {}
-
-      const idToken = tokenOverride || googleManualToken;
-      if (!idToken) {
-        setShowGoogleInput(true);
-        setBusy(false);
-        return;
       }
 
       const res = await signInWithGoogle({ idToken });
@@ -724,46 +745,6 @@ export function AuthScreen({ navigation }: Props) {
                     Continue with Google
                   </Text>
                 </Pressable>
-
-                {showGoogleInput ? (
-                  <View
-                    style={{
-                      marginTop: 12,
-                      padding: 12,
-                      borderRadius: radii.md,
-                      backgroundColor: colors.card,
-                      borderWidth: 1,
-                      borderColor: colors.line,
-                    }}
-                  >
-                    <Field
-                      label="Google ID Token"
-                      value={googleManualToken}
-                      onChangeText={setGoogleManualToken}
-                      placeholder="Paste Google JWT id_token"
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                    />
-                    <Text
-                      style={{
-                        fontSize: 11,
-                        color: colors.muted,
-                        marginTop: 4,
-                        marginBottom: 4,
-                      }}
-                      numberOfLines={1}
-                    >
-                      App ID: {googleConfig.appClientId}
-                    </Text>
-                    <Button
-                      title="Verify & Continue"
-                      onPress={() => void handleGoogleSignIn(googleManualToken)}
-                      loading={busy}
-                      disabled={!googleManualToken.trim()}
-                      style={{ marginTop: 8 }}
-                    />
-                  </View>
-                ) : null}
               </View>
             ) : (
               /* STEP-BY-STEP SIGN UP WIZARD */
