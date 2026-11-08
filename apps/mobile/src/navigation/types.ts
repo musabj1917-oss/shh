@@ -24,9 +24,11 @@ export type RootStackParamList = {
 };
 
 export type MainTabParamList = {
-  Camera: undefined;
   Inbox: undefined;
-  Stories: undefined;
   People: undefined;
+  Groups: undefined;
+  Stories: undefined;
+  Radar: undefined;
   Profile: undefined;
+  Camera: undefined;
 };

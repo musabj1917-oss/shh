@@ -638,5 +638,127 @@ export function PauseIcon({ size = 18, color = '#E6EAE8', style }: IconProps) {
   );
 }
 
+export function RadarIcon({ size = 22, color = '#E6EAE8', style }: IconProps) {
+  const stroke = Math.max(1.5, Math.round(size * 0.08));
+  return (
+    <View style={[{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }, style]}>
+      <View
+        style={{
+          width: size * 0.9,
+          height: size * 0.9,
+          borderRadius: size * 0.45,
+          borderWidth: stroke,
+          borderColor: color,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <View
+          style={{
+            width: size * 0.5,
+            height: size * 0.5,
+            borderRadius: size * 0.25,
+            borderWidth: stroke,
+            borderColor: color,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <View
+            style={{
+              width: stroke * 2,
+              height: stroke * 2,
+              borderRadius: stroke,
+              backgroundColor: color,
+            }}
+          />
+        </View>
+      </View>
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          width: stroke,
+          height: size * 0.16,
+          backgroundColor: color,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          width: stroke,
+          height: size * 0.16,
+          backgroundColor: color,
+        }}
+      />
+    </View>
+  );
+}
+
+export function GroupsIcon({ size = 22, color = '#E6EAE8', style }: IconProps) {
+  const stroke = Math.max(1.5, Math.round(size * 0.08));
+  const headSize = Math.round(size * 0.28);
+  return (
+    <View style={[{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }, style]}>
+      <View
+        style={{
+          width: headSize,
+          height: headSize,
+          borderRadius: headSize / 2,
+          borderWidth: stroke,
+          borderColor: color,
+          top: -size * 0.08,
+          zIndex: 2,
+        }}
+      />
+      <View
+        style={{
+          width: size * 0.58,
+          height: size * 0.3,
+          borderTopLeftRadius: size * 0.29,
+          borderTopRightRadius: size * 0.29,
+          borderWidth: stroke,
+          borderBottomWidth: 0,
+          borderColor: color,
+          top: -size * 0.06,
+          zIndex: 2,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: size * 0.38,
+          width: size * 0.34,
+          height: size * 0.26,
+          borderTopLeftRadius: size * 0.17,
+          borderTopRightRadius: size * 0.17,
+          borderWidth: stroke,
+          borderBottomWidth: 0,
+          borderColor: color,
+          opacity: 0.75,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          right: 0,
+          top: size * 0.38,
+          width: size * 0.34,
+          height: size * 0.26,
+          borderTopLeftRadius: size * 0.17,
+          borderTopRightRadius: size * 0.17,
+          borderWidth: stroke,
+          borderBottomWidth: 0,
+          borderColor: color,
+          opacity: 0.75,
+        }}
+      />
+    </View>
+  );
+}
+
+
 
 

@@ -18,12 +18,13 @@ import { StoriesScreen } from '../screens/StoriesScreen';
 import { StoryViewScreen } from '../screens/StoryViewScreen';
 import { FriendsScreen } from '../screens/FriendsScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
+import { MapScreen } from '../screens/MapScreen';
 import { NotificationsScreen } from '../screens/NotificationsScreen';
 import { PublicProfileScreen } from '../screens/PublicProfileScreen';
 import { JoinGroupScreen } from '../screens/JoinGroupScreen';
 import { takePendingInvite } from '../invites';
 import { BrandMark } from '../components/UI';
-import { CameraIcon, ChatsIcon, MomentsIcon, PeopleIcon, SettingsIcon } from '../components/Icons';
+import { CameraIcon, ChatsIcon, GroupsIcon, MomentsIcon, PeopleIcon, RadarIcon, SettingsIcon } from '../components/Icons';
 import { CameraScreen } from '../screens/CameraScreen';
 import { CameraPreviewScreen } from '../screens/CameraPreviewScreen';
 import { PermissionsScreen } from '../screens/PermissionsScreen';
@@ -38,16 +39,20 @@ const linking: LinkingOptions<RootStackParamList> = {
 
 function renderTabIcon(routeName: string, focused: boolean, color: string, size = 22) {
   switch (routeName) {
-    case 'Camera':
-      return <CameraIcon size={size} color={color} />;
     case 'Inbox':
       return <ChatsIcon size={size} color={color} />;
-    case 'Stories':
-      return <MomentsIcon size={size} color={color} />;
     case 'People':
       return <PeopleIcon size={size} color={color} />;
+    case 'Groups':
+      return <GroupsIcon size={size} color={color} />;
+    case 'Stories':
+      return <MomentsIcon size={size} color={color} />;
+    case 'Radar':
+      return <RadarIcon size={size} color={color} />;
     case 'Profile':
       return <SettingsIcon size={size} color={color} />;
+    case 'Camera':
+      return <CameraIcon size={size} color={color} />;
     default:
       return null;
   }
@@ -65,9 +70,9 @@ function BottomTabBar({ state, descriptors, navigation, insets }: BottomTabBarPr
         backgroundColor: colors.panelSolid,
         borderTopWidth: 1,
         borderTopColor: colors.line,
-        paddingBottom: Math.max(insets.bottom, 8),
-        paddingTop: 8,
-        paddingHorizontal: 8,
+        paddingBottom: Math.max(insets.bottom, 6),
+        paddingTop: 6,
+        paddingHorizontal: 2,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-around',
@@ -109,9 +114,9 @@ function BottomTabBar({ state, descriptors, navigation, insets }: BottomTabBarPr
                 alignItems: 'center',
                 justifyContent: 'center',
                 paddingVertical: 4,
-                paddingHorizontal: 6,
-                minHeight: 48,
-                borderRadius: radii.lg,
+                paddingHorizontal: 2,
+                minHeight: 46,
+                borderRadius: radii.md,
                 borderCurve: 'continuous',
                 backgroundColor: isFocused ? colors.mintWash : 'transparent',
                 opacity: pressed ? 0.75 : 1,
@@ -119,14 +124,15 @@ function BottomTabBar({ state, descriptors, navigation, insets }: BottomTabBarPr
             ]}
           >
             <View style={{ marginBottom: 2 }}>
-              {renderTabIcon(route.name, isFocused, iconColor, 22)}
+              {renderTabIcon(route.name, isFocused, iconColor, 19)}
             </View>
             <Text
+              numberOfLines={1}
               style={{
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: isFocused ? '700' : '500',
                 color: isFocused ? colors.ink : colors.muted,
-                letterSpacing: 0.1,
+                letterSpacing: 0,
               }}
             >
               {typeof label === 'string' ? label : route.name}
@@ -143,6 +149,7 @@ function BottomTabBar({ state, descriptors, navigation, insets }: BottomTabBarPr
  */
 function LeftNavRail({ state, navigation, insets }: BottomTabBarProps) {
   const { colors, radii } = useTheme();
+  const { user } = useAuth();
 
   return (
     <View
@@ -165,89 +172,100 @@ function LeftNavRail({ state, navigation, insets }: BottomTabBarProps) {
         <View style={{ width: 32, height: 1, backgroundColor: colors.line }} />
       </View>
 
-      <View style={{ gap: 12, alignItems: 'center' }}>
-        {state.routes
-          .filter((r) => ['Inbox', 'Stories', 'Camera', 'People', 'Profile'].includes(r.name))
-          .map((route) => {
-            const index = state.routes.findIndex((r) => r.key === route.key);
-            const isFocused = state.index === index;
-            const label =
-              route.name === 'Inbox'
-                ? 'Chats'
-                : route.name === 'Stories'
-                ? 'Moments'
-                : route.name === 'People'
-                ? 'Friends'
-                : route.name === 'Profile'
-                ? 'Profile'
-                : 'Camera';
+      <View style={{ gap: 10, alignItems: 'center' }}>
+        {state.routes.map((route) => {
+          const index = state.routes.findIndex((r) => r.key === route.key);
+          const isFocused = state.index === index;
+          const label =
+            route.name === 'Inbox'
+              ? 'Chats'
+              : route.name === 'Groups'
+              ? 'Groups'
+              : route.name === 'People'
+              ? 'Friends'
+              : route.name === 'Stories'
+              ? 'Moments'
+              : route.name === 'Radar'
+              ? 'Radar'
+              : route.name === 'Camera'
+              ? 'Camera'
+              : 'Settings';
 
-            const iconColor = isFocused ? colors.mint : colors.muted;
+          const iconColor = isFocused ? colors.mint : colors.muted;
 
-            const onPress = () => {
-              const event = navigation.emit({
-                type: 'tabPress',
-                target: route.key,
-                canPreventDefault: true,
-              });
-              if (!isFocused && !event.defaultPrevented) {
-                navigation.navigate(route.name);
-              }
-            };
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
 
-            return (
-              <Pressable
-                key={route.key}
-                onPress={onPress}
-                accessibilityRole="button"
-                accessibilityState={isFocused ? { selected: true } : {}}
-                accessibilityLabel={label}
-                style={({ pressed }) => [
-                  {
-                    width: 58,
-                    height: 54,
-                    borderRadius: radii.lg,
-                    borderCurve: 'continuous',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: isFocused
-                      ? colors.mintWash
-                      : pressed
-                      ? colors.line
-                      : 'transparent',
-                    borderWidth: 1,
-                    borderColor: isFocused ? colors.stitchGlow : 'transparent',
-                  },
-                ]}
+          return (
+            <Pressable
+              key={route.key}
+              onPress={onPress}
+              accessibilityRole="button"
+              accessibilityState={isFocused ? { selected: true } : {}}
+              accessibilityLabel={label}
+              style={({ pressed }) => [
+                {
+                  width: 58,
+                  height: 50,
+                  borderRadius: radii.md,
+                  borderCurve: 'continuous',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: isFocused
+                    ? colors.mintWash
+                    : pressed
+                    ? colors.line
+                    : 'transparent',
+                  borderWidth: 1,
+                  borderColor: isFocused ? colors.stitchGlow : 'transparent',
+                },
+              ]}
+            >
+              {renderTabIcon(route.name, isFocused, iconColor, 20)}
+              <Text
+                style={{
+                  fontSize: 10,
+                  fontWeight: isFocused ? '700' : '500',
+                  color: isFocused ? colors.mint : colors.muted,
+                  marginTop: 2,
+                  letterSpacing: 0.1,
+                }}
               >
-                {renderTabIcon(route.name, isFocused, iconColor, 22)}
-                <Text
-                  style={{
-                    fontSize: 10,
-                    fontWeight: isFocused ? '700' : '500',
-                    color: isFocused ? colors.mint : colors.muted,
-                    marginTop: 3,
-                    letterSpacing: 0.1,
-                  }}
-                >
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
+                {label}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
 
-      <View style={{ alignItems: 'center', gap: 6 }}>
-        <View
-          style={{
-            width: 8,
-            height: 8,
-            borderRadius: 4,
-            backgroundColor: colors.mint,
-            opacity: 0.85,
-          }}
-        />
-      </View>
+      <Pressable
+        onPress={() => navigation.navigate('Profile')}
+        accessibilityRole="button"
+        accessibilityLabel="My Profile"
+        style={({ pressed }) => ({
+          width: 38,
+          height: 38,
+          borderRadius: 19,
+          borderWidth: 1.5,
+          borderColor: colors.mint,
+          backgroundColor: colors.card,
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: pressed ? 0.75 : 1,
+        })}
+      >
+        <Text style={{ fontSize: 13, fontWeight: '800', color: colors.ink }}>
+          {user?.username ? user.username.slice(0, 1).toUpperCase() : '?'}
+        </Text>
+      </Pressable>
     </View>
   );
 }
@@ -268,9 +286,11 @@ function MainTabs() {
       }}
     >
       <Tabs.Screen name="Inbox" component={InboxScreen} options={{ tabBarLabel: 'Chats' }} />
+      <Tabs.Screen name="Groups" component={GroupsScreen} options={{ tabBarLabel: 'Groups' }} />
+      <Tabs.Screen name="People" component={FriendsScreen} options={{ tabBarLabel: 'Friends' }} />
       <Tabs.Screen name="Stories" component={StoriesScreen} options={{ tabBarLabel: 'Moments' }} />
+      <Tabs.Screen name="Radar" component={MapScreen} options={{ tabBarLabel: 'Radar' }} />
       <Tabs.Screen name="Camera" component={CameraScreen} options={{ tabBarLabel: 'Camera' }} />
-      <Tabs.Screen name="People" component={FriendsScreen} options={{ tabBarLabel: 'People' }} />
       <Tabs.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: 'Settings' }} />
     </Tabs.Navigator>
   );
