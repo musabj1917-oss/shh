@@ -9,7 +9,7 @@ import {
 export function requireNativeViewManager<P = any>(viewName: string): React.ComponentType<P> {
   const unimoduleProxy = NativeModules?.NativeUnimoduleProxy;
   const viewManagersMetadata = unimoduleProxy?.viewManagersMetadata ?? {};
-  const appIdentifier = (globalThis.expo as any)?.['__expo_app_identifier__'] ?? '';
+  const appIdentifier = (globalThis.expo as any)?.__expo_app_identifier__ ?? '';
   const viewNameSuffix = appIdentifier ? `_${appIdentifier}` : '';
   const reactNativeViewName = `ViewManagerAdapter_${viewName}${viewNameSuffix}`;
 
@@ -21,6 +21,7 @@ export function requireNativeViewManager<P = any>(viewName: string): React.Compo
 
   if (hasNativeViewManager) {
     try {
+      // eslint-disable-next-line @react-native/no-deep-imports
       const NativeComponentRegistry = require('react-native/Libraries/NativeComponent/NativeComponentRegistry');
       const nativeComponent = NativeComponentRegistry.get(reactNativeViewName, () => {
         const expoViewConfig = globalThis.expo?.getViewConfig?.(viewName);
@@ -45,7 +46,10 @@ export function requireNativeViewManager<P = any>(viewName: string): React.Compo
   // Fallback for ExpoImage -> RN Image
   if (viewName === 'ExpoImage') {
     const ExpoImageFallback = React.forwardRef<any, any>((props, ref) => {
-      const { source, style, contentFit, contentPosition, transition, cachePolicy, ...rest } = props;
+      const { source, style, contentFit, ...rest } = props;
+      delete rest.contentPosition;
+      delete rest.transition;
+      delete rest.cachePolicy;
       const resizeMode = contentFit === 'cover' ? 'cover' : contentFit === 'contain' ? 'contain' : 'stretch';
       let resolvedSource = source;
       if (Array.isArray(source) && source.length > 0) {
