@@ -2525,7 +2525,12 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3 class="modal-title" id="authTitle">Sign in to Haiku</h3>
-        <img src="/logo.svg" alt="Haiku Logo" style="width:28px; height:28px; border-radius:7px; display:inline-block;" />
+        <div style="display:flex; align-items:center; gap:8px;">
+          <img src="/logo.svg" alt="Haiku Logo" style="width:28px; height:28px; border-radius:7px; display:inline-block;" />
+          <button type="button" class="icon-action-btn" id="closeAuthModalBtn" title="Back to Home">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
       </div>
       <div class="modal-body">
         <div style="display:flex; gap:8px; margin-bottom:8px;">
@@ -3259,8 +3264,12 @@
       if (!STATE.token) {
         switchToLoginTab();
         el('authModal').hidden = false;
+      } else {
+        handlePostAuth();
       }
     }
+
+    el('closeAuthModalBtn')?.addEventListener('click', showLandingPage);
 
     async function loadLatestApkInfo() {
       try {
@@ -3757,7 +3766,6 @@
       const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left) / rect.width));
       audio.currentTime = frac * audio.duration;
     };
-    }
 
     // === COMPOSER UX (Enter to send, Auto-expand, Emojis) ===
     const composerInput = el('composerInput');
@@ -5204,6 +5212,10 @@
     loadLatestApkInfo();
     initWebPush();
     checkAuth();
+
+    if (window.location.hash === '#app' || window.location.search.includes('app=')) {
+      openWebVersion();
+    }
   </script>
   <script>
     // Antigravity Spatial 3D Tilt Interaction
