@@ -1079,13 +1079,15 @@ export function ProfileScreen() {
             <View style={{ gap: 8 }}>
               {(
                 [
-                  ['haiku', 'Haiku Noir (Web Default)', 'Pitch obsidian canvas with radiant crimson primary accents', '#FF2A3B'],
-                  ['sakura', 'Sakura', 'Deep plum obsidian with radiant sakura petal pink', '#FF8FB8'],
-                  ['matcha', 'Matcha', 'Basalt forest canvas with energetic matcha lime green', '#8FD16A'],
-                  ['ocean', 'Ocean', 'Deep abyss navy with luminous ocean cyan blue', '#4DB8FF'],
-                  ['ember', 'Ember', 'Charred charcoal canvas with incandescent terracotta ember', '#FF6B3D'],
-                  ['paper', 'Paper', 'Natural textured washi paper with deep contrast ink black', '#0A0A0A'],
-                  ['system', 'Match System', 'Follows iOS/Android system light and dark mode appearance', colors.ink],
+                  ['noir', 'Noir & Red Glow (Default)', 'Pitch obsidian canvas with radiant crimson primary accents and volumetric glow', '#FF2A3B'],
+                  ['sumi', 'Sumi & Rain', 'Basalt charcoal canvas with calm celadon accents and cool rain depths', '#4E9F86'],
+                  ['komorebi', 'Komorebi', 'Cedar moss canvas with sunlight dappled amber accents', '#58A379'],
+                  ['washi', 'Washi Paper', 'Warm daylight linen washi canvas with deep evergreen contrast', '#377561'],
+                  ['system', 'Match System', 'Follows device system light and dark mode appearance', colors.ink],
+                  ['sakura', 'Sakura (Extra)', 'Deep plum obsidian with radiant sakura petal pink', '#FF8FB8'],
+                  ['matcha', 'Matcha (Extra)', 'Basalt forest canvas with energetic matcha lime green', '#8FD16A'],
+                  ['ocean', 'Ocean (Extra)', 'Deep abyss navy with luminous ocean cyan blue', '#4DB8FF'],
+                  ['ember', 'Ember (Extra)', 'Charred charcoal canvas with incandescent terracotta ember', '#FF6B3D'],
                 ] as [ThemePreference, string, string, string][]
               ).map(([themeKey, name, desc, accentColor]) => {
                 const isSelected = preference === themeKey;
