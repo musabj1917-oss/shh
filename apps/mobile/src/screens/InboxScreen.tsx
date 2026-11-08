@@ -7,7 +7,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { api, messageForError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import type { MainTabParamList, RootStackParamList } from '../navigation/types';
-import { Avatar, Button, EmptyState, Notice, Screen, SkeletonRow } from '../components/UI';
+import { Avatar, Button, EmptyState, NewChatModal, Notice, Screen, SkeletonRow } from '../components/UI';
 import { BellIcon, PlusIcon, SearchIcon, PeopleIcon, ChatsIcon } from '../components/Icons';
 import { useTheme } from '../theme/ThemeContext';
 import { ChatScreen } from './ChatScreen';
@@ -73,6 +73,7 @@ export function InboxScreen() {
   const [filter, setFilter] = useState<'all' | 'direct' | 'group'>('all');
   const [unreadOnly, setUnreadOnly] = useState(false);
   const [online, setOnline] = useState(true);
+  const [newChatModalOpen, setNewChatModalOpen] = useState(false);
 
   const load = useCallback(async () => {
     setError('');
@@ -183,7 +184,7 @@ export function InboxScreen() {
               color: colors.ink,
             }}
           >
-            Chats
+            Messages
           </Text>
           <Text
             style={{
@@ -199,6 +200,31 @@ export function InboxScreen() {
 
         {/* Quick Header Actions */}
         <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+          <Pressable
+            onPress={() => setNewChatModalOpen(true)}
+            accessibilityRole="button"
+            accessibilityLabel="New Message"
+            style={({ pressed }) => [
+              {
+                width: 44,
+                height: 44,
+                borderRadius: radii.xl,
+                borderCurve: 'continuous',
+                backgroundColor: colors.mint,
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: pressed ? 0.8 : 1,
+                shadowColor: colors.mint,
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 10,
+                elevation: 4,
+              },
+            ]}
+          >
+            <PlusIcon size={20} color={colors.mintContrast} />
+          </Pressable>
+
           <Pressable
             onPress={() => navigation.navigate('Notifications')}
             accessibilityRole="button"
@@ -535,7 +561,7 @@ export function InboxScreen() {
         </View>
 
         <Pressable
-          onPress={() => tabs.navigate('People')}
+          onPress={() => setNewChatModalOpen(true)}
           accessibilityRole="button"
           style={({ pressed }) => [
             {
@@ -846,7 +872,7 @@ export function InboxScreen() {
                   Choose a conversation from the sidebar or reach out to a friend to start chatting with end-to-end ephemeral privacy.
                 </Text>
                 <Pressable
-                  onPress={() => tabs.navigate('People')}
+                  onPress={() => setNewChatModalOpen(true)}
                   accessibilityRole="button"
                   style={({ pressed }) => [
                     {
@@ -866,6 +892,14 @@ export function InboxScreen() {
             )}
           </View>
         </View>
+        <NewChatModal
+          visible={newChatModalOpen}
+          onDismiss={() => setNewChatModalOpen(false)}
+          onConversationSelected={(conversationId, title) => {
+            void load();
+            navigation.navigate('Chat', { conversationId, title });
+          }}
+        />
       </View>
     );
   }
@@ -873,6 +907,14 @@ export function InboxScreen() {
   return (
     <Screen style={{ paddingHorizontal: 20, paddingTop: 14, backgroundColor: colors.canvas }}>
       {chatListContent}
+      <NewChatModal
+        visible={newChatModalOpen}
+        onDismiss={() => setNewChatModalOpen(false)}
+        onConversationSelected={(conversationId, title) => {
+          void load();
+          navigation.navigate('Chat', { conversationId, title });
+        }}
+      />
     </Screen>
   );
 }

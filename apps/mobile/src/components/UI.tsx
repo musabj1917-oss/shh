@@ -16,6 +16,7 @@ import { useTheme } from '../theme/ThemeContext';
 export { ErrorModal } from './ErrorModal';
 export { ErrorBoundary } from './ErrorBoundary';
 export { ConfirmModal } from './ConfirmModal';
+export { NewChatModal } from './NewChatModal';
 export type { ConfirmModalButton, ConfirmModalProps } from './ConfirmModal';
 
 export function Screen({
