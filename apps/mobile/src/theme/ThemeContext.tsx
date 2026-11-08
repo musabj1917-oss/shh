@@ -30,7 +30,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemScheme = useColorScheme();
-  const [preference, setPreference] = useState<ThemePreference>('haiku');
+  const [preference, setPreference] = useState<ThemePreference>(defaultThemeId);
 
   useEffect(() => {
     async function loadSavedTheme() {

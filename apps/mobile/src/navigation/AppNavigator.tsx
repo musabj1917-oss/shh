@@ -375,7 +375,6 @@ export function AppNavigator() {
               component={ChatScreen}
               options={{ animation: 'slide_from_right' }}
             />
-            <Stack.Screen name="Groups" component={GroupsScreen} />
             <Stack.Screen name="GroupDetail" component={GroupDetailScreen} />
             <Stack.Screen
               name="StoryView"
