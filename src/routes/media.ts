@@ -28,7 +28,7 @@ const uploadIntentSchema = z.object({
   if (value.purpose === 'story' && value.byteSize > 50 * 1024 * 1024) ctx.addIssue({ code:'custom', message:'Story media must be 50 MB or smaller.', path:['byteSize'] });
   if (value.mediaType === 'image' && value.byteSize > 10 * 1024 * 1024) ctx.addIssue({ code:'custom', message:'Images must be 10 MB or smaller.', path:['byteSize'] });
   if (value.mediaType === 'voice' && value.byteSize > 10 * 1024 * 1024) ctx.addIssue({ code:'custom', message:'Voice notes must be 10 MB or smaller.', path:['byteSize'] });
-  const allowed = value.mediaType === 'image' ? ['image/jpeg','image/png','image/webp','image/heic','image/heif'] : value.mediaType === 'video' ? ['video/mp4','video/quicktime'] : ['audio/mp4','audio/ogg','audio/webm','audio/matroska','audio/mpeg'];
+  const allowed = value.mediaType === 'image' ? ['image/jpeg','image/png','image/webp','image/heic','image/heif'] : value.mediaType === 'video' ? ['video/mp4','video/quicktime','video/webm'] : ['audio/mp4','audio/ogg','audio/webm','audio/matroska','audio/mpeg','audio/wav'];
   if (!allowed.includes(value.mimeType.toLowerCase().split(';')[0])) ctx.addIssue({ code:'custom', message:'This media format is not supported.', path:['mimeType'] });
 });
 

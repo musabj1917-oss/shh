@@ -7,6 +7,7 @@ import { jsonError, parseJson } from '../http.js';
 import { requireUser } from '../middleware/auth.js';
 import { enforceRateLimit } from '../middleware/rate-limit.js';
 import { createNotification } from '../services/notifications.js';
+import { triggerPassiveRetentionSweep } from '../services/retention.js';
 import type { ApiEnv } from '../types.js';
 
 export const storyRoutes = new Hono<ApiEnv>();
@@ -24,6 +25,7 @@ storyRoutes.get('/',async(c)=>{
       AND NOT EXISTS(SELECT 1 FROM blocks b WHERE (b.blocker_id=${user.id} AND b.blocked_id=s.user_id) OR (b.blocker_id=s.user_id AND b.blocked_id=${user.id}))
       AND (s.user_id=${user.id} OR EXISTS(SELECT 1 FROM friendships f WHERE f.user_low=LEAST(${user.id}::uuid,s.user_id) AND f.user_high=GREATEST(${user.id}::uuid,s.user_id)))
     ORDER BY s.created_at DESC LIMIT 200`;
+  triggerPassiveRetentionSweep();
   return c.json({stories:rows});
 });
 

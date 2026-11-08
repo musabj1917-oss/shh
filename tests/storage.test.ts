@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { formatCopySource, copyObject, getStorage, checkStorageHealth, resetStorageCache } from '../src/services/storage.ts';
+import { formatCopySource, copyObject, getStorage, checkStorageHealth, resetStorageCache, verifyMediaSignature } from '../src/services/storage.ts';
+import { purgeExpiredMediaAndMessages } from '../src/services/retention.ts';
 import app from '../src/app.ts';
 
 test('formatCopySource properly formats Bucket/key with URI-encoded key and unencoded slashes', () => {
@@ -96,4 +97,24 @@ test('Backblaze B2 storage adapter initializes and handles upload plan', async (
     process.env.B2_REGION = origRegion;
     resetStorageCache();
   }
+});
+
+test('verifyMediaSignature supports WebM video and WAV audio signatures', () => {
+  // WebM / EBML header: 0x1A, 0x45, 0xDF, 0xA3
+  const webmBytes = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3, 0x9f, 0x42, 0x86, 0x81]);
+  assert.equal(verifyMediaSignature('video', 'video/webm', webmBytes), true);
+
+  // WAV header: 'RIFF' + 4 bytes + 'WAVE'
+  const wavBytes = new Uint8Array([
+    0x52, 0x49, 0x46, 0x46, // RIFF
+    0x24, 0x00, 0x00, 0x00,
+    0x57, 0x41, 0x56, 0x45, // WAVE
+  ]);
+  assert.equal(verifyMediaSignature('voice', 'audio/wav', wavBytes), true);
+});
+
+test('purgeExpiredMediaAndMessages runs safely without exceptions', async () => {
+  const result = await purgeExpiredMediaAndMessages();
+  assert.equal(typeof result.deletedObjects, 'number');
+  assert.equal(typeof result.deletedMessages, 'number');
 });

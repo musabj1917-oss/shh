@@ -326,12 +326,16 @@ export function verifyMediaSignature(mediaType: string, mimeType: string, bytes:
     if (mime === 'image/webp' && String.fromCharCode(...b.slice(0,4)) === 'RIFF' && String.fromCharCode(...b.slice(8,12)) === 'WEBP') return true;
     if ((mime === 'image/heic' || mime === 'image/heif') && String.fromCharCode(...b.slice(4,8)) === 'ftyp') return true;
   }
-  if (mediaType === 'video' && (mime === 'video/mp4' || mime === 'video/quicktime') && (String.fromCharCode(...b.slice(4,8)) === 'ftyp' || String.fromCharCode(...b.slice(4,8)) === 'moov' || String.fromCharCode(...b.slice(4,8)) === 'wide' || String.fromCharCode(...b.slice(4,8)) === 'mdat')) return true;
+  if (mediaType === 'video') {
+    if ((mime === 'video/mp4' || mime === 'video/quicktime') && (String.fromCharCode(...b.slice(4,8)) === 'ftyp' || String.fromCharCode(...b.slice(4,8)) === 'moov' || String.fromCharCode(...b.slice(4,8)) === 'wide' || String.fromCharCode(...b.slice(4,8)) === 'mdat')) return true;
+    if ((mime === 'video/webm' || mime === 'video/x-matroska') && starts(0x1a,0x45,0xdf,0xa3)) return true;
+  }
   if (mediaType === 'voice') {
     if (mime === 'audio/mp4' && String.fromCharCode(...b.slice(4,8)) === 'ftyp') return true;
     if (mime === 'audio/ogg' && String.fromCharCode(...b.slice(0,4)) === 'OggS') return true;
     if ((mime === 'audio/webm' || mime === 'audio/matroska') && starts(0x1a,0x45,0xdf,0xa3)) return true;
     if (mime === 'audio/mpeg' && (starts(0x49,0x44,0x33) || (b[0] === 0xff && (b[1] & 0xe0) === 0xe0))) return true;
+    if (mime === 'audio/wav' && String.fromCharCode(...b.slice(0,4)) === 'RIFF' && String.fromCharCode(...b.slice(8,12)) === 'WAVE') return true;
   }
   return false;
 }

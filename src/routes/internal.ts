@@ -4,6 +4,7 @@ import { getDb } from '../db.js';
 import { envInt } from '../config.js';
 import { sha256 } from '../security.js';
 import { getStorage } from '../services/storage.js';
+import { purgeExpiredMediaAndMessages } from '../services/retention.js';
 
 export const internalRoutes=new Hono();
 function validCronSecret(header:string,expected:string){
@@ -19,29 +20,9 @@ internalRoutes.post('/cleanup',async(c)=>{
   await getDb()`INSERT INTO cleanup_runs(id,status) VALUES (${runId},'running')`;
   let deletedObjects=0,deletedAccounts=0,deletedMessages=0,partial=false;
   try{
-    const cleared=await getDb()`SELECT haiku_clear_expired_text_messages(1000) AS changed`;
-    deletedMessages+=Number((cleared[0] as {changed:number}|undefined)?.changed||0);
-    const otherExpired=await getDb()`WITH due AS (SELECT id,attachment_id FROM messages WHERE expires_at IS NOT NULL AND expires_at<=now() AND deleted_at IS NULL ORDER BY expires_at LIMIT 1000 FOR UPDATE SKIP LOCKED)
-      UPDATE messages m SET body=NULL,attachment_id=NULL,deleted_at=now(),deletion_kind='expired' FROM due WHERE m.id=due.id RETURNING due.attachment_id`;
-    deletedMessages+=otherExpired.length;
-    const expiredAttachments=await getDb()`UPDATE attachments SET expires_at=now() WHERE purpose='story' AND id IN (SELECT attachment_id FROM stories WHERE expires_at<=now() OR deleted_at IS NOT NULL) AND (expires_at IS NULL OR expires_at>now())`;
-    void expiredAttachments;
-    await getDb()`UPDATE stories SET deleted_at=COALESCE(deleted_at,now()) WHERE expires_at<=now() AND deleted_at IS NULL`;
-
-    // Deletion is idempotent: a failing object delete leaves its metadata row for a later retry.
-    const dueAttachments=await getDb()`SELECT id,object_key FROM attachments
-      WHERE (expires_at IS NOT NULL AND expires_at<=now()) OR (status IN ('pending','failed') AND created_at<=now()-interval '24 hours')
-      ORDER BY created_at LIMIT 100`;
-    let storage;
-    try{storage=getStorage();}catch{storage=undefined;partial=true;}
-    for(const item of dueAttachments as Array<{id:string;object_key:string}>){
-      try{
-        if(storage)await storage.deleteObject(item.object_key);
-        else {partial=true;continue;}
-        await getDb()`DELETE FROM attachments WHERE id=${item.id}`;
-        deletedObjects++;
-      }catch{partial=true;}
-    }
+    const purged = await purgeExpiredMediaAndMessages();
+    deletedMessages += purged.deletedMessages;
+    deletedObjects += purged.deletedObjects;
 
     const dueAccounts=await getDb()`SELECT user_id,id FROM account_deletion_requests WHERE canceled_at IS NULL AND completed_at IS NULL AND scheduled_for<=now() ORDER BY scheduled_for LIMIT 25`;
     for(const row of dueAccounts as Array<{user_id:string;id:string}>){

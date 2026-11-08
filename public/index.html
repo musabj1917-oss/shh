@@ -1846,6 +1846,208 @@
     .leaflet-popup-tip {
       background: var(--bg-panel) !important;
     }
+    /* Media & Parity Features (Video Messages, Voice Notes, Moments, Profile) */
+    .msg-image-wrap {
+      margin-top: 6px;
+      max-width: 320px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .msg-image-preview {
+      width: 100%;
+      max-height: 280px;
+      object-fit: cover;
+      display: block;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+    .msg-image-preview:hover {
+      opacity: 0.92;
+    }
+    .msg-video-card {
+      width: 100%;
+      max-width: 300px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.45);
+      margin-top: 6px;
+      border: 1px solid var(--border);
+    }
+    .msg-video-player {
+      width: 100%;
+      max-height: 240px;
+      display: block;
+      background: #000;
+    }
+    .msg-video-expiry-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border-top: 1px solid rgba(239, 68, 68, 0.25);
+    }
+    .msg-voice-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 210px;
+      max-width: 320px;
+      padding: 6px 2px;
+      margin-top: 4px;
+    }
+    .voice-play-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+    .voice-play-btn:hover {
+      transform: scale(1.06);
+    }
+    .voice-track-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .voice-progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .voice-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      border-radius: 3px;
+      transition: width 0.1s linear;
+    }
+    .voice-time-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      font-weight: 600;
+      opacity: 0.8;
+    }
+    .voice-recording-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 14px;
+      background: rgba(239, 68, 68, 0.08);
+      border-top: 1px solid rgba(239, 68, 68, 0.25);
+    }
+    .recording-pulsing-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ef4444;
+      display: inline-block;
+      animation: pulse-dot 1.2s infinite ease-in-out;
+    }
+    @keyframes pulse-dot {
+      0% { transform: scale(0.85); opacity: 0.6; }
+      50% { transform: scale(1.25); opacity: 1; }
+      100% { transform: scale(0.85); opacity: 0.6; }
+    }
+    .msg-expiry-badge.active {
+      color: #ef4444 !important;
+      font-weight: 700;
+    }
+    .moments-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 4px 0;
+    }
+    .moment-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .moment-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--primary);
+      transform: translateX(2px);
+    }
+    .moment-avatar-ring {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      padding: 2px;
+      border: 2px solid var(--primary);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .moment-avatar-ring.viewed {
+      border-color: var(--border);
+      opacity: 0.7;
+    }
+    .moment-avatar-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--primary-glow);
+      color: var(--primary);
+      font-weight: 800;
+      display: grid;
+      place-items: center;
+      font-size: 15px;
+      overflow: hidden;
+    }
+    .moment-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .moment-user-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .moment-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
+    .moment-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--primary);
+    }
   </style>
   <link rel="stylesheet" href="/app.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -2082,6 +2284,9 @@
         <button class="rail-btn" data-rail-tab="groups" title="Groups">
           <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
         </button>
+        <button class="rail-btn" data-rail-tab="moments" title="Moments & Stories">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        </button>
         <button class="rail-btn" data-rail-tab="radar" title="Friend Radar (Live Location)">
           <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v3m0 12v3M3 12h3m12 0h3"/></svg>
         </button>
@@ -2169,6 +2374,17 @@
           </div>
         </div>
       </div>
+
+      <!-- View 5: Moments / Stories Pane -->
+      <div class="sidebar-view-pane" id="momentsPane" hidden>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 8px 10px;">
+          <span style="font-size:12px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">Stories & Moments</span>
+          <button class="btn-primary" style="height:30px; padding:0 12px; font-size:11px;" id="createMomentBtn">+ Post Moment</button>
+        </div>
+        <div id="momentsListContainer">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
     </section>
 
     <!-- 3. MAIN CHAT PANE -->
@@ -2243,6 +2459,18 @@
             </button>
           </div>
 
+          <div class="voice-recording-bar" id="voiceRecordingBar" style="display:none;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="recording-pulsing-dot"></span>
+              <span style="font-weight:700; color:var(--text-main); font-size:13px;" id="voiceRecordingTimer">0:00</span>
+              <span style="font-size:11px; color:var(--text-sub);">Recording voice note...</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button type="button" class="btn-secondary" style="height:28px; padding:0 10px; font-size:11px;" id="cancelVoiceRecordBtn">Cancel</button>
+              <button type="button" class="btn-primary" style="height:28px; padding:0 12px; font-size:11px;" id="sendVoiceRecordBtn">Send Note</button>
+            </div>
+          </div>
+
           <form class="composer-form" id="composerForm">
             <button type="button" class="composer-btn" id="emojiBtn" title="Quick Responses">
               <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
@@ -2250,6 +2478,16 @@
             <button type="button" class="composer-btn" id="locationBtn" title="Share Location Pin">
               <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><circle cx="12" cy="11" r="3"/></svg>
             </button>
+            <button type="button" class="composer-btn" id="attachPhotoBtn" title="Attach Photo">
+              <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </button>
+            <button type="button" class="composer-btn" id="attachVideoBtn" title="Video Message (10 min expiry)">
+              <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </button>
+            <button type="button" class="composer-btn" id="voiceRecordBtn" title="Record Voice Note">
+              <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+            </button>
+            <input type="file" id="chatPhotoFileInput" accept="image/*" style="display:none;" />
             <textarea class="composer-textarea" id="composerInput" placeholder="Write a calm message... (Enter to send, Shift+Enter for newline)" rows="1"></textarea>
             
             <div class="composer-actions">
@@ -2426,6 +2664,152 @@
     </div>
   </div>
 
+  <!-- CREATE STORY / MOMENT MODAL -->
+  <div class="modal-overlay" id="createStoryModal" hidden>
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Post a Moment</h3>
+        <button class="icon-action-btn" id="closeCreateStoryBtn">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Photo or Video Post</label>
+          <input type="file" class="form-input" id="storyFileInput" accept="image/*,video/mp4,video/webm,video/quicktime" required />
+          <div style="font-size:11px; color:var(--text-sub); margin-top:4px;">Disappears in 24 hours. Stored directly in Backblaze B2.</div>
+        </div>
+        <div id="storyFilePreviewWrap" style="display:none; margin:10px 0; max-height:220px; border-radius:var(--radius-sm); overflow:hidden; background:#000; text-align:center;">
+          <img id="storyImagePreview" style="display:none; max-width:100%; max-height:220px; object-fit:contain; margin:0 auto;" />
+          <video id="storyVideoPreview" controls playsinline style="display:none; max-width:100%; max-height:220px; margin:0 auto;"></video>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Quiet Caption (Optional)</label>
+          <textarea class="form-input" id="storyCaptionInput" placeholder="A quiet thought..." maxlength="280" rows="2"></textarea>
+        </div>
+        <button type="button" class="btn-primary" id="submitStoryBtn" style="width:100%; margin-top:8px;">Post Moment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STORY VIEWER MODAL -->
+  <div class="modal-overlay" id="storyViewerModal" hidden style="background:rgba(0,0,0,0.85); backdrop-filter:blur(16px);">
+    <div class="modal-card" style="max-width:440px; background:var(--bg-panel); border:1px solid var(--border); overflow:hidden; padding:0;">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border);">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="avatar" id="viewerAuthorAvatar" style="width:34px; height:34px; font-size:13px;">?</div>
+          <div>
+            <div id="viewerAuthorName" style="font-weight:700; font-size:13px; color:var(--text-main);">User</div>
+            <div id="viewerStoryTime" style="font-size:11px; color:var(--text-sub);">Just now</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span id="viewerStoryViews" style="font-size:11px; color:var(--text-muted); font-weight:600;">0 views</span>
+          <button class="icon-action-btn" id="deleteStoryBtn" style="display:none; color:var(--danger);" title="Delete Story">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          </button>
+          <button class="icon-action-btn" id="closeStoryViewerBtn" title="Close">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div style="min-height:300px; max-height:480px; background:#000; display:grid; place-items:center; position:relative; overflow:hidden;">
+        <img id="viewerMediaImage" style="display:none; max-width:100%; max-height:480px; object-fit:contain;" />
+        <video id="viewerMediaVideo" autoplay controls playsinline loop style="display:none; max-width:100%; max-height:480px;"></video>
+        <div id="viewerCaptionOverlay" style="display:none; position:absolute; bottom:0; left:0; right:0; padding:12px 16px; background:linear-gradient(transparent, rgba(0,0,0,0.85)); color:#fff; font-size:13px; font-weight:500;"></div>
+      </div>
+      <div style="padding:12px 16px; border-top:1px solid var(--border); display:flex; gap:8px;">
+        <input type="text" class="form-input" id="storyReplyInput" placeholder="Reply privately to this moment..." style="flex:1; height:34px; font-size:12px;" />
+        <button class="btn-primary" id="storyReplyBtn" style="height:34px; padding:0 14px; font-size:12px;">Reply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIDEO MESSAGE MODAL (LIVE WEBCAM RECORD OR FILE UPLOAD) -->
+  <div class="modal-overlay" id="videoRecordModal" hidden>
+    <div class="modal-card" style="max-width:440px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Send Video Message</h3>
+        <button class="icon-action-btn" id="closeVideoModalBtn">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; gap:8px; margin-bottom:12px;">
+          <button class="filter-tab active" id="videoRecordTab">Record Webcam</button>
+          <button class="filter-tab" id="videoUploadTab">Choose File</button>
+        </div>
+
+        <!-- Mode 1: Webcam Record -->
+        <div id="webcamRecordPane">
+          <div style="position:relative; width:100%; height:240px; background:#000; border-radius:var(--radius-sm); overflow:hidden;">
+            <video id="webcamLivePreview" autoplay muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+            <video id="webcamRecordedPlayback" controls playsinline style="display:none; width:100%; height:100%; object-fit:cover;"></video>
+            <div id="webcamTimerOverlay" style="display:none; position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); padding:4px 8px; border-radius:4px; font-size:11px; font-weight:700; color:#ef4444; align-items:center; gap:6px;">
+              <span class="recording-pulsing-dot"></span>
+              <span id="webcamTimer">0:00</span>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:center; gap:10px; margin-top:12px;">
+            <button type="button" class="btn-primary" id="startWebcamRecordBtn">● Start Recording</button>
+            <button type="button" class="btn-secondary" id="stopWebcamRecordBtn" style="display:none;">■ Stop & Review</button>
+            <button type="button" class="btn-secondary" id="retakeWebcamRecordBtn" style="display:none;">↻ Retake</button>
+          </div>
+        </div>
+
+        <!-- Mode 2: Video File Pick -->
+        <div id="videoFilePane" style="display:none;">
+          <div class="form-group">
+            <label class="form-label">Select Video File</label>
+            <input type="file" class="form-input" id="videoModalFileInput" accept="video/mp4,video/webm,video/quicktime" />
+          </div>
+          <video id="videoModalFilePreview" controls playsinline style="display:none; width:100%; max-height:220px; border-radius:var(--radius-sm); margin-top:8px; background:#000;"></video>
+        </div>
+
+        <div style="margin-top:12px; padding:10px 12px; background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.2); border-radius:var(--radius-sm); font-size:11px; color:#ef4444; display:flex; align-items:center; gap:8px;">
+          <span>⚡</span>
+          <span><strong>Auto-Delete Rule:</strong> Video messages permanently self-destruct from chat and storage after 10 minutes.</span>
+        </div>
+
+        <button type="button" class="btn-primary" id="sendVideoMessageBtn" style="width:100%; margin-top:12px;" disabled>Send Video Message</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- USER PROFILE MODAL -->
+  <div class="modal-overlay" id="profileModal" hidden>
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">My Profile</h3>
+        <button class="icon-action-btn" id="closeProfileModalBtn">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:16px;">
+          <div class="avatar" id="profileModalAvatar" style="width:72px; height:72px; font-size:26px; border:2px solid var(--primary);">?</div>
+          <label class="btn-secondary" style="height:30px; padding:0 14px; font-size:11px; cursor:pointer;">
+            Change Photo
+            <input type="file" id="profileAvatarFileInput" accept="image/*" style="display:none;" />
+          </label>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" class="form-input" id="profileModalUsername" readonly style="opacity:0.7;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Display Name</label>
+          <input type="text" class="form-input" id="profileModalDisplayName" maxlength="60" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bio (Quiet Note)</label>
+          <textarea class="form-input" id="profileModalBio" maxlength="280" rows="3" placeholder="A calm note about yourself..."></textarea>
+        </div>
+        <button type="button" class="btn-primary" id="saveProfileBtn" style="width:100%; margin-top:8px;">Save Profile</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ERROR MODAL (CENTRALIZED ERROR BOUNDARY & TRANSLATION) -->
   <div class="modal-overlay" id="errorModal" hidden>
     <div class="error-modal-card">
@@ -2540,8 +2924,97 @@
       radarMarkersGroup: null,
       liveLocationWatchId: null,
       selfLocation: null,
-      radarFriends: []
+      radarFriends: [],
+      stories: [],
+      activeStory: null,
+      voiceRecorder: null,
+      voiceAudioChunks: [],
+      voiceTimerInterval: null,
+      voiceSeconds: 0,
+      webcamStream: null,
+      webcamRecorder: null,
+      webcamChunks: [],
+      webcamRecordedBlob: null,
+      webcamTimerInterval: null,
+      webcamSeconds: 0
     };
+
+    const mediaUrlCache = new Map();
+
+    async function getMediaDownloadUrl(attachmentId) {
+      if (!attachmentId) return null;
+      const cached = mediaUrlCache.get(attachmentId);
+      if (cached && cached.expiresAt > Date.now()) return cached.url;
+      try {
+        const res = await apiRequest(`/media/${attachmentId}`);
+        if (res && res.url) {
+          mediaUrlCache.set(attachmentId, { url: res.url, expiresAt: Date.now() + 240000 });
+          return res.url;
+        }
+      } catch (err) {
+        return null;
+      }
+      return null;
+    }
+
+    async function getUserAvatarUrl(userId) {
+      if (!userId) return null;
+      const cacheKey = `avatar:${userId}`;
+      const cached = mediaUrlCache.get(cacheKey);
+      if (cached && cached.expiresAt > Date.now()) return cached.url;
+      try {
+        const res = await apiRequest(`/media/avatars/${userId}`);
+        if (res && res.url) {
+          mediaUrlCache.set(cacheKey, { url: res.url, expiresAt: Date.now() + 600000 });
+          return res.url;
+        }
+      } catch {
+        return null;
+      }
+      return null;
+    }
+
+    async function uploadMediaFile(fileOrBlob, purpose, conversationId = undefined, groupId = undefined) {
+      const mimeType = (fileOrBlob.type || (purpose === 'story' ? 'image/jpeg' : 'application/octet-stream')).toLowerCase().split(';')[0];
+      let mediaType = 'image';
+      if (mimeType.startsWith('video/')) mediaType = 'video';
+      else if (mimeType.startsWith('audio/')) mediaType = 'voice';
+
+      const byteSize = fileOrBlob.size;
+      if (!byteSize) throw new Error('File size could not be determined.');
+
+      const planRes = await apiRequest('/media/upload-intents', {
+        method: 'POST',
+        body: JSON.stringify({
+          purpose,
+          mediaType,
+          mimeType,
+          byteSize,
+          conversationId: conversationId || undefined,
+          groupId: groupId || undefined
+        })
+      });
+
+      const { attachmentId, upload } = planRes;
+      const uploadHeaders = { ...(upload.headers || {}) };
+      if (!uploadHeaders['Content-Type']) uploadHeaders['Content-Type'] = mimeType;
+
+      const uploadRes = await fetch(upload.url, {
+        method: upload.method || 'PUT',
+        headers: uploadHeaders,
+        body: fileOrBlob
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error(`Direct upload to storage bucket failed (${uploadRes.status})`);
+      }
+
+      if (upload.mode === 'signed') {
+        await apiRequest(`/media/${attachmentId}/complete`, { method: 'POST' });
+      }
+
+      return { attachmentId, mediaType, mimeType };
+    }
 
     const el = (id) => document.getElementById(id);
     const esc = (text) => text != null ? String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;') : '';
@@ -3079,6 +3552,28 @@
       }
     }
 
+    function formatRemainingTime(expiresAt) {
+      if (!expiresAt) return '10m left';
+      const diff = new Date(expiresAt).getTime() - Date.now();
+      if (diff <= 0) return 'Expired';
+      const mins = Math.floor(diff / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      if (mins < 1) return `${secs}s left`;
+      return `${mins}m ${secs}s left`;
+    }
+
+    function formatExpiryBadge(expiresAt) {
+      if (!expiresAt) return '';
+      const diff = new Date(expiresAt).getTime() - Date.now();
+      if (diff <= 0) return '<span class="msg-expiry-badge">Expired</span>';
+      const mins = Math.floor(diff / 60000);
+      if (mins < 60) return `<span class="msg-expiry-badge active" data-expires="${esc(expiresAt)}">⏱ ${Math.max(1, mins)}m left</span>`;
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) return `<span class="msg-expiry-badge" data-expires="${esc(expiresAt)}">⏱ ${hours}h left</span>`;
+      const days = Math.floor(hours / 24);
+      return `<span class="msg-expiry-badge" data-expires="${esc(expiresAt)}">⏱ ${days}d left</span>`;
+    }
+
     function renderMessages() {
       const container = el('messagesStream');
       const myId = STATE.currentUser?.id;
@@ -3124,6 +3619,17 @@
           } catch(e) {}
         }
 
+        let mediaContent = '';
+        if (m.attachment_id) {
+          if (m.message_type === 'image') {
+            mediaContent = `<div class="msg-image-wrap" id="media-slot-${esc(m.id)}" data-att-id="${esc(m.attachment_id)}"><div style="padding:10px; font-size:11px; opacity:0.7;">Loading photo...</div></div>`;
+          } else if (m.message_type === 'video') {
+            mediaContent = `<div class="msg-video-card" id="media-slot-${esc(m.id)}" data-att-id="${esc(m.attachment_id)}" data-expires="${esc(m.expires_at || '')}"><div style="padding:16px; text-align:center; font-size:11px; opacity:0.8;"><span class="recording-pulsing-dot" style="margin-right:6px;"></span> Loading video message...</div></div>`;
+          } else if (m.message_type === 'voice') {
+            mediaContent = `<div class="msg-voice-card" id="media-slot-${esc(m.id)}" data-att-id="${esc(m.attachment_id)}" data-expires="${esc(m.expires_at || '')}"><div style="padding:8px; font-size:11px; opacity:0.8;">Loading voice note...</div></div>`;
+          }
+        }
+
         return `
           <div class="message-row ${isMe ? 'me' : 'other'}" data-msg-id="${esc(m.id)}">
             ${!isMe ? `<div class="msg-sender">${esc(senderName)}</div>` : ''}
@@ -3134,12 +3640,14 @@
                   <strong>${esc(m.reply_to.sender?.displayName || 'User')}:</strong> ${esc(m.reply_to.body || '')}
                 </div>
               ` : ''}
-              ${m.message_type === 'location' ? locationContent : (m.body ? `<div>${esc(m.body)}</div>` : '')}
+              ${m.message_type === 'location' ? locationContent : ''}
+              ${mediaContent}
+              ${m.body ? `<div>${esc(m.body)}</div>` : ''}
             </div>
 
             <div class="msg-meta">
               <span>${esc(time)}</span>
-              ${m.expires_at ? `<span class="msg-expiry-badge">Expiring</span>` : ''}
+              ${m.expires_at ? formatExpiryBadge(m.expires_at) : ''}
               ${m.edited_at ? '<span>(edited)</span>' : ''}
               ${isMe ? `<span style="color:${esc(receiptColor)}; font-weight:600; font-size:9px;">${esc(receipt)}</span>` : ''}
             </div>
@@ -3163,6 +3671,92 @@
       }).join('');
 
       container.scrollTop = container.scrollHeight;
+      hydrateMessageMediaSlots(STATE.messages);
+    }
+
+    async function hydrateMessageMediaSlots(messages) {
+      for (const m of messages) {
+        if (!m.attachment_id) continue;
+        const slot = el('media-slot-' + m.id);
+        if (!slot) continue;
+
+        if (m.expires_at && new Date(m.expires_at).getTime() <= Date.now()) {
+          slot.innerHTML = '<div style="padding:10px; text-align:center; font-size:11px; color:#ef4444; font-weight:700;">⏱ Expired and deleted</div>';
+          continue;
+        }
+
+        const mediaUrl = await getMediaDownloadUrl(m.attachment_id);
+        if (!mediaUrl) {
+          slot.innerHTML = '<div style="padding:10px; font-size:11px; opacity:0.5;">Media unavailable</div>';
+          continue;
+        }
+
+        if (m.message_type === 'image') {
+          slot.innerHTML = `<img src="${mediaUrl}" class="msg-image-preview" onclick="window.open('${mediaUrl}', '_blank')" alt="Photo" />`;
+        } else if (m.message_type === 'video') {
+          slot.innerHTML = `
+            <video src="${mediaUrl}" controls playsinline preload="metadata" class="msg-video-player"></video>
+            <div class="msg-video-expiry-banner">
+              <span>⚡ 10m Auto-Delete</span>
+              <span class="video-countdown" data-expires="${esc(m.expires_at || '')}">${formatRemainingTime(m.expires_at)}</span>
+            </div>
+          `;
+        } else if (m.message_type === 'voice') {
+          slot.innerHTML = `
+            <audio id="audio-${esc(m.id)}" src="${mediaUrl}" preload="metadata" style="display:none;"></audio>
+            <button type="button" class="voice-play-btn" onclick="toggleVoiceAudio('${esc(m.id)}', this)">
+              <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <div class="voice-track-wrap">
+              <div class="voice-progress-bar" onclick="seekVoiceAudio('${esc(m.id)}', event)">
+                <div class="voice-progress-fill" id="voice-fill-${esc(m.id)}"></div>
+              </div>
+              <div class="voice-time-row">
+                <span id="voice-time-${esc(m.id)}">0:00</span>
+                <span>Voice Note</span>
+              </div>
+            </div>
+          `;
+        }
+      }
+    }
+
+    window.toggleVoiceAudio = function(msgId, btn) {
+      const audio = el('audio-' + msgId);
+      if (!audio) return;
+      if (audio.paused) {
+        document.querySelectorAll('audio').forEach(a => { if (a !== audio) a.pause(); });
+        audio.play().catch(() => {});
+        btn.innerHTML = '<svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+      } else {
+        audio.pause();
+        btn.innerHTML = '<svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+      }
+      audio.ontimeupdate = () => {
+        const fill = el('voice-fill-' + msgId);
+        const timeEl = el('voice-time-' + msgId);
+        if (fill && audio.duration) fill.style.width = ((audio.currentTime / audio.duration) * 100) + '%';
+        if (timeEl) {
+          const curM = Math.floor(audio.currentTime / 60);
+          const curS = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
+          timeEl.textContent = `${curM}:${curS}`;
+        }
+      };
+      audio.onended = () => {
+        btn.innerHTML = '<svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+        const fill = el('voice-fill-' + msgId);
+        if (fill) fill.style.width = '0%';
+      };
+    };
+
+    window.seekVoiceAudio = function(msgId, ev) {
+      const audio = el('audio-' + msgId);
+      if (!audio || !audio.duration) return;
+      const bar = ev.currentTarget;
+      const rect = bar.getBoundingClientRect();
+      const frac = Math.max(0, Math.min(1, (ev.clientX - rect.left) / rect.width));
+      audio.currentTime = frac * audio.duration;
+    };
     }
 
     // === COMPOSER UX (Enter to send, Auto-expand, Emojis) ===
@@ -3343,6 +3937,7 @@
         el('friendsPane').hidden = tab !== 'friends';
         el('groupsPane').hidden = tab !== 'groups';
         el('radarPane').hidden = tab !== 'radar';
+        el('momentsPane').hidden = tab !== 'moments';
         el('filterTabs').style.display = tab === 'chats' ? 'flex' : 'none';
 
         if (tab === 'chats') {
@@ -3357,6 +3952,9 @@
         } else if (tab === 'radar') {
           el('sidebarTitle').textContent = 'Friend Radar';
           loadRadar();
+        } else if (tab === 'moments') {
+          el('sidebarTitle').textContent = 'Moments';
+          loadMoments();
         }
       });
     });
@@ -4041,6 +4639,566 @@
 
     el('headerPushBtn')?.addEventListener('click', enableWebPushNotifications);
     el('settingsPushBtn')?.addEventListener('click', enableWebPushNotifications);
+
+    // === MOMENTS / STORIES SYSTEM ===
+    async function loadMoments() {
+      const container = el('momentsListContainer');
+      if (!container) return;
+      container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--text-sub);">Loading moments...</div>';
+      try {
+        const res = await apiRequest('/stories');
+        STATE.stories = res.stories || [];
+        if (!STATE.stories.length) {
+          container.innerHTML = `
+            <div style="text-align:center; padding:32px 16px; color:var(--text-sub); font-size:12px; line-height:1.6;">
+              No moments in the last 24 hours.<br/>
+              Share a photo or video moment with your friends.
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="moments-grid">
+            ${STATE.stories.map(s => {
+              const initial = (s.display_name || s.username || 'U')[0].toUpperCase();
+              const isVideo = s.media_type === 'video';
+              const time = formatTime(s.created_at);
+              const views = s.view_count || 0;
+              return `
+                <div class="moment-card" onclick="openStoryViewer('${esc(s.id)}')">
+                  <div class="moment-avatar-ring ${s.viewed ? 'viewed' : ''}">
+                    <div class="moment-avatar-inner">${esc(initial)}</div>
+                  </div>
+                  <div class="moment-info">
+                    <div class="moment-user-name">${esc(s.display_name || s.username)}</div>
+                    <div class="moment-meta-row">
+                      <span class="moment-badge">${isVideo ? '▶ Video' : '📷 Photo'}</span>
+                      <span>${esc(time)}</span>
+                      <span>·</span>
+                      <span>${views} view${views === 1 ? '' : 's'}</span>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      } catch (err) {
+        container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger); font-size:12px;">Failed to load moments.</div>';
+      }
+    }
+
+    window.openStoryViewer = async function(storyId) {
+      const story = STATE.stories.find(s => s.id === storyId);
+      if (!story) return;
+      STATE.activeStory = story;
+
+      el('viewerAuthorAvatar').textContent = (story.display_name || story.username || 'U')[0].toUpperCase();
+      el('viewerAuthorName').textContent = story.display_name || story.username;
+      el('viewerStoryTime').textContent = formatTime(story.created_at);
+      el('viewerStoryViews').textContent = `${story.view_count || 0} views`;
+
+      const isMe = story.user_id === STATE.currentUser?.id;
+      el('deleteStoryBtn').style.display = isMe ? 'block' : 'none';
+
+      const imgEl = el('viewerMediaImage');
+      const vidEl = el('viewerMediaVideo');
+      const capEl = el('viewerCaptionOverlay');
+
+      imgEl.style.display = 'none';
+      vidEl.style.display = 'none';
+      vidEl.pause();
+      vidEl.src = '';
+
+      if (story.caption) {
+        capEl.textContent = story.caption;
+        capEl.style.display = 'block';
+      } else {
+        capEl.style.display = 'none';
+      }
+
+      el('storyViewerModal').hidden = false;
+
+      // Track view
+      void apiRequest(`/stories/${story.id}/view`, { method: 'POST' }).catch(() => {});
+
+      const mediaUrl = await getMediaDownloadUrl(story.attachment_id);
+      if (!mediaUrl) {
+        showToast('Media could not be loaded.');
+        return;
+      }
+
+      if (story.media_type === 'video') {
+        vidEl.src = mediaUrl;
+        vidEl.style.display = 'block';
+        vidEl.play().catch(() => {});
+      } else {
+        imgEl.src = mediaUrl;
+        imgEl.style.display = 'block';
+      }
+    };
+
+    el('createMomentBtn')?.addEventListener('click', () => {
+      el('storyFileInput').value = '';
+      el('storyCaptionInput').value = '';
+      el('storyFilePreviewWrap').style.display = 'none';
+      el('storyImagePreview').style.display = 'none';
+      el('storyVideoPreview').style.display = 'none';
+      el('storyVideoPreview').src = '';
+      el('createStoryModal').hidden = false;
+    });
+
+    el('closeCreateStoryBtn')?.addEventListener('click', () => {
+      el('createStoryModal').hidden = true;
+    });
+
+    el('storyFileInput')?.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      const isVideo = file.type.startsWith('video/');
+      el('storyFilePreviewWrap').style.display = 'block';
+      if (isVideo) {
+        el('storyImagePreview').style.display = 'none';
+        el('storyVideoPreview').src = url;
+        el('storyVideoPreview').style.display = 'block';
+      } else {
+        el('storyVideoPreview').style.display = 'none';
+        el('storyVideoPreview').src = '';
+        el('storyImagePreview').src = url;
+        el('storyImagePreview').style.display = 'block';
+      }
+    });
+
+    el('submitStoryBtn')?.addEventListener('click', async () => {
+      const file = el('storyFileInput').files?.[0];
+      if (!file) {
+        showToast('Please select a photo or video to post.');
+        return;
+      }
+      const caption = el('storyCaptionInput').value.trim();
+      const btn = el('submitStoryBtn');
+      btn.disabled = true;
+      btn.textContent = 'Uploading to Storage...';
+
+      try {
+        const { attachmentId, mediaType } = await uploadMediaFile(file, 'story');
+        btn.textContent = 'Publishing Moment...';
+        await apiRequest('/stories', {
+          method: 'POST',
+          body: JSON.stringify({
+            attachmentId,
+            mediaType,
+            caption: caption || undefined
+          })
+        });
+
+        el('createStoryModal').hidden = true;
+        showToast('Moment published! (Disappears in 24 hours)');
+        await loadMoments();
+      } catch (err) {
+        showErrorModal(err);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Post Moment';
+      }
+    });
+
+    el('closeStoryViewerBtn')?.addEventListener('click', () => {
+      el('viewerMediaVideo').pause();
+      el('viewerMediaVideo').src = '';
+      el('storyViewerModal').hidden = true;
+    });
+
+    el('deleteStoryBtn')?.addEventListener('click', async () => {
+      if (!STATE.activeStory) return;
+      if (!confirm('Delete this moment?')) return;
+      try {
+        await apiRequest(`/stories/${STATE.activeStory.id}`, { method: 'DELETE' });
+        el('storyViewerModal').hidden = true;
+        showToast('Moment deleted.');
+        await loadMoments();
+      } catch (err) {
+        showErrorModal(err);
+      }
+    });
+
+    el('storyReplyBtn')?.addEventListener('click', async () => {
+      if (!STATE.activeStory) return;
+      const text = el('storyReplyInput').value.trim();
+      if (!text) return;
+      const btn = el('storyReplyBtn');
+      btn.disabled = true;
+      try {
+        await apiRequest(`/stories/${STATE.activeStory.id}/replies`, {
+          method: 'POST',
+          body: JSON.stringify({ text })
+        });
+        el('storyReplyInput').value = '';
+        showToast('Reply sent to story author!');
+      } catch (err) {
+        showErrorModal(err);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // === VOICE NOTES (MediaRecorder API) ===
+    el('voiceRecordBtn')?.addEventListener('click', async () => {
+      if (!STATE.activeConvId) {
+        showToast('Open a conversation first.');
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : (MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : 'audio/ogg');
+        STATE.voiceAudioChunks = [];
+        STATE.voiceRecorder = new MediaRecorder(stream, { mimeType });
+        STATE.voiceRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) STATE.voiceAudioChunks.push(e.data);
+        };
+        STATE.voiceRecorder.start(250);
+
+        STATE.voiceSeconds = 0;
+        el('voiceRecordingTimer').textContent = '0:00';
+        el('voiceRecordingBar').style.display = 'flex';
+        el('composerForm').style.display = 'none';
+
+        STATE.voiceTimerInterval = setInterval(() => {
+          STATE.voiceSeconds++;
+          const m = Math.floor(STATE.voiceSeconds / 60);
+          const s = (STATE.voiceSeconds % 60).toString().padStart(2, '0');
+          el('voiceRecordingTimer').textContent = `${m}:${s}`;
+          if (STATE.voiceSeconds >= 120) {
+            el('sendVoiceRecordBtn').click();
+          }
+        }, 1000);
+      } catch (err) {
+        showToast('Microphone access denied or unavailable.');
+      }
+    });
+
+    function stopVoiceRecording(cleanupOnly = false) {
+      if (STATE.voiceTimerInterval) clearInterval(STATE.voiceTimerInterval);
+      if (STATE.voiceRecorder && STATE.voiceRecorder.state !== 'inactive') {
+        STATE.voiceRecorder.stop();
+        STATE.voiceRecorder.stream.getTracks().forEach(t => t.stop());
+      }
+      el('voiceRecordingBar').style.display = 'none';
+      el('composerForm').style.display = 'flex';
+    }
+
+    el('cancelVoiceRecordBtn')?.addEventListener('click', () => {
+      stopVoiceRecording(true);
+      STATE.voiceAudioChunks = [];
+    });
+
+    el('sendVoiceRecordBtn')?.addEventListener('click', async () => {
+      const sendBtn = el('sendVoiceRecordBtn');
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Sending...';
+
+      if (STATE.voiceRecorder && STATE.voiceRecorder.state !== 'inactive') {
+        STATE.voiceRecorder.stop();
+        STATE.voiceRecorder.stream.getTracks().forEach(t => t.stop());
+      }
+      if (STATE.voiceTimerInterval) clearInterval(STATE.voiceTimerInterval);
+
+      setTimeout(async () => {
+        try {
+          const mimeType = STATE.voiceRecorder?.mimeType || 'audio/webm';
+          const blob = new Blob(STATE.voiceAudioChunks, { type: mimeType });
+          if (blob.size < 500) {
+            showToast('Voice note too short.');
+            stopVoiceRecording(true);
+            return;
+          }
+
+          const { attachmentId } = await uploadMediaFile(blob, 'message', STATE.activeConvId);
+          await apiRequest(`/conversations/${STATE.activeConvId}/messages`, {
+            method: 'POST',
+            body: JSON.stringify({ attachmentId })
+          });
+
+          stopVoiceRecording();
+          await loadMessages(STATE.activeConvId);
+        } catch (err) {
+          showErrorModal(err);
+          stopVoiceRecording(true);
+        } finally {
+          sendBtn.disabled = false;
+          sendBtn.textContent = 'Send Note';
+        }
+      }, 300);
+    });
+
+    // === VIDEO MESSAGES (Webcam & File Upload, Auto-deletes in 10 mins) ===
+    el('attachVideoBtn')?.addEventListener('click', () => {
+      if (!STATE.activeConvId) {
+        showToast('Open a conversation first.');
+        return;
+      }
+      el('videoRecordModal').hidden = false;
+      switchVideoMode('webcam');
+    });
+
+    el('closeVideoModalBtn')?.addEventListener('click', () => {
+      stopWebcam();
+      el('videoRecordModal').hidden = true;
+    });
+
+    el('videoRecordTab')?.addEventListener('click', () => switchVideoMode('webcam'));
+    el('videoUploadTab')?.addEventListener('click', () => switchVideoMode('upload'));
+
+    function switchVideoMode(mode) {
+      if (mode === 'webcam') {
+        el('videoRecordTab').classList.add('active');
+        el('videoUploadTab').classList.remove('active');
+        el('webcamRecordPane').style.display = 'block';
+        el('videoFilePane').style.display = 'none';
+        initWebcam();
+      } else {
+        el('videoUploadTab').classList.add('active');
+        el('videoRecordTab').classList.remove('active');
+        el('webcamRecordPane').style.display = 'none';
+        el('videoFilePane').style.display = 'block';
+        stopWebcam();
+      }
+    }
+
+    async function initWebcam() {
+      stopWebcam();
+      el('webcamLivePreview').style.display = 'block';
+      el('webcamRecordedPlayback').style.display = 'none';
+      el('webcamRecordedPlayback').src = '';
+      el('startWebcamRecordBtn').style.display = 'block';
+      el('stopWebcamRecordBtn').style.display = 'none';
+      el('retakeWebcamRecordBtn').style.display = 'none';
+      el('sendVideoMessageBtn').disabled = true;
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 480, height: 480 },
+          audio: true
+        });
+        STATE.webcamStream = stream;
+        el('webcamLivePreview').srcObject = stream;
+      } catch (err) {
+        showToast('Webcam access was denied or not available.');
+      }
+    }
+
+    function stopWebcam() {
+      if (STATE.webcamTimerInterval) clearInterval(STATE.webcamTimerInterval);
+      if (STATE.webcamRecorder && STATE.webcamRecorder.state !== 'inactive') {
+        STATE.webcamRecorder.stop();
+      }
+      if (STATE.webcamStream) {
+        STATE.webcamStream.getTracks().forEach(t => t.stop());
+        STATE.webcamStream = null;
+      }
+      el('webcamTimerOverlay').style.display = 'none';
+    }
+
+    el('startWebcamRecordBtn')?.addEventListener('click', () => {
+      if (!STATE.webcamStream) return;
+      STATE.webcamChunks = [];
+      const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')
+        ? 'video/webm;codecs=vp8,opus'
+        : (MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : 'video/mp4');
+      STATE.webcamRecorder = new MediaRecorder(STATE.webcamStream, { mimeType });
+      STATE.webcamRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) STATE.webcamChunks.push(e.data);
+      };
+      STATE.webcamRecorder.start(250);
+
+      STATE.webcamSeconds = 0;
+      el('webcamTimer').textContent = '0:00';
+      el('webcamTimerOverlay').style.display = 'flex';
+      el('startWebcamRecordBtn').style.display = 'none';
+      el('stopWebcamRecordBtn').style.display = 'block';
+
+      STATE.webcamTimerInterval = setInterval(() => {
+        STATE.webcamSeconds++;
+        const m = Math.floor(STATE.webcamSeconds / 60);
+        const s = (STATE.webcamSeconds % 60).toString().padStart(2, '0');
+        el('webcamTimer').textContent = `${m}:${s}`;
+        if (STATE.webcamSeconds >= 60) {
+          el('stopWebcamRecordBtn').click();
+        }
+      }, 1000);
+    });
+
+    el('stopWebcamRecordBtn')?.addEventListener('click', () => {
+      if (STATE.webcamTimerInterval) clearInterval(STATE.webcamTimerInterval);
+      el('webcamTimerOverlay').style.display = 'none';
+      el('stopWebcamRecordBtn').style.display = 'none';
+      el('retakeWebcamRecordBtn').style.display = 'block';
+
+      if (STATE.webcamRecorder && STATE.webcamRecorder.state !== 'inactive') {
+        STATE.webcamRecorder.stop();
+      }
+
+      setTimeout(() => {
+        const mimeType = STATE.webcamRecorder?.mimeType || 'video/webm';
+        STATE.webcamRecordedBlob = new Blob(STATE.webcamChunks, { type: mimeType });
+        const url = URL.createObjectURL(STATE.webcamRecordedBlob);
+        el('webcamLivePreview').style.display = 'none';
+        el('webcamRecordedPlayback').src = url;
+        el('webcamRecordedPlayback').style.display = 'block';
+        el('webcamRecordedPlayback').play().catch(() => {});
+        el('sendVideoMessageBtn').disabled = false;
+      }, 300);
+    });
+
+    el('retakeWebcamRecordBtn')?.addEventListener('click', () => {
+      STATE.webcamRecordedBlob = null;
+      initWebcam();
+    });
+
+    el('videoModalFileInput')?.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      STATE.webcamRecordedBlob = file;
+      const url = URL.createObjectURL(file);
+      const prev = el('videoModalFilePreview');
+      prev.src = url;
+      prev.style.display = 'block';
+      el('sendVideoMessageBtn').disabled = false;
+    });
+
+    el('sendVideoMessageBtn')?.addEventListener('click', async () => {
+      const videoBlobOrFile = STATE.webcamRecordedBlob;
+      if (!videoBlobOrFile) return;
+
+      const btn = el('sendVideoMessageBtn');
+      btn.disabled = true;
+      btn.textContent = 'Uploading Video to Storage...';
+
+      try {
+        const { attachmentId } = await uploadMediaFile(videoBlobOrFile, 'message', STATE.activeConvId);
+        btn.textContent = 'Sending Message...';
+        await apiRequest(`/conversations/${STATE.activeConvId}/messages`, {
+          method: 'POST',
+          body: JSON.stringify({ attachmentId })
+        });
+
+        stopWebcam();
+        el('videoRecordModal').hidden = true;
+        showToast('Video message sent! (Auto-deletes in 10 minutes)');
+        await loadMessages(STATE.activeConvId);
+      } catch (err) {
+        showErrorModal(err);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send Video Message';
+      }
+    });
+
+    // === PHOTO ATTACHMENTS IN CHAT ===
+    el('attachPhotoBtn')?.addEventListener('click', () => {
+      if (!STATE.activeConvId) {
+        showToast('Open a conversation first.');
+        return;
+      }
+      el('chatPhotoFileInput').click();
+    });
+
+    el('chatPhotoFileInput')?.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      el('chatPhotoFileInput').value = '';
+
+      showToast('Uploading photo to storage bucket...');
+      try {
+        const { attachmentId } = await uploadMediaFile(file, 'message', STATE.activeConvId);
+        await apiRequest(`/conversations/${STATE.activeConvId}/messages`, {
+          method: 'POST',
+          body: JSON.stringify({ attachmentId })
+        });
+        await loadMessages(STATE.activeConvId);
+      } catch (err) {
+        showErrorModal(err);
+      }
+    });
+
+    // === PROFILE MODAL (EDIT PROFILE & AVATAR UPLOAD) ===
+    el('myAvatarBtn')?.addEventListener('click', () => {
+      if (!STATE.currentUser) return;
+      el('profileModalUsername').value = STATE.currentUser.username || '';
+      el('profileModalDisplayName').value = STATE.currentUser.displayName || '';
+      el('profileModalBio').value = STATE.currentUser.bio || '';
+      el('profileModalAvatar').textContent = (STATE.currentUser.displayName || STATE.currentUser.username || 'U')[0].toUpperCase();
+      el('profileModal').hidden = false;
+    });
+
+    el('closeProfileModalBtn')?.addEventListener('click', () => {
+      el('profileModal').hidden = true;
+    });
+
+    el('profileAvatarFileInput')?.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      showToast('Uploading profile photo to storage...');
+      try {
+        const { attachmentId } = await uploadMediaFile(file, 'avatar');
+        const res = await apiRequest('/profile', {
+          method: 'PATCH',
+          body: JSON.stringify({ avatarAttachmentId: attachmentId })
+        });
+        STATE.currentUser = { ...STATE.currentUser, ...res.profile };
+        localStorage.setItem('haiku_user', JSON.stringify(STATE.currentUser));
+        showToast('Profile photo updated!');
+      } catch (err) {
+        showErrorModal(err);
+      }
+    });
+
+    el('saveProfileBtn')?.addEventListener('click', async () => {
+      const displayName = el('profileModalDisplayName').value.trim();
+      const bio = el('profileModalBio').value.trim();
+      if (!displayName) {
+        showToast('Display name is required.');
+        return;
+      }
+      const btn = el('saveProfileBtn');
+      btn.disabled = true;
+      try {
+        const res = await apiRequest('/profile', {
+          method: 'PATCH',
+          body: JSON.stringify({ displayName, bio: bio || null })
+        });
+        STATE.currentUser = { ...STATE.currentUser, ...res.profile };
+        localStorage.setItem('haiku_user', JSON.stringify(STATE.currentUser));
+        el('myAvatarBtn').textContent = (STATE.currentUser.displayName || STATE.currentUser.username || 'U')[0].toUpperCase();
+        el('profileModal').hidden = true;
+        showToast('Profile saved successfully.');
+      } catch (err) {
+        showErrorModal(err);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // === COUNTDOWN TICKER FOR EXPIRING MESSAGES & VIDEOS ===
+    setInterval(() => {
+      document.querySelectorAll('.video-countdown, .msg-expiry-badge').forEach(badge => {
+        const expires = badge.dataset.expires;
+        if (!expires) return;
+        const diff = new Date(expires).getTime() - Date.now();
+        if (diff <= 0) {
+          badge.textContent = 'Expired';
+          badge.classList.remove('active');
+          const card = badge.closest('.msg-video-card');
+          if (card) {
+            card.innerHTML = '<div style="padding:14px; text-align:center; font-size:11px; color:#ef4444; font-weight:700;">⏱ Video message expired and deleted</div>';
+          }
+        } else {
+          badge.textContent = formatRemainingTime(expires);
+        }
+      });
+    }, 5000);
 
     // Boot
     loadLatestApkInfo();

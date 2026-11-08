@@ -8,6 +8,7 @@ import { requireUser } from '../middleware/auth.js';
 import { enforceRateLimit } from '../middleware/rate-limit.js';
 import { createRealtimeTokenRequest, publishMessageCreated } from '../services/realtime.js';
 import { createNotification } from '../services/notifications.js';
+import { triggerPassiveRetentionSweep } from '../services/retention.js';
 import type { ApiEnv } from '../types.js';
 
 export const conversationRoutes = new Hono<ApiEnv>();
@@ -97,6 +98,7 @@ conversationRoutes.get('/:conversationId/messages', async (c) => {
       AND NOT EXISTS (SELECT 1 FROM blocks b WHERE (b.blocker_id=${user.id} AND b.blocked_id=m.sender_id) OR (b.blocker_id=m.sender_id AND b.blocked_id=${user.id}))
       AND (${cursor}::timestamptz IS NULL OR m.created_at<${cursor}::timestamptz)
     ORDER BY m.created_at DESC,m.id DESC LIMIT ${limit}`;
+  triggerPassiveRetentionSweep();
   return c.json({ messages: read.reverse(), hasMore: read.length === limit });
 });
 
@@ -148,6 +150,7 @@ conversationRoutes.post('/:conversationId/messages', async (c) => {
   for (const row of recipients as Array<{user_id:string}>) {
     try { await createNotification(row.user_id, 'message', user.id, message.id, { conversationId }); } catch { /* message persists; notification retry is handled by inbox refresh */ }
   }
+  triggerPassiveRetentionSweep();
   return c.json({ message, realtime }, 201);
 });
 
