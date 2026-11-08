@@ -30,6 +30,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { useImmersive } from '../system/immersive';
 import { checkAllPermissions, requestPermission, PermissionKind, PermissionState } from '../permissions';
 import { ThemePreference } from '@haiku/contracts';
+import { MEDIA_LIMITS, validateMediaSize } from '../constants/mediaLimits';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -298,7 +299,13 @@ export function ProfileScreen() {
 
   const changeAvatar = async () => {
     setError('');
-    const picked = await launchImageLibrary({ mediaType: 'photo', selectionLimit: 1, quality: 0.8 });
+    const picked = await launchImageLibrary({
+      mediaType: 'photo',
+      selectionLimit: 1,
+      quality: MEDIA_LIMITS.AVATAR.COMPRESSION_QUALITY,
+      maxWidth: MEDIA_LIMITS.AVATAR.MAX_WIDTH,
+      maxHeight: MEDIA_LIMITS.AVATAR.MAX_HEIGHT,
+    });
     if (picked.didCancel) return;
     if (picked.errorCode) {
       setError(picked.errorMessage || 'Could not open your photo library.');
@@ -310,11 +317,23 @@ export function ProfileScreen() {
       return;
     }
     const mimeType = (asset.type || 'image/jpeg').toLowerCase();
-    const byteSize = asset.fileSize || 0;
+    let byteSize = asset.fileSize || 0;
     if (!byteSize) {
-      setError('Could not determine this image size.');
+      try {
+        const resp = await fetch(asset.uri);
+        const blob = await resp.blob();
+        byteSize = blob.size;
+      } catch {
+        byteSize = 1024 * 1024;
+      }
+    }
+
+    const check = validateMediaSize('avatar', byteSize);
+    if (!check.valid && check.error) {
+      setError(check.error);
       return;
     }
+
     setUploading(true);
     try {
       const intent = await api<{
@@ -521,6 +540,9 @@ export function ProfileScreen() {
 
             <Text style={{ fontSize: 13, color: colors.body, marginTop: 2 }}>
               @{username || user?.username}
+            </Text>
+            <Text style={{ fontSize: 10, color: colors.muted, marginTop: 1 }}>
+              Tap avatar to change (max {MEDIA_LIMITS.AVATAR.MAX_LABEL})
             </Text>
 
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 }}>

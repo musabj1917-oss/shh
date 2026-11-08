@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  Alert,
   Animated,
   Linking,
   Platform,
@@ -17,6 +18,7 @@ import { checkPermission, requestPermission } from '../permissions';
 import type { RootStackParamList } from '../navigation/types';
 import { useTheme } from '../theme/ThemeContext';
 import { useImmersive } from '../system/immersive';
+import { MEDIA_LIMITS, validateMediaSize } from '../constants/mediaLimits';
 
 export function CameraScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -230,12 +232,32 @@ export function CameraScreen() {
     const res = await launchImageLibrary({
       mediaType: 'mixed',
       selectionLimit: 1,
-      quality: 0.8,
+      quality: MEDIA_LIMITS.IMAGE.COMPRESSION_QUALITY,
+      maxWidth: MEDIA_LIMITS.IMAGE.MAX_WIDTH,
+      maxHeight: MEDIA_LIMITS.IMAGE.MAX_HEIGHT,
+      videoQuality: 'high',
     });
     const asset = res.assets?.[0];
     if (res.didCancel || !asset?.uri) return;
     const uri = asset.uri;
     const isVideo = asset.type?.startsWith('video') || uri.endsWith('.mp4') || uri.endsWith('.mov');
+
+    if (isVideo && asset.duration && asset.duration > MEDIA_LIMITS.VIDEO.MAX_DURATION_SECONDS) {
+      Alert.alert(
+        'Video Too Long',
+        `Video duration (${Math.round(asset.duration)}s) exceeds maximum allowed duration of ${MEDIA_LIMITS.VIDEO.MAX_DURATION_LABEL}.`
+      );
+      return;
+    }
+
+    if (asset.fileSize) {
+      const check = validateMediaSize(isVideo ? 'video' : 'image', asset.fileSize);
+      if (!check.valid && check.error) {
+        Alert.alert('File Too Large', check.error);
+        return;
+      }
+    }
+
     navigation.navigate('CameraPreview', {
       uri,
       mediaType: isVideo ? 'video' : 'photo',

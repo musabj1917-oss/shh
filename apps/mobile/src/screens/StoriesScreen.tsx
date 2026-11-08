@@ -4,6 +4,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { api, messageForError } from '../api/client';
+import { MEDIA_LIMITS, validateMediaSize } from '../constants/mediaLimits';
 import type { RootStackParamList } from '../navigation/types';
 import { Avatar, Button, EmptyState, LoadingState, Notice, Screen, Surface } from '../components/UI';
 import { PlusIcon } from '../components/Icons';
@@ -52,7 +53,14 @@ export function StoriesScreen() {
 
   const create = async () => {
     setError('');
-    const picked = await launchImageLibrary({ mediaType: 'mixed', selectionLimit: 1, quality: 0.8 });
+    const picked = await launchImageLibrary({
+      mediaType: 'mixed',
+      selectionLimit: 1,
+      quality: MEDIA_LIMITS.IMAGE.COMPRESSION_QUALITY,
+      maxWidth: MEDIA_LIMITS.IMAGE.MAX_WIDTH,
+      maxHeight: MEDIA_LIMITS.IMAGE.MAX_HEIGHT,
+      videoQuality: 'high',
+    });
     if (picked.didCancel) return;
     if (picked.errorCode) {
       setError(picked.errorMessage || 'Photo library could not be opened.');
@@ -65,11 +73,29 @@ export function StoriesScreen() {
     }
     const mimeType = (asset.type || 'image/jpeg').toLowerCase();
     const mediaType = mimeType.startsWith('video/') ? 'video' : 'image';
-    const byteSize = asset.fileSize || 0;
-    if (!byteSize) {
-      setError('Could not determine this file’s size. Choose another file.');
+    let byteSize = asset.fileSize || 0;
+
+    if (mediaType === 'video' && asset.duration && asset.duration > MEDIA_LIMITS.VIDEO.MAX_DURATION_SECONDS) {
+      setError(`Video duration (${Math.round(asset.duration)}s) exceeds maximum allowed duration of ${MEDIA_LIMITS.VIDEO.MAX_DURATION_LABEL}.`);
       return;
     }
+
+    if (!byteSize) {
+      try {
+        const resp = await fetch(asset.uri);
+        const b = await resp.blob();
+        byteSize = b.size;
+      } catch {
+        byteSize = 1024 * 1024;
+      }
+    }
+
+    const check = validateMediaSize(mediaType, byteSize);
+    if (!check.valid && check.error) {
+      setError(check.error);
+      return;
+    }
+
     setBusy(true);
     try {
       const intent = await api<{
@@ -132,6 +158,9 @@ export function StoriesScreen() {
           </Text>
           <Text style={{ fontSize: typography.sizes.sub, color: colors.muted, marginTop: 4 }}>
             Disappear after 24 hours. No permanent trail.
+          </Text>
+          <Text style={{ fontSize: typography.sizes.micro, color: colors.muted, marginTop: 2, opacity: 0.8 }}>
+            Max photo: {MEDIA_LIMITS.IMAGE.MAX_LABEL} · Max video: {MEDIA_LIMITS.VIDEO.MAX_LABEL} ({MEDIA_LIMITS.VIDEO.MAX_DURATION_LABEL})
           </Text>
         </View>
 
