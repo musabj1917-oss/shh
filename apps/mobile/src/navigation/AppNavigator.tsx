@@ -167,13 +167,15 @@ function LeftNavRail({ state, navigation, insets }: BottomTabBarProps) {
 
       <View style={{ gap: 12, alignItems: 'center' }}>
         {state.routes
-          .filter((r) => ['Camera', 'Inbox', 'People', 'Profile'].includes(r.name))
+          .filter((r) => ['Inbox', 'Stories', 'Camera', 'People', 'Profile'].includes(r.name))
           .map((route) => {
             const index = state.routes.findIndex((r) => r.key === route.key);
             const isFocused = state.index === index;
             const label =
               route.name === 'Inbox'
                 ? 'Chats'
+                : route.name === 'Stories'
+                ? 'Moments'
                 : route.name === 'People'
                 ? 'Friends'
                 : route.name === 'Profile'
@@ -257,7 +259,7 @@ function MainTabs() {
 
   return (
     <Tabs.Navigator
-      initialRouteName="Camera"
+      initialRouteName="Inbox"
       tabBar={(props) => (isWide ? <LeftNavRail {...props} /> : <BottomTabBar {...props} />)}
       screenOptions={{
         headerShown: false,
@@ -265,9 +267,9 @@ function MainTabs() {
         sceneStyle: { backgroundColor: colors.canvas },
       }}
     >
-      <Tabs.Screen name="Camera" component={CameraScreen} options={{ tabBarLabel: 'Camera' }} />
       <Tabs.Screen name="Inbox" component={InboxScreen} options={{ tabBarLabel: 'Chats' }} />
       <Tabs.Screen name="Stories" component={StoriesScreen} options={{ tabBarLabel: 'Moments' }} />
+      <Tabs.Screen name="Camera" component={CameraScreen} options={{ tabBarLabel: 'Camera' }} />
       <Tabs.Screen name="People" component={FriendsScreen} options={{ tabBarLabel: 'People' }} />
       <Tabs.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: 'Settings' }} />
     </Tabs.Navigator>

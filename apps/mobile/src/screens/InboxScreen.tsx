@@ -70,6 +70,7 @@ export function InboxScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState<'all' | 'direct' | 'group'>('all');
   const [unreadOnly, setUnreadOnly] = useState(false);
   const [online, setOnline] = useState(true);
 
@@ -128,12 +129,13 @@ export function InboxScreen() {
     () =>
       conversations.filter(
         (item) =>
+          (filter === 'all' || item.kind === filter) &&
           (!unreadOnly || item.unread_count > 0) &&
           (!query.trim() ||
             item.title?.toLowerCase().includes(query.trim().toLowerCase()) ||
             item.last_message_text?.toLowerCase().includes(query.trim().toLowerCase()))
       ),
-    [conversations, query, unreadOnly]
+    [conversations, query, filter, unreadOnly]
   );
 
   const { width } = useWindowDimensions();
@@ -315,7 +317,7 @@ export function InboxScreen() {
 
           {/* Friends' Stories */}
           {friendStories.map((item) => {
-            const ringColor = item.hasUnviewed ? '#EAB308' : '#6B7280';
+            const ringColor = item.hasUnviewed ? colors.mint : colors.line;
             return (
               <Pressable
                 key={item.userId}
@@ -391,18 +393,21 @@ export function InboxScreen() {
           marginBottom: 14,
         }}
       >
-        <View style={{ flexDirection: 'row', gap: 8 }}>
+        <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
           <Pressable
-            onPress={() => setUnreadOnly(false)}
+            onPress={() => {
+              setFilter('all');
+              setUnreadOnly(false);
+            }}
             style={({ pressed }) => [
               {
                 paddingVertical: 7,
                 paddingHorizontal: 14,
                 borderRadius: radii.pill,
                 borderCurve: 'continuous',
-                backgroundColor: !unreadOnly ? colors.mint : colors.panel,
+                backgroundColor: filter === 'all' && !unreadOnly ? colors.mint : colors.panel,
                 borderWidth: 1,
-                borderColor: !unreadOnly ? colors.mint : colors.line,
+                borderColor: filter === 'all' && !unreadOnly ? colors.mint : colors.line,
                 opacity: pressed ? 0.8 : 1,
               },
             ]}
@@ -411,7 +416,7 @@ export function InboxScreen() {
               style={{
                 fontSize: 12,
                 fontWeight: '700',
-                color: !unreadOnly ? colors.mintContrast : colors.body,
+                color: filter === 'all' && !unreadOnly ? colors.mintContrast : colors.body,
               }}
             >
               All
@@ -419,19 +424,19 @@ export function InboxScreen() {
           </Pressable>
 
           <Pressable
-            onPress={() => setUnreadOnly(true)}
+            onPress={() => {
+              setFilter('direct');
+              setUnreadOnly(false);
+            }}
             style={({ pressed }) => [
               {
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 6,
                 paddingVertical: 7,
                 paddingHorizontal: 14,
                 borderRadius: radii.pill,
                 borderCurve: 'continuous',
-                backgroundColor: unreadOnly ? colors.mint : colors.panel,
+                backgroundColor: filter === 'direct' && !unreadOnly ? colors.mint : colors.panel,
                 borderWidth: 1,
-                borderColor: unreadOnly ? colors.mint : colors.line,
+                borderColor: filter === 'direct' && !unreadOnly ? colors.mint : colors.line,
                 opacity: pressed ? 0.8 : 1,
               },
             ]}
@@ -440,12 +445,70 @@ export function InboxScreen() {
               style={{
                 fontSize: 12,
                 fontWeight: '700',
-                color: unreadOnly ? colors.mintContrast : colors.body,
+                color: filter === 'direct' && !unreadOnly ? colors.mintContrast : colors.body,
               }}
             >
-              Unread
+              Direct
             </Text>
-            {unreadCount > 0 ? (
+          </Pressable>
+
+          <Pressable
+            onPress={() => {
+              setFilter('group');
+              setUnreadOnly(false);
+            }}
+            style={({ pressed }) => [
+              {
+                paddingVertical: 7,
+                paddingHorizontal: 14,
+                borderRadius: radii.pill,
+                borderCurve: 'continuous',
+                backgroundColor: filter === 'group' && !unreadOnly ? colors.mint : colors.panel,
+                borderWidth: 1,
+                borderColor: filter === 'group' && !unreadOnly ? colors.mint : colors.line,
+                opacity: pressed ? 0.8 : 1,
+              },
+            ]}
+          >
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: '700',
+                color: filter === 'group' && !unreadOnly ? colors.mintContrast : colors.body,
+              }}
+            >
+              Groups
+            </Text>
+          </Pressable>
+
+          {unreadCount > 0 ? (
+            <Pressable
+              onPress={() => setUnreadOnly((prev) => !prev)}
+              style={({ pressed }) => [
+                {
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 6,
+                  paddingVertical: 7,
+                  paddingHorizontal: 12,
+                  borderRadius: radii.pill,
+                  borderCurve: 'continuous',
+                  backgroundColor: unreadOnly ? colors.mint : colors.panel,
+                  borderWidth: 1,
+                  borderColor: unreadOnly ? colors.mint : colors.line,
+                  opacity: pressed ? 0.8 : 1,
+                },
+              ]}
+            >
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontWeight: '700',
+                  color: unreadOnly ? colors.mintContrast : colors.body,
+                }}
+              >
+                Unread
+              </Text>
               <View
                 style={{
                   minWidth: 18,
@@ -467,8 +530,8 @@ export function InboxScreen() {
                   {unreadCount}
                 </Text>
               </View>
-            ) : null}
-          </Pressable>
+            </Pressable>
+          ) : null}
         </View>
 
         <Pressable

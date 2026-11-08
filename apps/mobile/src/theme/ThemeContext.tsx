@@ -82,7 +82,7 @@ export function useTheme(): ThemeContextValue {
     const fallbackTheme = themes[defaultThemeId];
     return {
       theme: fallbackTheme,
-      preference: 'sumi',
+      preference: 'haiku',
       setThemePreference: async () => {},
       isDark: true,
       colors: fallbackTheme.colors,

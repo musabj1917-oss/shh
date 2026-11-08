@@ -1079,7 +1079,7 @@ export function ProfileScreen() {
             <View style={{ gap: 8 }}>
               {(
                 [
-                  ['haiku', 'Haiku (Default)', 'Pitch obsidian black with signature warm gold accent', '#FFD60A'],
+                  ['haiku', 'Haiku Noir (Web Default)', 'Pitch obsidian canvas with radiant crimson primary accents', '#FF2A3B'],
                   ['sakura', 'Sakura', 'Deep plum obsidian with radiant sakura petal pink', '#FF8FB8'],
                   ['matcha', 'Matcha', 'Basalt forest canvas with energetic matcha lime green', '#8FD16A'],
                   ['ocean', 'Ocean', 'Deep abyss navy with luminous ocean cyan blue', '#4DB8FF'],
