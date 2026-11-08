@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Ably from 'ably';
 import {
+  Animated,
   FlatList,
   Image,
   Keyboard,
@@ -27,6 +28,14 @@ import { useTheme } from '../theme/ThemeContext';
 import { useImmersive } from '../system/immersive';
 import { ExpiringBubble, ExpiryCaption, fetchMediaUrl, MediaImage, VoiceNoteBubble } from '../media';
 import { useEscapeKey } from '../theme/webStyles';
+import {
+  cancelVoiceRecording,
+  RecordedAudio,
+  setInterruptionHandler,
+  startVoiceRecording,
+  stopVoiceRecording,
+} from '../voice/voiceRecorder';
+import { MEDIA_LIMITS, validateMediaSize } from '../constants/mediaLimits';
 
 type Props = Partial<NativeStackScreenProps<RootStackParamList, 'Chat'>> & {
   route?: any;
@@ -533,28 +542,50 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
 
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
   const [voiceSeconds, setVoiceSeconds] = useState(0);
-  const mediaRecorderRef = useRef<any>(null);
-  const audioChunksRef = useRef<any[]>([]);
   const voiceTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const [, setFailedVoiceNote] = useState<RecordedAudio | null>(null);
 
   useEffect(() => {
-    return () => {
+    if (isRecordingVoice) {
+      const loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, { toValue: 0.35, duration: 600, useNativeDriver: true }),
+          Animated.timing(pulseAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+        ])
+      );
+      loop.start();
+      return () => loop.stop();
+    } else {
+      pulseAnim.setValue(1);
+    }
+  }, [isRecordingVoice, pulseAnim]);
+
+  useEffect(() => {
+    setInterruptionHandler(() => {
       if (voiceTimerRef.current) clearInterval(voiceTimerRef.current);
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-        try {
-          mediaRecorderRef.current.stop();
-          if (mediaRecorderRef.current.stream?.getTracks) {
-            mediaRecorderRef.current.stream.getTracks().forEach((t: any) => t.stop());
-          }
-        } catch {}
-      }
+      setIsRecordingVoice(false);
+      setVoiceSeconds(0);
+      setError('Voice recording was interrupted (call or app backgrounded).');
+    });
+    return () => {
+      setInterruptionHandler(null);
+      if (voiceTimerRef.current) clearInterval(voiceTimerRef.current);
+      void cancelVoiceRecording();
     };
   }, []);
 
   const uploadMedia = async (mode: 'photo' | 'video' | 'mixed' | 'audio' = 'mixed') => {
     setError('');
     const libraryMediaType = mode === 'photo' ? 'photo' : mode === 'video' ? 'video' : 'mixed';
-    const picked = await launchImageLibrary({ mediaType: libraryMediaType, selectionLimit: 1, quality: 0.8 });
+    const picked = await launchImageLibrary({
+      mediaType: libraryMediaType,
+      selectionLimit: 1,
+      quality: MEDIA_LIMITS.IMAGE.COMPRESSION_QUALITY,
+      maxWidth: MEDIA_LIMITS.IMAGE.MAX_WIDTH,
+      maxHeight: MEDIA_LIMITS.IMAGE.MAX_HEIGHT,
+      videoQuality: 'high',
+    });
     if (picked.didCancel) return;
     if (picked.errorCode) {
       setError(picked.errorMessage || 'Could not open media library.');
@@ -573,11 +604,44 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
         ? 'video'
         : 'image';
     const mimeType = rawType;
-    const byteSize = asset.fileSize || 0;
-    if (!byteSize) {
-      setError('Could not read media size.');
+    let byteSize = asset.fileSize || 0;
+
+    // Check duration for video
+    if (mediaType === 'video' && asset.duration && asset.duration > MEDIA_LIMITS.VIDEO.MAX_DURATION_SECONDS) {
+      const msg = `Video duration (${Math.round(asset.duration)}s) exceeds the maximum allowed duration of ${MEDIA_LIMITS.VIDEO.MAX_DURATION_LABEL}.`;
+      setError(msg);
+      setModalDialog({
+        visible: true,
+        title: 'Video Too Long',
+        message: msg,
+        buttons: [{ text: 'OK', style: 'primary' }],
+      });
       return;
     }
+
+    if (!byteSize) {
+      try {
+        const resp = await fetch(asset.uri);
+        const b = await resp.blob();
+        byteSize = b.size;
+      } catch {
+        byteSize = 1024 * 1024;
+      }
+    }
+
+    // Pre-upload size validation against server limits
+    const check = validateMediaSize(mediaType, byteSize);
+    if (!check.valid && check.error) {
+      setError(check.error);
+      setModalDialog({
+        visible: true,
+        title: 'File Too Large',
+        message: check.error,
+        buttons: [{ text: 'OK', style: 'primary' }],
+      });
+      return;
+    }
+
     setUploading(true);
     try {
       const intent = await api<{
@@ -613,142 +677,125 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
     }
   };
 
-  const startVoiceRecording = async () => {
+  const handleStartVoiceRecording = async () => {
     setError('');
-    const nav = (globalThis as any).navigator;
-    if (nav?.mediaDevices?.getUserMedia && typeof (globalThis as any).MediaRecorder !== 'undefined') {
-      try {
-        const stream = await nav.mediaDevices.getUserMedia({ audio: true });
-        const MR = (globalThis as any).MediaRecorder;
-        const mimeType = MR.isTypeSupported('audio/webm')
-          ? 'audio/webm'
-          : MR.isTypeSupported('audio/mp4')
-          ? 'audio/mp4'
-          : 'audio/ogg';
-        audioChunksRef.current = [];
-        const recorder = new MR(stream, { mimeType });
-        recorder.ondataavailable = (e: any) => {
-          if (e.data && e.data.size > 0) {
-            audioChunksRef.current.push(e.data);
-          }
-        };
-        recorder.start(250);
-        mediaRecorderRef.current = recorder;
-
-        setVoiceSeconds(0);
-        setIsRecordingVoice(true);
-
-        if (voiceTimerRef.current) clearInterval(voiceTimerRef.current);
-        voiceTimerRef.current = setInterval(() => {
-          setVoiceSeconds((prev) => {
-            if (prev >= 119) {
-              void sendVoiceRecording();
-              return 120;
-            }
-            return prev + 1;
-          });
-        }, 1000);
-      } catch {
-        setError('Microphone access was denied or unavailable.');
-      }
-    } else {
+    const res = await startVoiceRecording();
+    if (res.error) {
+      setError(res.error);
       setModalDialog({
         visible: true,
-        title: 'Voice Note',
-        message: 'Direct live mic capture is available in browser/web. You can select an audio file or voice clip to send:',
-        buttons: [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Choose Audio File',
-            style: 'primary',
-            onPress: () => {
-              void uploadMedia('audio');
-            },
-          },
-        ],
+        title: 'Microphone Permission Required',
+        message: res.error,
+        buttons: [{ text: 'OK', style: 'primary' }],
       });
+      return;
     }
+
+    setVoiceSeconds(0);
+    setIsRecordingVoice(true);
+
+    if (voiceTimerRef.current) clearInterval(voiceTimerRef.current);
+    voiceTimerRef.current = setInterval(() => {
+      setVoiceSeconds((prev) => {
+        if (prev >= MEDIA_LIMITS.VOICE.MAX_DURATION_SECONDS - 1) {
+          void handleSendVoiceRecording();
+          return MEDIA_LIMITS.VOICE.MAX_DURATION_SECONDS;
+        }
+        return prev + 1;
+      });
+    }, 1000);
   };
 
-  const cancelVoiceRecording = () => {
+  const handleCancelVoiceRecording = async () => {
     if (voiceTimerRef.current) clearInterval(voiceTimerRef.current);
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      try {
-        mediaRecorderRef.current.stop();
-        if (mediaRecorderRef.current.stream?.getTracks) {
-          mediaRecorderRef.current.stream.getTracks().forEach((t: any) => t.stop());
-        }
-      } catch {}
-    }
-    mediaRecorderRef.current = null;
-    audioChunksRef.current = [];
+    await cancelVoiceRecording();
     setIsRecordingVoice(false);
     setVoiceSeconds(0);
   };
 
-  const sendVoiceRecording = async () => {
-    if (voiceTimerRef.current) clearInterval(voiceTimerRef.current);
-    const rec = mediaRecorderRef.current;
-    if (rec && rec.state !== 'inactive') {
-      try {
-        rec.stop();
-        if (rec.stream?.getTracks) {
-          rec.stream.getTracks().forEach((t: any) => t.stop());
-        }
-      } catch {}
+  const uploadAndSendVoice = async (recorded: RecordedAudio) => {
+    setUploading(true);
+    setError('');
+    try {
+      const byteSize = recorded.byteSize || 1024;
+      const sizeValidation = validateMediaSize('voice', byteSize);
+      if (!sizeValidation.valid && sizeValidation.error) {
+        throw new Error(sizeValidation.error);
+      }
+
+      const mimeType = recorded.mimeType || 'audio/mp4';
+      const intent = await api<{
+        attachmentId: string;
+        upload: { url: string; method: 'PUT'; headers: Record<string, string>; mode: 'proxy' | 'signed' };
+      }>('/media/upload-intents', {
+        method: 'POST',
+        body: JSON.stringify({
+          purpose: 'message',
+          conversationId,
+          mediaType: 'voice',
+          mimeType,
+          byteSize,
+        }),
+      });
+
+      let uploadBody: any;
+      if (recorded.blob) {
+        uploadBody = recorded.blob;
+      } else {
+        const resp = await fetch(recorded.uri);
+        uploadBody = await resp.blob();
+      }
+
+      const uploadRes = await fetch(intent.upload.url, {
+        method: intent.upload.method,
+        headers: intent.upload.headers,
+        body: uploadBody,
+      });
+
+      if (!uploadRes.ok) throw new Error(`Upload failed (${uploadRes.status}).`);
+      if (intent.upload.mode === 'signed') {
+        await api(`/media/${intent.attachmentId}/complete`, { method: 'POST' });
+      }
+
+      await api(`/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({ attachmentId: intent.attachmentId }),
+      });
+
+      setFailedVoiceNote(null);
+      await load();
+    } catch (err: any) {
+      setFailedVoiceNote(recorded);
+      const msg = messageForError(err) || 'Voice note upload failed.';
+      setError(msg);
+      setModalDialog({
+        visible: true,
+        title: 'Voice Note Failed',
+        message: `${msg}\nWould you like to retry sending this voice note?`,
+        buttons: [
+          { text: 'Discard', style: 'cancel', onPress: () => setFailedVoiceNote(null) },
+          { text: 'Retry', style: 'primary', onPress: () => void uploadAndSendVoice(recorded) },
+        ],
+      });
+    } finally {
+      setUploading(false);
     }
+  };
+
+  const handleSendVoiceRecording = async () => {
+    if (voiceTimerRef.current) clearInterval(voiceTimerRef.current);
     setIsRecordingVoice(false);
 
-    setTimeout(async () => {
-      try {
-        const mimeType = rec?.mimeType || 'audio/webm';
-        const blob = new Blob(audioChunksRef.current, { type: mimeType });
-        if (blob.size < 500) {
-          setError('Voice note was too short.');
-          return;
-        }
-
-        setUploading(true);
-        const byteSize = blob.size;
-        const intent = await api<{
-          attachmentId: string;
-          upload: { url: string; method: 'PUT'; headers: Record<string, string>; mode: 'proxy' | 'signed' };
-        }>('/media/upload-intents', {
-          method: 'POST',
-          body: JSON.stringify({
-            purpose: 'message',
-            conversationId,
-            mediaType: 'voice',
-            mimeType,
-            byteSize,
-          }),
-        });
-
-        const uploadRes = await fetch(intent.upload.url, {
-          method: intent.upload.method,
-          headers: intent.upload.headers,
-          body: blob,
-        });
-
-        if (!uploadRes.ok) throw new Error(`Upload failed (${uploadRes.status}).`);
-        if (intent.upload.mode === 'signed') {
-          await api(`/media/${intent.attachmentId}/complete`, { method: 'POST' });
-        }
-
-        await api(`/conversations/${conversationId}/messages`, {
-          method: 'POST',
-          body: JSON.stringify({ attachmentId: intent.attachmentId }),
-        });
-
-        await load();
-      } catch (err) {
-        setError(messageForError(err));
-      } finally {
-        setUploading(false);
-        audioChunksRef.current = [];
-        mediaRecorderRef.current = null;
+    try {
+      const recorded = await stopVoiceRecording();
+      if (recorded.durationMs < 500) {
+        setError('Voice note was too short.');
+        return;
       }
-    }, 250);
+      await uploadAndSendVoice(recorded);
+    } catch (err: any) {
+      setError(messageForError(err) || 'Could not save voice note.');
+    }
   };
 
   const openAttachmentMenu = () => {
@@ -759,13 +806,13 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
       buttons: [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: '📷 Photo',
+          text: `📷 Photo (Max ${MEDIA_LIMITS.IMAGE.MAX_LABEL})`,
           onPress: () => {
             void uploadMedia('photo');
           },
         },
         {
-          text: '🎥 Video Message (10m Expiry)',
+          text: `🎥 Video Message (Max ${MEDIA_LIMITS.VIDEO.MAX_LABEL}, ${MEDIA_LIMITS.VIDEO.MAX_DURATION_LABEL})`,
           onPress: () => {
             void uploadMedia('video');
           },
@@ -1271,12 +1318,21 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <View
+                <Animated.View
                   style={{
                     width: 10,
                     height: 10,
                     borderRadius: 5,
                     backgroundColor: '#EF4444',
+                    opacity: pulseAnim,
+                    transform: [
+                      {
+                        scale: pulseAnim.interpolate({
+                          inputRange: [0.35, 1],
+                          outputRange: [0.85, 1.25],
+                        }),
+                      },
+                    ],
                   }}
                 />
                 <Text style={{ fontWeight: '800', color: colors.ink, fontSize: 13 }}>
@@ -1289,7 +1345,7 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
 
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <Pressable
-                  onPress={cancelVoiceRecording}
+                  onPress={handleCancelVoiceRecording}
                   style={{
                     paddingHorizontal: 12,
                     paddingVertical: 6,
@@ -1303,7 +1359,7 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
                 </Pressable>
 
                 <Pressable
-                  onPress={sendVoiceRecording}
+                  onPress={handleSendVoiceRecording}
                   style={{
                     paddingHorizontal: 14,
                     paddingVertical: 6,
@@ -1426,7 +1482,9 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
                 </Pressable>
               ) : (
                 <Pressable
-                  onPress={uploading ? undefined : startVoiceRecording}
+                  onPress={uploading ? undefined : handleStartVoiceRecording}
+                  onLongPress={uploading ? undefined : handleStartVoiceRecording}
+                  delayLongPress={200}
                   accessibilityRole="button"
                   accessibilityLabel="Record voice note"
                   style={({ pressed }) => [

@@ -100,39 +100,70 @@ export async function sendLocationPin(conversationId: string, params: {
   });
 }
 
+import { validateMediaSize } from '../constants/mediaLimits';
+
 export interface UploadMediaOptions {
-  uri: string;
-  purpose?: 'message' | 'story' | 'avatar' | 'group';
+  uri?: string;
+  targetUri?: string;
+  purpose?: 'message' | 'story' | 'avatar' | 'group' | 'report';
   conversationId?: string;
   groupId?: string;
-  mediaType?: 'image' | 'video';
+  mediaType?: 'image' | 'video' | 'voice';
   mimeType?: string;
+  byteSize?: number;
   onProgress?: (progress: number) => void;
 }
 
 export async function uploadMedia(options: UploadMediaOptions): Promise<{ attachmentId: string; mediaId: string }> {
-  const { uri, purpose = 'message', conversationId, groupId, onProgress } = options;
-  const isVideo = options.mediaType === 'video' || options.mimeType?.startsWith('video/') || uri.endsWith('.mp4') || uri.endsWith('.mov');
-  const mediaType: 'image' | 'video' = isVideo ? 'video' : 'image';
+  const targetUri = options.targetUri || options.uri || '';
+  const { purpose = 'message', conversationId, groupId, onProgress } = options;
+  const isVideo =
+    options.mediaType === 'video' ||
+    options.mimeType?.startsWith('video/') ||
+    targetUri.endsWith('.mp4') ||
+    targetUri.endsWith('.mov') ||
+    targetUri.endsWith('.webm');
+  const isVoice =
+    options.mediaType === 'voice' ||
+    options.mimeType?.startsWith('audio/') ||
+    targetUri.endsWith('.m4a') ||
+    targetUri.endsWith('.aac') ||
+    targetUri.endsWith('.wav');
 
-  let targetUri = uri;
-  let mimeType = options.mimeType || (isVideo ? 'video/mp4' : 'image/jpeg');
+  const mediaType: 'image' | 'video' | 'voice' = options.mediaType
+    ? options.mediaType
+    : isVoice
+    ? 'voice'
+    : isVideo
+    ? 'video'
+    : 'image';
 
-  let byteSize = 0;
-  try {
-    const resp = await fetch(targetUri);
-    const blob = await resp.blob();
-    byteSize = blob.size;
-  } catch {
-    byteSize = 1024 * 1024; // Safe fallback
+  let mimeType =
+    options.mimeType ||
+    (mediaType === 'voice'
+      ? 'audio/mp4'
+      : mediaType === 'video'
+      ? 'video/mp4'
+      : 'image/jpeg');
+
+  let byteSize = options.byteSize || 0;
+  if (!byteSize && targetUri) {
+    try {
+      const resp = await fetch(targetUri);
+      const blob = await resp.blob();
+      byteSize = blob.size;
+    } catch {
+      byteSize = 1024 * 1024; // Safe fallback
+    }
   }
 
-  // Validate limits per MEDIA_RULES: photo 10 MB, video 50 MB
-  if (mediaType === 'image' && byteSize > 10 * 1024 * 1024) {
-    throw new Error('Photo must be 10 MB or smaller.');
-  }
-  if (mediaType === 'video' && byteSize > 50 * 1024 * 1024) {
-    throw new Error('Video must be 50 MB or smaller.');
+  // Enforce upload limits per MEDIA_LIMITS
+  const validation = validateMediaSize(
+    purpose === 'avatar' ? 'avatar' : mediaType,
+    byteSize
+  );
+  if (!validation.valid && validation.error) {
+    throw new Error(validation.error);
   }
 
   onProgress?.(0.1);

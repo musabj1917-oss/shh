@@ -47,6 +47,10 @@
 	</dict>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Haiku Messenger lets you choose a photo to share in a conversation or story.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Haiku Messenger needs microphone access to record and send private voice notes.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Haiku Messenger needs camera access to take ephemeral photos and videos.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

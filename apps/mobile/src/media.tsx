@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Image, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api } from './api/client';
 import { useTheme } from './theme/ThemeContext';
 import { PauseIcon, PlayIcon } from './components/Icons';
@@ -291,6 +291,8 @@ export const ExpiringBubble = memo(function ExpiringBubble({
   );
 });
 
+import { getVoicePlaybackStatus, pauseVoiceAudio, playVoiceAudio, stopVoiceAudio } from './voice/voiceRecorder';
+
 export interface VoiceNoteBubbleProps {
   attachmentId: string;
   mine: boolean;
@@ -311,64 +313,60 @@ export const VoiceNoteBubble = memo(function VoiceNoteBubble({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [audioDuration, setAudioDuration] = useState(duration || 0);
-  const audioRef = useRef<any>(null);
 
   useEffect(() => {
     return () => {
-      if (audioRef.current && typeof audioRef.current.pause === 'function') {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      void stopVoiceAudio();
     };
   }, []);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
+    if (isPlaying) {
+      interval = setInterval(async () => {
+        try {
+          const status = await getVoicePlaybackStatus();
+          if (status.isPlaying) {
+            setCurrentTime(Math.round(status.currentPositionMs / 1000));
+            if (status.durationMs > 0 && !audioDuration) {
+              setAudioDuration(Math.round(status.durationMs / 1000));
+            }
+          }
+        } catch {}
+      }, 250);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isPlaying, audioDuration]);
 
   const togglePlay = useCallback(async () => {
     if (!url) return;
 
-    if (Platform.OS === 'web' && typeof (globalThis as any).Audio !== 'undefined') {
-      if (!audioRef.current) {
-        const audio = new (globalThis as any).Audio(url);
-        audioRef.current = audio;
-
-        audio.onloadedmetadata = () => {
-          if (audio.duration && !Number.isNaN(audio.duration)) {
-            setAudioDuration(Math.round(audio.duration));
-          }
-        };
-
-        audio.ontimeupdate = () => {
-          setCurrentTime(Math.round(audio.currentTime));
-        };
-
-        audio.onended = () => {
-          setIsPlaying(false);
-          setCurrentTime(0);
-        };
-
-        audio.onerror = () => {
-          setIsPlaying(false);
-        };
-      }
-
-      if (isPlaying) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-      } else {
-        try {
-          await audioRef.current.play();
-          setIsPlaying(true);
-        } catch {
-          setIsPlaying(false);
-        }
-      }
+    if (isPlaying) {
+      await pauseVoiceAudio();
+      setIsPlaying(false);
     } else {
       try {
-        await Linking.openURL(url);
-      } catch (err) {
-        console.warn('Could not open audio file', err);
+        setIsPlaying(true);
+        const { durationMs } = await playVoiceAudio(
+          url,
+          () => {
+            setIsPlaying(false);
+            setCurrentTime(0);
+          },
+          () => {
+            setIsPlaying(false);
+          }
+        );
+        if (durationMs > 0 && !audioDuration) {
+          setAudioDuration(Math.round(durationMs / 1000));
+        }
+      } catch {
+        setIsPlaying(false);
       }
     }
-  }, [url, isPlaying]);
+  }, [url, isPlaying, audioDuration]);
 
   const effectiveDuration = audioDuration || duration || 0;
   const progressRatio = effectiveDuration > 0 ? Math.min(1, currentTime / effectiveDuration) : 0;
