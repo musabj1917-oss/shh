@@ -2,6 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from '
 import * as Ably from 'ably';
 import {
   FlatList,
+  Image,
   Keyboard,
   KeyboardAvoidingView,
   Linking,
@@ -16,7 +17,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image as ExpoImage } from 'expo-image';
 import type { RootStackParamList } from '../navigation/types';
 import { api, apiUrl, getSessionToken, messageForError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
@@ -1102,10 +1102,10 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
               });
             }}
           >
-            <ExpoImage
+            <Image
               source={{ uri: viewerImage }}
               style={{ width: '100%', height: '100%' }}
-              contentFit="contain"
+              resizeMode="contain"
             />
             {viewerControls ? (
               <View

@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Image as ExpoImage } from 'expo-image';
+import { Animated, Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api } from './api/client';
 import { useTheme } from './theme/ThemeContext';
 
@@ -163,13 +162,11 @@ export const MediaImage = memo(function MediaImage({
         </View>
       )}
 
-      {url && (
-        <ExpoImage
+      {url && imageSource && (
+        <Image
           source={imageSource}
           style={[StyleSheet.absoluteFill, { borderRadius: radii.md }]}
-          contentFit="cover"
-          cachePolicy="memory-disk"
-          transition={150}
+          resizeMode="cover"
           onError={() => {
             reload();
           }}

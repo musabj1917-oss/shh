@@ -1,9 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { Platform, useColorScheme } from 'react-native';
+import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as SecureStore from 'expo-secure-store';
-import Constants, { ExecutionEnvironment } from 'expo-constants';
-import * as DynamicAppIcon from 'expo-dynamic-app-icon';
 import {
   ThemeColors,
   ThemeDefinition,
@@ -38,15 +35,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     async function loadSavedTheme() {
       try {
-        let saved: string | null = null;
-        if (Platform.OS !== 'web') {
-          try {
-            saved = await SecureStore.getItemAsync(THEME_STORAGE_KEY);
-          } catch {}
-        }
-        if (!saved) {
-          saved = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-        }
+        const saved = await AsyncStorage.getItem(THEME_STORAGE_KEY);
         if (saved && (saved in themes || saved === 'system')) {
           setPreference(saved as ThemePreference);
         }
@@ -60,26 +49,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const handleSetPreference = async (newPref: ThemePreference) => {
     setPreference(newPref);
     try {
-      if (Platform.OS !== 'web') {
-        try {
-          await SecureStore.setItemAsync(THEME_STORAGE_KEY, newPref);
-        } catch {}
-      }
       await AsyncStorage.setItem(THEME_STORAGE_KEY, newPref);
-
-      // Attempt to change native launcher icon (dev/prod native builds only, skip in Expo Go)
-      if (Platform.OS !== 'web' && newPref !== 'system') {
-        const isExpoGo =
-          Constants?.appOwnership === 'expo' ||
-          Constants?.executionEnvironment === ExecutionEnvironment?.StoreClient;
-        if (!isExpoGo && typeof DynamicAppIcon?.setAppIcon === 'function') {
-          try {
-            DynamicAppIcon.setAppIcon(newPref);
-          } catch (iconErr) {
-            console.warn('Could not update launcher icon:', iconErr);
-          }
-        }
-      }
     } catch (err) {
       console.warn('Could not persist theme preference:', err);
     }

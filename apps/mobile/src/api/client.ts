@@ -118,43 +118,13 @@ export async function uploadMedia(options: UploadMediaOptions): Promise<{ attach
   let targetUri = uri;
   let mimeType = options.mimeType || (isVideo ? 'video/mp4' : 'image/jpeg');
 
-  // Compress photo if image
-  if (mediaType === 'image') {
-    try {
-      const { manipulateAsync, SaveFormat } = await import('expo-image-manipulator');
-      const manipResult = await manipulateAsync(
-        targetUri,
-        [{ resize: { width: 1600 } }],
-        { compress: 0.8, format: SaveFormat.JPEG }
-      );
-      targetUri = manipResult.uri;
-      mimeType = 'image/jpeg';
-    } catch {
-      // Fallback to original URI if manipulation fails or running in test
-    }
-  }
-
   let byteSize = 0;
-  const { Platform } = await import('react-native');
-
-  if (Platform.OS !== 'web') {
-    try {
-      const FileSystem = await import('expo-file-system');
-      const info = await FileSystem.getInfoAsync(targetUri);
-      if (info.exists && typeof (info as any).size === 'number') {
-        byteSize = (info as any).size;
-      }
-    } catch {}
-  }
-
-  if (!byteSize) {
-    try {
-      const resp = await fetch(targetUri);
-      const blob = await resp.blob();
-      byteSize = blob.size;
-    } catch {
-      byteSize = 1024 * 1024; // Safe fallback
-    }
+  try {
+    const resp = await fetch(targetUri);
+    const blob = await resp.blob();
+    byteSize = blob.size;
+  } catch {
+    byteSize = 1024 * 1024; // Safe fallback
   }
 
   // Validate limits per MEDIA_RULES: photo 10 MB, video 50 MB
@@ -195,25 +165,13 @@ export async function uploadMedia(options: UploadMediaOptions): Promise<{ attach
 
   onProgress?.(0.3);
 
-  if (Platform.OS !== 'web') {
-    const FileSystem = await import('expo-file-system');
-    const uploadResult = await FileSystem.uploadAsync(uploadInfo.url, targetUri, {
-      httpMethod: 'PUT',
-      uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
-      headers: uploadInfo.headers,
-    });
-    if (uploadResult.status < 200 || uploadResult.status >= 300) {
-      throw new Error(`Upload failed (${uploadResult.status}).`);
-    }
-  } else {
-    const blob = await (await fetch(targetUri)).blob();
-    const result = await fetch(uploadInfo.url, {
-      method: uploadInfo.method || 'PUT',
-      headers: uploadInfo.headers,
-      body: blob,
-    });
-    if (!result.ok) throw new Error(`Upload failed (${result.status}).`);
-  }
+  const blob = await (await fetch(targetUri)).blob();
+  const result = await fetch(uploadInfo.url, {
+    method: uploadInfo.method || 'PUT',
+    headers: uploadInfo.headers,
+    body: blob,
+  });
+  if (!result.ok) throw new Error(`Upload failed (${result.status}).`);
 
   onProgress?.(0.85);
 

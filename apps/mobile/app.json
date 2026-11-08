@@ -18,51 +18,6 @@
       "display": "standalone",
       "lang": "en"
     },
-    "plugins": [
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "Allow Haiku Messenger to access your camera to take photos and record videos.",
-          "microphonePermission": "Allow Haiku Messenger to access your microphone for video and voice notes."
-        }
-      ],
-      [
-        "expo-media-library",
-        {
-          "photosPermission": "Allow Haiku Messenger to access your photos to share media.",
-          "savePhotosPermission": "Allow Haiku Messenger to save photos and videos to your library."
-        }
-      ],
-      [
-        "expo-dynamic-app-icon",
-        {
-          "haiku": {
-            "image": "./assets/icons/haiku/icon-haiku.png",
-            "prerendered": true
-          },
-          "sakura": {
-            "image": "./assets/icons/sakura/icon-sakura.png",
-            "prerendered": true
-          },
-          "matcha": {
-            "image": "./assets/icons/matcha/icon-matcha.png",
-            "prerendered": true
-          },
-          "ocean": {
-            "image": "./assets/icons/ocean/icon-ocean.png",
-            "prerendered": true
-          },
-          "ember": {
-            "image": "./assets/icons/ember/icon-ember.png",
-            "prerendered": true
-          },
-          "paper": {
-            "image": "./assets/icons/paper/icon-paper.png",
-            "prerendered": true
-          }
-        }
-      ]
-    ],
     "android": {
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {

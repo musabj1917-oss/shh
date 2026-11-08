@@ -10,7 +10,6 @@ import {
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Constants from 'expo-constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api } from './api/client';
 import { useTheme } from './theme/ThemeContext';
@@ -39,7 +38,7 @@ export async function checkAppUpdate(force = false): Promise<AppVersionInfo | nu
       }
     }
 
-    const currentVersion = Constants?.expoConfig?.version || '0.1.0';
+    const currentVersion = '0.1.0';
     const platform = Platform.OS === 'ios' ? 'ios' : 'android';
 
     const info = await api<AppVersionInfo>(

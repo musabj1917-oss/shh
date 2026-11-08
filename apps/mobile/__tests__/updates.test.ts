@@ -16,13 +16,13 @@ describe('updates module', () => {
 
   it('fails silently and returns null when offline', async () => {
     // When fetch fails, checkAppUpdate should return null without throwing
-    const originalFetch = global.fetch;
-    global.fetch = jest.fn().mockRejectedValue(new Error('Offline'));
+    const originalFetch = globalThis.fetch;
+    (globalThis as any).fetch = jest.fn().mockRejectedValue(new Error('Offline'));
     try {
       const result = await checkAppUpdate(true);
       expect(result).toBeNull();
     } finally {
-      global.fetch = originalFetch;
+      globalThis.fetch = originalFetch;
     }
   });
 });

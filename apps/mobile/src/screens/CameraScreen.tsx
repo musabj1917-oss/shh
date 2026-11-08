@@ -11,8 +11,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { checkPermission, requestPermission } from '../permissions';
 import type { RootStackParamList } from '../navigation/types';
 import { useTheme } from '../theme/ThemeContext';
 import { useImmersive } from '../system/immersive';
@@ -24,8 +24,16 @@ export function CameraScreen() {
   const isFocused = useIsFocused();
   const { setImmersive } = useImmersive();
 
-  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
-  const [micPermission, requestMicPermission] = useMicrophonePermissions();
+  const [hasPermission, setHasPermission] = useState(true);
+
+  const checkCamPermission = useCallback(async () => {
+    const perm = await checkPermission('camera');
+    setHasPermission(perm === 'granted');
+  }, []);
+
+  useEffect(() => {
+    void checkCamPermission();
+  }, [checkCamPermission]);
 
   const [facing, setFacing] = useState<'back' | 'front'>('back');
   const [flash, setFlash] = useState<'off' | 'on' | 'auto'>('off');
@@ -113,6 +121,7 @@ export function CameraScreen() {
         mediaType: 'photo',
         quality: 0.8,
         saveToPhotos: true,
+        cameraType: facing,
       });
       const asset = res.assets?.[0];
       if (asset?.uri) {
@@ -124,7 +133,7 @@ export function CameraScreen() {
     } catch (e) {
       console.warn('Native camera launch failed', e);
     }
-  }, [isRecording, navigation]);
+  }, [facing, isRecording, navigation]);
 
   const stopRecording = useCallback(() => {
     if (cameraRef.current && isRecording && typeof cameraRef.current.stopRecording === 'function') {
@@ -179,6 +188,7 @@ export function CameraScreen() {
         mediaType: 'video',
         videoQuality: 'high',
         durationLimit: 30,
+        cameraType: facing,
       });
       const asset = res.assets?.[0];
       if (asset?.uri) {
@@ -190,7 +200,7 @@ export function CameraScreen() {
     } catch (e) {
       console.warn('Native video launch failed', e);
     }
-  }, [isRecording, navigation, stopRecording]);
+  }, [facing, isRecording, navigation, stopRecording]);
 
   const pickFromGallery = useCallback(async () => {
     if (Platform.OS === 'web') {
@@ -354,10 +364,7 @@ export function CameraScreen() {
   }
 
   // Permission not granted state
-  const hasCameraPerm = cameraPermission?.granted;
-  const hasMicPerm = micPermission?.granted;
-
-  if (!hasCameraPerm || !hasMicPerm) {
+  if (!hasPermission) {
     return (
       <View
         style={[
@@ -404,9 +411,10 @@ export function CameraScreen() {
 
         <Pressable
           onPress={async () => {
-            const camRes = await requestCameraPermission();
-            const micRes = await requestMicPermission();
-            if (!camRes.granted || !micRes.granted) {
+            const camRes = await requestPermission('camera');
+            if (camRes === 'granted') {
+              setHasPermission(true);
+            } else {
               await Linking.openSettings();
             }
           }}
@@ -478,13 +486,8 @@ export function CameraScreen() {
         </View>
       ) : null}
       {isFocused ? (
-        <CameraView
-          ref={cameraRef}
-          style={StyleSheet.absoluteFill}
-          facing={facing}
-          flash={flash}
-          zoom={zoom}
-          mode="video"
+        <View
+          style={[StyleSheet.absoluteFill, { backgroundColor: '#0A0A0A' }]}
         >
           <Pressable
             style={StyleSheet.absoluteFill}
@@ -515,7 +518,7 @@ export function CameraScreen() {
               />
             ) : null}
           </Pressable>
-        </CameraView>
+        </View>
       ) : null}
 
       {/* Top Controls Bar */}

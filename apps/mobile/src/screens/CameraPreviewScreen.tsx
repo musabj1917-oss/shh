@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -14,8 +15,6 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image as ExpoImage } from 'expo-image';
-import * as MediaLibrary from 'expo-media-library';
 import type { RootStackParamList } from '../navigation/types';
 import { api, messageForError } from '../api/client';
 import { uploadMedia } from '../api';
@@ -73,19 +72,9 @@ export function CameraPreviewScreen({ route, navigation }: Props) {
   }, []);
 
   const saveToDevice = useCallback(async () => {
-    try {
-      const perm = await MediaLibrary.requestPermissionsAsync();
-      if (!perm.granted) {
-        Alert.alert('Permission Denied', 'Please allow photo library access in Settings to save media.');
-        return;
-      }
-      await MediaLibrary.saveToLibraryAsync(uri);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
-    } catch {
-      Alert.alert('Save Failed', 'Could not save media to device library.');
-    }
-  }, [uri]);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  }, []);
 
   const postToStory = useCallback(async () => {
     if (busy) return;
@@ -228,10 +217,10 @@ export function CameraPreviewScreen({ route, navigation }: Props) {
     <View style={styles.container}>
       {/* Fullscreen Photo or Video Placeholder Preview */}
       {mediaType === 'photo' ? (
-        <ExpoImage
+        <Image
           source={{ uri }}
           style={StyleSheet.absoluteFill}
-          contentFit="cover"
+          resizeMode="cover"
         />
       ) : (
         <View style={[StyleSheet.absoluteFill, { backgroundColor: '#111827', justifyContent: 'center', alignItems: 'center' }]}>

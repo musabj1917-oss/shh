@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Animated,
   FlatList,
+  Image,
   Modal,
   PanResponder,
   Pressable,
@@ -12,7 +13,6 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image as ExpoImage } from 'expo-image';
 import type { RootStackParamList } from '../navigation/types';
 import { api, messageForError } from '../api/client';
 import { fetchMediaUrl } from '../media';
@@ -248,11 +248,10 @@ export function StoryViewScreen({ route, navigation }: Props) {
             <Text style={{ color: '#ffffff', marginTop: 12, fontWeight: '700' }}>Video Story</Text>
           </View>
         ) : (
-          <ExpoImage
-            source={{ uri: activeMediaUrl, cacheKey: currentStory.attachment_id }}
+          <Image
+            source={{ uri: activeMediaUrl }}
             style={StyleSheet.absoluteFill}
-            contentFit="cover"
-            cachePolicy="memory-disk"
+            resizeMode="cover"
           />
         )
       ) : (

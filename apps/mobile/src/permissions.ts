@@ -1,7 +1,5 @@
 import { PermissionsAndroid, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Camera } from 'expo-camera';
-import * as MediaLibrary from 'expo-media-library';
 import { registerPushToken } from './api/client';
 
 export const PERMISSIONS_STORAGE_KEY = 'haiku.permissions.v1';
@@ -40,22 +38,29 @@ export async function checkPermission(kind: PermissionKind): Promise<PermissionS
   try {
     switch (kind) {
       case 'camera': {
-        const res = await Camera.getCameraPermissionsAsync();
-        if (res.granted) return 'granted';
-        if (!res.canAskAgain) return 'blocked';
-        return 'denied';
+        if (Platform.OS === 'android') {
+          const granted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.CAMERA);
+          return granted ? 'granted' : 'denied';
+        }
+        return 'granted';
       }
       case 'microphone': {
-        const res = await Camera.getMicrophonePermissionsAsync();
-        if (res.granted) return 'granted';
-        if (!res.canAskAgain) return 'blocked';
-        return 'denied';
+        if (Platform.OS === 'android') {
+          const granted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO);
+          return granted ? 'granted' : 'denied';
+        }
+        return 'granted';
       }
       case 'photos': {
-        const res = await MediaLibrary.getPermissionsAsync();
-        if (res.granted) return 'granted';
-        if (!res.canAskAgain) return 'blocked';
-        return 'denied';
+        if (Platform.OS === 'android') {
+          const perm =
+            (Platform.Version as number) >= 33
+              ? ('android.permission.READ_MEDIA_IMAGES' as any)
+              : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+          const granted = await PermissionsAndroid.check(perm);
+          return granted ? 'granted' : 'denied';
+        }
+        return 'granted';
       }
       case 'location': {
         if (Platform.OS === 'android') {
@@ -68,7 +73,7 @@ export async function checkPermission(kind: PermissionKind): Promise<PermissionS
       }
       case 'notifications': {
         if (Platform.OS === 'android') {
-          if (Platform.Version >= 33) {
+          if ((Platform.Version as number) >= 33) {
             const granted = await PermissionsAndroid.check(
               'android.permission.POST_NOTIFICATIONS' as any
             );
@@ -92,23 +97,53 @@ export async function requestPermission(kind: PermissionKind): Promise<Permissio
   try {
     switch (kind) {
       case 'camera': {
-        const res = await Camera.requestCameraPermissionsAsync();
-        if (res.granted) return 'granted';
-        return res.canAskAgain ? 'denied' : 'blocked';
+        if (Platform.OS === 'android') {
+          const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
+            title: 'Camera Permission',
+            message: 'Haiku Messenger captures ephemeral photos and videos.',
+            buttonPositive: 'Allow',
+            buttonNegative: 'Not now',
+          });
+          if (result === PermissionsAndroid.RESULTS.GRANTED) return 'granted';
+          if (result === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) return 'blocked';
+          return 'denied';
+        }
+        return 'granted';
       }
       case 'microphone': {
-        const res = await Camera.requestMicrophonePermissionsAsync();
-        if (res.granted) return 'granted';
-        return res.canAskAgain ? 'denied' : 'blocked';
+        if (Platform.OS === 'android') {
+          const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO, {
+            title: 'Microphone Permission',
+            message: 'Allow Haiku Messenger to record audio with your video messages.',
+            buttonPositive: 'Allow',
+            buttonNegative: 'Not now',
+          });
+          if (result === PermissionsAndroid.RESULTS.GRANTED) return 'granted';
+          if (result === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) return 'blocked';
+          return 'denied';
+        }
+        return 'granted';
       }
       case 'photos': {
-        const res = await MediaLibrary.requestPermissionsAsync();
-        if (res.granted) return 'granted';
-        return res.canAskAgain ? 'denied' : 'blocked';
+        if (Platform.OS === 'android') {
+          const perm =
+            (Platform.Version as number) >= 33
+              ? ('android.permission.READ_MEDIA_IMAGES' as any)
+              : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+          const result = await PermissionsAndroid.request(perm, {
+            title: 'Photo Library Permission',
+            message: 'Allow Haiku Messenger to access your photos to share media.',
+            buttonPositive: 'Allow',
+            buttonNegative: 'Not now',
+          });
+          if (result === PermissionsAndroid.RESULTS.GRANTED) return 'granted';
+          if (result === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) return 'blocked';
+          return 'denied';
+        }
+        return 'granted';
       }
       case 'location': {
         if (Platform.OS === 'android') {
-          // Foreground location only - DO NOT request background location!
           const result = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
             {
@@ -126,7 +161,7 @@ export async function requestPermission(kind: PermissionKind): Promise<Permissio
       }
       case 'notifications': {
         if (Platform.OS === 'android') {
-          if (Platform.Version >= 33) {
+          if ((Platform.Version as number) >= 33) {
             const result = await PermissionsAndroid.request(
               'android.permission.POST_NOTIFICATIONS' as any,
               {
