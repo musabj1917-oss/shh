@@ -31,6 +31,7 @@ import { useImmersive } from '../system/immersive';
 import { checkAllPermissions, requestPermission, PermissionKind, PermissionState } from '../permissions';
 import { ThemePreference } from '@haiku/contracts';
 import { MEDIA_LIMITS, validateMediaSize } from '../constants/mediaLimits';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -492,11 +493,12 @@ export function ProfileScreen() {
   if (loading) return <LoadingState message="Opening your settings…" />;
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: colors.canvas }}
-      contentContainerStyle={{ padding: 16, paddingTop: 16, paddingBottom: 40 }}
-      keyboardShouldPersistTaps="handled"
-    >
+    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+      <ScrollView
+        style={{ flex: 1, backgroundColor: colors.canvas }}
+        contentContainerStyle={{ padding: 16, paddingTop: 16, paddingBottom: 40 }}
+        keyboardShouldPersistTaps="handled"
+      >
       {/* Hero Profile Overview Card */}
       <Surface style={{ padding: 18, borderRadius: radii.xxl, marginBottom: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
@@ -1334,5 +1336,6 @@ export function ProfileScreen() {
         onDismiss={() => setConfirmDialog((d) => ({ ...d, visible: false }))}
       />
     </ScrollView>
+  </KeyboardAvoidingView>
   );
 }

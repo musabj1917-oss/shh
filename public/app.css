@@ -948,3 +948,17 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   border-color: var(--border-focus);
   box-shadow: var(--border-focus-glow);
 }
+
+/* Visual Viewport Adaptations for Mobile Browsers */
+:root {
+  --visual-viewport-height: 100dvh;
+}
+
+.app-shell {
+  height: var(--visual-viewport-height, 100dvh);
+  max-height: var(--visual-viewport-height, 100dvh);
+}
+
+.chat-pane {
+  max-height: var(--visual-viewport-height, 100dvh);
+}

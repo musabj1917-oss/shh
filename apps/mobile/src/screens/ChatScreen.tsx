@@ -5,7 +5,6 @@ import {
   FlatList,
   Image,
   Keyboard,
-  KeyboardAvoidingView,
   Linking,
   Modal,
   Platform,
@@ -15,6 +14,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useFocusEffect } from '@react-navigation/native';
@@ -1125,7 +1125,7 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
       {/* Message List & Composer */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior="padding"
         keyboardVerticalOffset={headerHeight}
       >
         {loading ? (
@@ -1178,6 +1178,7 @@ export function ChatScreen({ route, navigation, isTwoPane }: Props) {
             inverted={Platform.OS !== 'web'}
             bounces={Platform.OS !== 'web'}
             overScrollMode="never"
+            maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
             data={flatListData}
             keyExtractor={keyExtractor}
             renderItem={renderItem}

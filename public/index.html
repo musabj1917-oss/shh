@@ -18,7 +18,7 @@
       } catch (e) {}
     })();
   </script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
   <meta name="theme-color" content="#0A0A0A" />
   <title>Haiku Messenger — Private, Ephemeral, Connected</title>
   <link rel="icon" type="image/png" href="/assets/icons/haiku/icon-haiku.png" />
@@ -318,7 +318,8 @@
     .app-shell {
       display: grid;
       grid-template-columns: 82px 350px 1fr;
-      height: 100vh;
+      height: var(--visual-viewport-height, 100dvh);
+      max-height: var(--visual-viewport-height, 100dvh);
       width: 100vw;
       background: var(--bg-dark);
       position: relative;
@@ -749,6 +750,7 @@
       display: flex;
       flex-direction: column;
       height: 100%;
+      max-height: var(--visual-viewport-height, 100dvh);
       position: relative;
       overflow: hidden;
     }
@@ -2864,6 +2866,20 @@
 
   <!-- SCRIPT LOGIC -->
   <script>
+    // Visual Viewport Sync for mobile on-screen keyboards
+    function updateVisualViewport() {
+      if (window.visualViewport) {
+        const height = window.visualViewport.height;
+        document.documentElement.style.setProperty('--visual-viewport-height', `${height}px`);
+      }
+    }
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateVisualViewport);
+      window.visualViewport.addEventListener('scroll', updateVisualViewport);
+    }
+    window.addEventListener('resize', updateVisualViewport);
+    updateVisualViewport();
+
     window.FIREBASE_CONFIG = {
       apiKey: "AIzaSyBkXKSIaIF-5zVBBLMBQYJhq_6dZeq5_gU",
       authDomain: "haiku-f758f.firebaseapp.com",

@@ -3,12 +3,12 @@ import {
   Animated,
   Image,
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   Text,
   View,
 } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -401,7 +401,7 @@ export function AuthScreen({ navigation }: Props) {
     <Screen scroll style={{ backgroundColor: colors.canvas }}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior="padding"
         keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
       >
         <View

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { StatusBar, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { AuthProvider } from './src/auth/AuthContext';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { ErrorBoundary } from './src/components/ErrorBoundary';
@@ -40,13 +41,15 @@ function AppRoot() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <ThemeProvider>
-        <ErrorBoundary>
-          <AuthProvider>
-            <AppRoot />
-          </AuthProvider>
-        </ErrorBoundary>
-      </ThemeProvider>
+      <KeyboardProvider>
+        <ThemeProvider>
+          <ErrorBoundary>
+            <AuthProvider>
+              <AppRoot />
+            </AuthProvider>
+          </ErrorBoundary>
+        </ThemeProvider>
+      </KeyboardProvider>
     </SafeAreaProvider>
   );
 }

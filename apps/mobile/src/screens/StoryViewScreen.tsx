@@ -4,7 +4,6 @@ import {
   Animated,
   FlatList,
   Image,
-  KeyboardAvoidingView,
   Linking,
   Modal,
   PanResponder,
@@ -15,6 +14,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
@@ -456,7 +456,7 @@ export function StoryViewScreen({ route, navigation }: Props) {
       {/* Bottom Reply Bar for friends' stories */}
       {!isMine ? (
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior="padding"
           keyboardVerticalOffset={Platform.OS === 'ios' ? 12 : 0}
           style={[
             styles.replyBarWrapper,
